@@ -1,0 +1,61 @@
+# ===== Gradle =====
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ===== IntelliJ IDEA / Android Studio =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Исключения внутри .idea — иногда полезно коммитить, но по умолчанию проще игнорить всё.
+# Если захочешь шарить code style или run configs с командой — раскомментируй:
+# !.idea/codeStyles/
+# !.idea/runConfigurations/
+
+# ===== Kotlin =====
+.kotlin/
+
+# ===== Android =====
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Keystore — НИКОГДА не коммитить
+*.jks
+*.keystore
+keystore.properties
+
+# Android profiling/captures
+captures/
+
+# ===== Compose Multiplatform =====
+# Десктоп-сборки (msi/exe/deb/dmg) попадают в build/, уже покрыто, но на всякий:
+**/compose-desktop/
+
+# ===== Kotlin/Wasm и Kotlin/JS =====
+kotlin-js-store/
+node_modules/
+*.log
+
+# ===== ОС =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Прочее =====
+*.hprof
+*.bak
+*.swp
+.env
+.env.local
+
+# ===== Claude Code =====
+.claude/
