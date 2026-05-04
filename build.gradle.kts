@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinComposeCompiler)
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.ksp)
 }
 
 group = "ru.greenfish"
@@ -14,6 +15,10 @@ version = "0.0.1"
 
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
 val javaVersion = JavaVersion.toVersion(libs.versions.jvm.get())
+
+dependencies {
+    add("kspCommonMainMetadata", libs.cafe.adriel.lyricist.processor)
+}
 
 kotlin {
     jvm("desktop") {
@@ -46,6 +51,7 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.ui)
                 implementation(libs.compose.components.resources)
+                implementation(libs.cafe.adriel.lyricist)
             }
         }
 
@@ -95,4 +101,27 @@ compose.desktop {
             packageVersion = version.toString()
         }
     }
+}
+
+android {
+    androidResources {
+        localeFilters += arrayOf("en", "ru")
+    }
+}
+
+ksp {
+    arg("lyricist.internalVisibility", "true")
+    arg("lyricist.defaultLanguageTag", "en")
+    arg("lyricist.generateStringsKey", "true")
+    arg("lyricist.generateStringsProperty", "true")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+
+kotlin.sourceSets.commonMain {
+    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 }

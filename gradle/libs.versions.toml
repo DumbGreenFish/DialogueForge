@@ -1,9 +1,11 @@
 [versions]
 jvm = "17"
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 compose-plugin = "1.10.3"
 compose-material3 = "1.10.0-alpha05"
 agp = "8.13.2"
+lyricist = "1.8.0"
+ksp = "2.2.21-2.0.5"
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
@@ -23,8 +25,13 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-plugin" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-plugin" }
 
+# Other
+cafe-adriel-lyricist = { module = "cafe.adriel.lyricist:lyricist", version.ref = "lyricist" }
+cafe-adriel-lyricist-processor = { module = "cafe.adriel.lyricist:lyricist-processor", version.ref = "lyricist" }
+
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
