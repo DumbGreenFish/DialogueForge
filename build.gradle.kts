@@ -57,7 +57,7 @@ kotlin {
 
         val desktopMain by getting {
             dependencies {
-                implementation(compose.desktop.currentOs)  // оставляем пока, см. выше
+                implementation(compose.desktop.currentOs)
             }
         }
 
@@ -74,6 +74,10 @@ kotlin {
 android {
     namespace = "ru.greenfish.dialogueforge"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    
+    androidResources {
+        localeFilters += arrayOf("en", "ru")
+    }
 
     defaultConfig {
         applicationId = "ru.greenfish.dialogueforge"
@@ -103,12 +107,6 @@ compose.desktop {
     }
 }
 
-android {
-    androidResources {
-        localeFilters += arrayOf("en", "ru")
-    }
-}
-
 ksp {
     arg("lyricist.internalVisibility", "true")
     arg("lyricist.defaultLanguageTag", "en")
@@ -116,6 +114,7 @@ ksp {
     arg("lyricist.generateStringsProperty", "true")
 }
 
+// Workarounds for lyricist to work properly
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
     if (name != "kspCommonMainKotlinMetadata") {
         dependsOn("kspCommonMainKotlinMetadata")
@@ -125,3 +124,4 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().con
 kotlin.sourceSets.commonMain {
     kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
 }
+//---------------------------------------
