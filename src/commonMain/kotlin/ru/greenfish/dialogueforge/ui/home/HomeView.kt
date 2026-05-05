@@ -10,12 +10,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.lyricist.strings
 
 @Composable
-fun HomeView() {
+fun HomeView(viewModel: HomeViewModel) {
+    val state by viewModel.state.collectAsState()
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
@@ -32,8 +35,11 @@ fun HomeView() {
         Text(strings.homeStrings.greetings)
         Text(strings.homeStrings.text_click)
         val clickedText = strings.homeStrings.button_text_clicked
-        Button(onClick = { print(clickedText) }) {
+        Button(onClick = {
+            viewModel.handle(HomeIntent.SHOW_RANDOM_NUMBER())
+        }) {
             Text(strings.homeStrings.button_text_click)
         }
+        Text(state.alert)
     }
 }
