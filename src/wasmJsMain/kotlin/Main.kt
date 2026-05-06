@@ -1,7 +1,7 @@
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import ru.greenfish.dialogueforge.App
-import ru.greenfish.dialogueforge.initKoin
+import io.github.dumbgreenfish.dialogueforge.App
+import io.github.dumbgreenfish.dialogueforge.initKoin
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {

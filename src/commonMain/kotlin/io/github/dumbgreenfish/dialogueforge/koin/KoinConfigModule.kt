@@ -1,8 +1,8 @@
-package ru.greenfish.dialogueforge.koin
+package io.github.dumbgreenfish.dialogueforge.koin
 
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 
 @Module
-@ComponentScan("ru.greenfish.dialogueforge")
+@ComponentScan("io.github.dumbgreenfish.dialogueforge")
 class KoinConfigModule

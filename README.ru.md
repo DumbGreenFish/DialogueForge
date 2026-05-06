@@ -100,7 +100,7 @@ gradlew.bat run
 
 ## Android
 
-**Точка входа:** `src/androidMain/kotlin/ru/greenfish/dialogueforge/MainActivity.kt`  
+**Точка входа:** `src/androidMain/kotlin/io/github/dumbgreenfish/dialogueforge/MainActivity.kt`  
 Класс `MainActivity : ComponentActivity` вызывает `setContent { App() }` в методе `onCreate()`.  
 Манифест: `src/androidMain/AndroidManifest.xml`
 

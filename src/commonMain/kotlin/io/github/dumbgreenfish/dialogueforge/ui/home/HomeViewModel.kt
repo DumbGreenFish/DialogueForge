@@ -1,4 +1,4 @@
-package ru.greenfish.dialogueforge.ui.home
+package io.github.dumbgreenfish.dialogueforge.ui.home
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package ru.greenfish.dialogueforge
+package io.github.dumbgreenfish.dialogueforge
 
 import android.app.Application
 

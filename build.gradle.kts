@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.koin)
 }
 
-group = "ru.greenfish"
+group = "io.github.dumbgreenfish"
 version = "0.0.1"
 
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
@@ -75,7 +75,7 @@ kotlin {
 }
 
 android {
-    namespace = "ru.greenfish.dialogueforge"
+    namespace = "io.github.dumbgreenfish.dialogueforge"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     
     androidResources {
@@ -83,7 +83,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "ru.greenfish.dialogueforge"
+        applicationId = "io.github.dumbgreenfish.dialogueforge"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

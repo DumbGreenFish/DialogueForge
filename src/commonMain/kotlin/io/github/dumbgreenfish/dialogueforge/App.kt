@@ -1,9 +1,9 @@
-package ru.greenfish.dialogueforge
+package io.github.dumbgreenfish.dialogueforge
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import ru.greenfish.dialogueforge.koin.KoinConfigModule
-import ru.greenfish.dialogueforge.ui.home.HomeView
+import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
+import io.github.dumbgreenfish.dialogueforge.ui.home.HomeView
 import org.koin.compose.KoinApplication
 import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.koinConfiguration

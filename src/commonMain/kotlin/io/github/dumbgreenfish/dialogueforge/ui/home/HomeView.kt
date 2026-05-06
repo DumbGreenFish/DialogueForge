@@ -1,4 +1,4 @@
-package ru.greenfish.dialogueforge.ui.home
+package io.github.dumbgreenfish.dialogueforge.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +17,12 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
-import ru.greenfish.dialogueforge.generated.resources.Res
-import ru.greenfish.dialogueforge.generated.resources.app_name
-import ru.greenfish.dialogueforge.generated.resources.button_text_click
-import ru.greenfish.dialogueforge.generated.resources.button_text_clicked
-import ru.greenfish.dialogueforge.generated.resources.greetings
-import ru.greenfish.dialogueforge.generated.resources.text_click
+import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.generated.resources.app_name
+import io.github.dumbgreenfish.dialogueforge.generated.resources.button_text_click
+import io.github.dumbgreenfish.dialogueforge.generated.resources.button_text_clicked
+import io.github.dumbgreenfish.dialogueforge.generated.resources.greetings
+import io.github.dumbgreenfish.dialogueforge.generated.resources.text_click
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)

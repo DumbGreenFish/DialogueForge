@@ -3,8 +3,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import ru.greenfish.dialogueforge.App
-import ru.greenfish.dialogueforge.initKoin
+import io.github.dumbgreenfish.dialogueforge.App
+import io.github.dumbgreenfish.dialogueforge.initKoin
 import java.awt.Dimension
 
 fun main() = application {

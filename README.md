@@ -102,7 +102,7 @@ Alternatively, open `src/desktopMain/kotlin/Main.kt` and click the green **Run**
 
 ## Android
 
-**Entry point:** `src/androidMain/kotlin/ru/greenfish/dialogueforge/MainActivity.kt`  
+**Entry point:** `src/androidMain/kotlin/io/github/dumbgreenfish/dialogueforge/MainActivity.kt`  
 Class: `MainActivity : ComponentActivity` — calls `setContent { App() }` in `onCreate()`.  
 Manifest: `src/androidMain/AndroidManifest.xml`
 
