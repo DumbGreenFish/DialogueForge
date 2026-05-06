@@ -1,17 +1,19 @@
 package ru.greenfish.dialogueforge.ui.home
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.koin.core.annotation.KoinViewModel
 import kotlin.random.Random
 
-class HomeViewModel {
+@KoinViewModel
+class HomeViewModel : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
     fun handle(intent: HomeIntent) = when (intent) {
-        is HomeIntent.SHOW_RANDOM_NUMBER -> {
+        is HomeIntent.ShowRandomNumber -> {
             _state.value = _state.value.copy(alert = "Random number: ${Random.nextInt(100)}")
         }
     }

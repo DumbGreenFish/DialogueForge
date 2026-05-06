@@ -14,10 +14,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cafe.adriel.lyricist.strings
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
+import ru.greenfish.dialogueforge.generated.resources.Res
+import ru.greenfish.dialogueforge.generated.resources.app_name
+import ru.greenfish.dialogueforge.generated.resources.button_text_click
+import ru.greenfish.dialogueforge.generated.resources.button_text_clicked
+import ru.greenfish.dialogueforge.generated.resources.greetings
+import ru.greenfish.dialogueforge.generated.resources.text_click
 
 @Composable
-fun HomeView(viewModel: HomeViewModel) {
+@OptIn(KoinExperimentalAPI::class)
+fun HomeView() {
+    val viewModel = koinViewModel<HomeViewModel>()
     val state by viewModel.state.collectAsState()
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -25,20 +35,20 @@ fun HomeView(viewModel: HomeViewModel) {
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.primary)
     ) {
-        Text(strings.homeStrings.app_name)
+        Text(stringResource(Res.string.app_name))
     }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(strings.homeStrings.greetings)
-        Text(strings.homeStrings.text_click)
-        val clickedText = strings.homeStrings.button_text_clicked
+        Text(stringResource(Res.string.greetings))
+        Text(stringResource(Res.string.text_click))
+        val clickedText = stringResource(Res.string.button_text_clicked)
         Button(onClick = {
-            viewModel.handle(HomeIntent.SHOW_RANDOM_NUMBER())
+            viewModel.handle(HomeIntent.ShowRandomNumber)
         }) {
-            Text(strings.homeStrings.button_text_click)
+            Text(stringResource(Res.string.button_text_click))
         }
         Text(state.alert)
     }

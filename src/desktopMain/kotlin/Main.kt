@@ -4,6 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import ru.greenfish.dialogueforge.App
+import ru.greenfish.dialogueforge.initKoin
 import java.awt.Dimension
 
 fun main() = application {
@@ -14,6 +15,7 @@ fun main() = application {
         state = state
     ) {
         window.minimumSize = Dimension(600, 450)
+        initKoin()
         App()
     }
 }

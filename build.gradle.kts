@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinComposeCompiler)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin)
 }
 
 group = "ru.greenfish"
@@ -15,10 +16,6 @@ version = "0.0.1"
 
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
 val javaVersion = JavaVersion.toVersion(libs.versions.jvm.get())
-
-dependencies {
-    add("kspCommonMainMetadata", libs.cafe.adriel.lyricist.processor)
-}
 
 kotlin {
     jvm("desktop") {
@@ -51,7 +48,12 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.ui)
                 implementation(libs.compose.components.resources)
-                implementation(libs.cafe.adriel.lyricist)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.annotations)
+                implementation(libs.koin.viewmodel)
+                implementation(libs.koin.navigation)
             }
         }
 
@@ -64,6 +66,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.activity.compose)
+                implementation(libs.koin.android)
             }
         }
 
@@ -107,21 +110,6 @@ compose.desktop {
     }
 }
 
-ksp {
-    arg("lyricist.internalVisibility", "true")
-    arg("lyricist.defaultLanguageTag", "en")
-    arg("lyricist.generateStringsKey", "true")
-    arg("lyricist.generateStringsProperty", "true")
+koinCompiler {
+    userLogs = true
 }
-
-// Workarounds for lyricist to work properly
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata") {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
-
-kotlin.sourceSets.commonMain {
-    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-}
-//---------------------------------------

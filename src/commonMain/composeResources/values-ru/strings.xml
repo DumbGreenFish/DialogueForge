@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Dialogue Forge</string>
+    <string name="greetings">Привет!</string>
+    <string name="text_click">Нажми на кнопку!!</string>
+    <string name="button_text_click">Кликни меня!</string>
+    <string name="button_text_clicked">Кнопка нажата!</string>
+</resources>

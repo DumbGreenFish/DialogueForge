@@ -1,14 +1,15 @@
 [versions]
 jvm = "17"
-kotlin = "2.2.21"
+kotlin = "2.3.21"
 compose-plugin = "1.10.3"
 compose-material3 = "1.10.0-alpha05"
 agp = "8.13.2"
-lyricist = "1.8.0"
-ksp = "2.2.21-2.0.5"
-android-compileSdk = "35"
+ksp = "2.3.7"
+koin = "4.2.1"
+koin-plugin = "0.6.2"
+android-compileSdk = "36"
 android-minSdk = "24"
-android-targetSdk = "35"
+android-targetSdk = "36"
 
 # It's required to keep this version
 # for compitability with Compose Multiplatform
@@ -25,9 +26,15 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-plugin" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-plugin" }
 
-# Other
-cafe-adriel-lyricist = { module = "cafe.adriel.lyricist:lyricist", version.ref = "lyricist" }
-cafe-adriel-lyricist-processor = { module = "cafe.adriel.lyricist:lyricist-processor", version.ref = "lyricist" }
+# Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-annotations = { module = "io.insert-koin:koin-annotations" }
+koin-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
+koin-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navigation" }
+
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -35,3 +42,4 @@ kotlinComposeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.re
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
