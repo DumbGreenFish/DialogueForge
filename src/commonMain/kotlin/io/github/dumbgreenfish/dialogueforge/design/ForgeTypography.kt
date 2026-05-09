@@ -39,7 +39,7 @@ val forgeTypography = Typography(
     labelLarge = TextStyle(
         fontSize = 14.5.sp,
         lineHeight = 18.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.sp,
     ),
     bodyLarge = TextStyle(

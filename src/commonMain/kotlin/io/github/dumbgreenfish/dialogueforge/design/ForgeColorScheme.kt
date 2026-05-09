@@ -3,46 +3,49 @@ package io.github.dumbgreenfish.dialogueforge.design
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 
-private val Background            = Color(0xFF13140F)
-private val Surface               = Color(0xFF1A1C15)
-private val SurfaceContainer      = Color(0xFF22241C)
-private val SurfaceContainerHigh  = Color(0xFF2A2C23)
-private val SurfaceContainerHighest = Color(0xFF32342A)
-private val SurfaceContainerLow   = Color(0xFF181A13)
-private val SurfaceContainerLowest = Color(0xFF13140F)
-private val SurfaceBright         = Color(0xFF34362D)
-private val SurfaceDim            = Color(0xFF13140F)
+private val Background            = Color(0xFF14110E)
+private val Surface               = Color(0xFF1C1815)
+private val SurfaceContainer      = Color(0xFF231E1A)
+private val SurfaceContainerHigh  = Color(0xFF2C2620)
+private val SurfaceContainerHighest = Color(0xFF352D26)
+private val SurfaceContainerLow   = Color(0xFF1A1511)
+private val SurfaceContainerLowest = Color(0xFF14110E)
+private val SurfaceBright         = Color(0xFF3A3028)
+private val SurfaceDim            = Color(0xFF14110E)
 
-private val OnSurface             = Color(0xFFECEFE0)
-private val OnSurfaceVariant      = Color(0x9EECEFE0)  // 62% opacity
-private val Outline               = Color(0x1AE6F0D7)  // 10% opacity
-private val OutlineVariant        = Color(0x33E6F0D7)  // 20% opacity
+private val OnSurface             = Color(0xFFF2E4CF)
+private val OnSurfaceVariant      = Color(0x9EF2E4CF)  // 62% opacity
+private val Outline               = Color(0x1AF4C882)  // 10% opacity
+private val OutlineVariant        = Color(0x33F4C882)  // 20% opacity
 
-private val Primary               = Color(0xFFA8E3A7)
-private val PrimarySoft           = Color(0xFF8FC98F)  // hover
-private val PrimaryDim            = Color(0xFF639563)  // pressed
-private val PrimaryContainer      = Color(0xFF00460A)
-private val OnPrimary             = Color(0xFF011D03)
-private val OnPrimaryContainer    = Color(0xFFD4F1D3)
+// copper (primary)
+private val Primary               = Color(0xFFB87333)
+private val PrimarySoft           = Color(0xFFC9854A)  // hover
+private val PrimaryDeep           = Color(0xFF7A4A1F)  // pressed
+private val PrimaryContainer      = Color(0xFF3A2614)  // copperDim
+private val OnPrimary             = Color(0xFF1A0F06)
+private val OnPrimaryContainer    = Color(0xFFF4D9B8)
 
-private val Secondary             = Color(0xFF8FC98F)
-private val OnSecondary           = Color(0xFF011D03)
-private val SecondaryContainer    = Color(0xFF1C2E1C)
-private val OnSecondaryContainer  = Color(0xFFD9EAD7)
+// spark (accent / tertiary)
+private val Tertiary              = Color(0xFFF4A340)
+private val TertiaryHot          = Color(0xFFFFD27A)
+private val TertiaryContainer     = Color(0xFF4A2E0F)
+private val OnTertiary            = Color(0xFF1A0F06)
+private val OnTertiaryContainer   = Color(0xFFFFE0B0)
 
-private val Tertiary              = Color(0xFFF5C298)
-private val OnTertiary            = Color(0xFF2C1400)
-private val TertiaryContainer     = Color(0xFF4B2914)
-private val OnTertiaryContainer   = Color(0xFFFFE2C4)
+private val Secondary             = Color(0xFFC9854A)
+private val OnSecondary           = Color(0xFF1A0F06)
+private val SecondaryContainer    = Color(0xFF3A2614)
+private val OnSecondaryContainer  = Color(0xFFF4D9B8)
 
-private val Error                 = Color(0xFFFF958C)
-private val OnError               = Color(0xFF4B0000)
+private val Error                 = Color(0xFFE8623A)
+private val OnError               = Color(0xFF1A0F06)
 private val ErrorContainer        = Color(0xFF6B1C16)
 private val OnErrorContainer      = Color(0xFFFFDAD6)
 
-private val InverseSurface        = Color(0xFFECEFE0)
-private val InverseOnSurface      = Color(0xFF2A2C23)
-private val InversePrimary        = Color(0xFF00460A)
+private val InverseSurface        = Color(0xFFF2E4CF)
+private val InverseOnSurface      = Color(0xFF2C2620)
+private val InversePrimary        = Color(0xFF3A2614)
 
 private val Scrim                 = Color(0xFF000000)
 private val SurfaceTint           = Primary
@@ -87,22 +90,26 @@ val forgeColorScheme = ColorScheme(
     surfaceContainerLow    = SurfaceContainerLow,
     surfaceContainerLowest = SurfaceContainerLowest,
     primaryFixed           = PrimaryContainer,
-    primaryFixedDim        = PrimaryDim,
+    primaryFixedDim        = PrimaryDeep,
     onPrimaryFixed         = OnPrimaryContainer,
     onPrimaryFixedVariant  = OnSurfaceVariant,
     secondaryFixed         = SecondaryContainer,
-    secondaryFixedDim      = Color(0xFF142414),
+    secondaryFixedDim      = Color(0xFF2C1A0A),
     onSecondaryFixed       = OnSecondaryContainer,
     onSecondaryFixedVariant = OnSurfaceVariant,
     tertiaryFixed          = TertiaryContainer,
-    tertiaryFixedDim       = Color(0xFF3A1E0D),
+    tertiaryFixedDim       = Color(0xFF3A2008),
     onTertiaryFixed        = OnTertiaryContainer,
     onTertiaryFixedVariant = OnSurfaceVariant,
 )
 
 val ForgeColors = object {
-    val primarySoft          = PrimarySoft
-    val primaryDim           = PrimaryDim
-    val onSurfaceFaint       = Color(0x61ECEFE0)
-    val success              = Color(0xFF9BD69B)
+    val copperSoft         = PrimarySoft
+    val copperDeep         = PrimaryDeep
+    val copperDim          = PrimaryContainer
+    val spark              = Tertiary
+    val sparkHot           = TertiaryHot
+    val sparkContainer     = TertiaryContainer
+    val onSurfaceFaint     = Color(0x66F2E4CF)  // 40% opacity
+    val success            = Color(0xFF7BB369)
 }
