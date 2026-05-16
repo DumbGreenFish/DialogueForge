@@ -12,8 +12,13 @@ plugins {
     alias(libs.plugins.koin)
 }
 
-group = "io.github.dumbgreenfish"
-version = "0.0.1"
+val groupName: String by project
+val appName: String by project
+val projectVersion: String by project
+val packageNamespace = "$groupName.$appName"
+
+group = groupName
+version = projectVersion
 
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
 val javaVersion = JavaVersion.toVersion(libs.versions.jvm.get())
@@ -35,7 +40,7 @@ kotlin {
     wasmJs {
         browser {
             commonWebpackConfig {
-                outputFileName = "dialogueforge.js"
+                outputFileName = "$appName.js"
             }
         }
         binaries.executable()
@@ -81,7 +86,7 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.dumbgreenfish.dialogueforge"
+    namespace = packageNamespace
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     
     androidResources {
@@ -89,10 +94,15 @@ android {
     }
 
     defaultConfig {
-        applicationId = "io.github.dumbgreenfish.dialogueforge"
+        applicationId = packageNamespace
         minSdk = libs.versions.android.minSdk.get().toInt()
+        // Removed inspection 'cause compile api is upper just for compitability
+        //noinspection OldTargetApi
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
+        versionCode = projectVersion.split(".")
+            .take(3)
+            .map { it.toInt() }
+            .let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
         versionName = version.toString()
     }
 
@@ -110,7 +120,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
-            packageName = "DialogueForge"
+            packageName = rootProject.name
             packageVersion = version.toString()
         }
     }
