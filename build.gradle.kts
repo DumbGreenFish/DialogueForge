@@ -53,7 +53,6 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.annotations)
                 implementation(libs.koin.viewmodel)
-                implementation(libs.koin.navigation)
             }
         }
 

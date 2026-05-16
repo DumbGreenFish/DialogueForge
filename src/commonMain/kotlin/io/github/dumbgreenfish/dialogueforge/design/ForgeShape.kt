@@ -1,41 +1,38 @@
 package io.github.dumbgreenfish.dialogueforge.design
 
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-private val xxs = RoundedCornerShape(6.dp)
-private val xs  = RoundedCornerShape(8.dp)
-private val sm  = RoundedCornerShape(10.dp)
-private val md  = RoundedCornerShape(12.dp)
-private val lg  = RoundedCornerShape(14.dp)
-private val xl  = RoundedCornerShape(20.dp)
+private val Xs = RoundedCornerShape(4.dp)
+private val Sm = RoundedCornerShape(6.dp)
+private val Md = RoundedCornerShape(10.dp)
+private val Lg = RoundedCornerShape(14.dp)
+private val Xl = RoundedCornerShape(20.dp)
 
-val forgeShapes = Shapes(
-    extraSmall = xxs,
-    small      = sm,
-    medium     = md,
-    large      = lg,
-    extraLarge = xl,
+val ForgeShapes: Shapes = Shapes(
+    extraSmall = Xs,
+    small      = Sm,
+    medium     = Md,
+    large      = Lg,
+    extraLarge = Xl,
 )
 
-object ForgeShapes {
+object ForgeShape {
     val pill = RoundedCornerShape(100.dp)
-    val circle = CircleShape
+    val avatar = RoundedCornerShape(6.dp)
 
-    val hero = xs
-    val card = xxs
-    val avatar = xxs
-
-    val pinnedBadge = RoundedCornerShape(
-        topStart = 0.dp,
-        topEnd = 0.dp,
+    val bubbleUser = RoundedCornerShape(
+        topStart = 14.dp,
+        topEnd = 14.dp,
         bottomEnd = 4.dp,
-        bottomStart = 4.dp,
+        bottomStart = 14.dp,
     )
 
-    val modelPill = sm
-    val userRow = md
-    val footer  = md
+    val bubbleAssistant = RoundedCornerShape(
+        topStart = 14.dp,
+        topEnd = 14.dp,
+        bottomEnd = 14.dp,
+        bottomStart = 4.dp,
+    )
 }
