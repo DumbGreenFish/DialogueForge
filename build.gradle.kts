@@ -101,6 +101,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = projectVersion.split(".")
             .take(3)
+            //noinspection WrongGradleMethod
             .map { it.toInt() }
             .let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
         versionName = version.toString()
@@ -122,6 +123,16 @@ compose.desktop {
             targetFormats(TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
             packageName = rootProject.name
             packageVersion = version.toString()
+
+            windows {
+                iconFile.set(project.file("src/desktopMain/resources/DialogueForge.ico"))
+            }
+            linux {
+                iconFile.set(project.file("src/desktopMain/resources/icon-512.png"))
+            }
+            macOS {
+                iconFile.set(project.file("src/desktopMain/resources/DialogueForge.icns"))
+            }
         }
     }
 }
