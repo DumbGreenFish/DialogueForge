@@ -15,6 +15,8 @@ plugins {
 val groupName: String by project
 val appName: String by project
 val projectVersion: String by project
+val projectUuid: String by project
+
 val packageNamespace = "$groupName.$appName"
 
 group = groupName
@@ -126,6 +128,7 @@ compose.desktop {
 
             windows {
                 iconFile.set(project.file("src/desktopMain/resources/DialogueForge.ico"))
+                upgradeUuid = projectUuid
             }
             linux {
                 iconFile.set(project.file("src/desktopMain/resources/icon-512.png"))
