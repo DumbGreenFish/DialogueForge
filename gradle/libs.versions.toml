@@ -40,6 +40,7 @@ koin-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 
 # Navigation 3
 nav3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "nav3" }
+adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "compose-adaptive" }
 nav3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "compose-adaptive" }
 lifecycle-viewmodel-nav3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle-nav3" }
 koin-navigation3 = { module = "io.insert-koin:koin-compose-navigation3" }

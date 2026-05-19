@@ -48,8 +48,10 @@ kotlin {
         binaries.executable()
     }
 
+
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir(generateBuildConfig)
             dependencies {
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
@@ -62,6 +64,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.annotations)
                 implementation(libs.koin.viewmodel)
+                implementation(libs.adaptive)
                 implementation(libs.nav3.ui)
                 implementation(libs.lifecycle.viewmodel.nav3)
                 implementation(libs.nav3.adaptive)
@@ -87,11 +90,10 @@ kotlin {
         val wasmJsMain by getting
     }
 }
-
 android {
     namespace = packageNamespace
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-    
+
     androidResources {
         localeFilters += arrayOf("en", "ru")
     }
@@ -143,4 +145,24 @@ compose.desktop {
 
 koinCompiler {
     userLogs = true
+}
+
+val generateBuildConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/buildConfig/kotlin")
+    val version = projectVersion
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().asFile
+            .resolve("${packageNamespace.replace('.', '/')}/BuildConfig.kt")
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+                package $packageNamespace
+
+                internal object BuildConfig {
+                    const val VERSION = "$version"
+                }
+                """.trimIndent()
+        )
+    }
 }

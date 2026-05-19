@@ -8,4 +8,6 @@
     <string name="nav_persona">Persona</string>
     <string name="nav_presets">Presets</string>
     <string name="nav_settings">Settings</string>
+    <string name="sidebar_active_model_label">Active model</string>
+    <string name="sidebar_model_placeholder">Not configured</string>
 </resources>

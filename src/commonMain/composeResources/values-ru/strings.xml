@@ -8,4 +8,6 @@
     <string name="nav_persona">Персона</string>
     <string name="nav_presets">Пресеты</string>
     <string name="nav_settings">Настройки</string>
+    <string name="sidebar_active_model_label">Активная модель</string>
+    <string name="sidebar_model_placeholder">Не настроена</string>
 </resources>
