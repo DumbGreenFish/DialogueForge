@@ -4,4 +4,8 @@
     <string name="text_click">Нажми на кнопку!!</string>
     <string name="button_text_click">Кликни меня!</string>
     <string name="button_text_clicked">Кнопка нажата!</string>
+    <string name="nav_characters">Персонажи</string>
+    <string name="nav_persona">Персона</string>
+    <string name="nav_presets">Пресеты</string>
+    <string name="nav_settings">Настройки</string>
 </resources>

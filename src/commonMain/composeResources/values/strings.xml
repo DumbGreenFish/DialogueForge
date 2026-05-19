@@ -4,4 +4,8 @@
     <string name="text_click">Click the button!</string>
     <string name="button_text_click">Click the button!</string>
     <string name="button_text_clicked">Button clicked!</string>
+    <string name="nav_characters">Characters</string>
+    <string name="nav_persona">Persona</string>
+    <string name="nav_presets">Presets</string>
+    <string name="nav_settings">Settings</string>
 </resources>

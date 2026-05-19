@@ -57,5 +57,7 @@ desktop.ini
 .env
 .env.local
 
-# ===== Claude Code =====
-.claude/
+# ===== Claude =====
+.clau/btwde/
+.claude
+CLAUDE.md
