@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,13 +29,13 @@ fun HomeView(modifier: Modifier = Modifier) {
             .padding(16.dp)
     ) {
         ForgeMark(Modifier.size(96.dp))
-        Text(stringResource(Res.string.greetings))
-        Text(stringResource(Res.string.text_click))
+        Text(stringResource(Res.string.greetings), color = MaterialTheme.colorScheme.onSurface)
+        Text(stringResource(Res.string.text_click), color = MaterialTheme.colorScheme.onSurface)
         Button(onClick = {
             viewModel.handle(HomeIntent.ShowRandomNumber)
         }) {
             Text(stringResource(Res.string.button_text_click))
         }
-        Text(state.alert)
+        Text(state.alert, color = MaterialTheme.colorScheme.onSurface)
     }
 }

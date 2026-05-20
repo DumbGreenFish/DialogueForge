@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.navigation
+package io.github.dumbgreenfish.dialogueforge.ui.navigation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

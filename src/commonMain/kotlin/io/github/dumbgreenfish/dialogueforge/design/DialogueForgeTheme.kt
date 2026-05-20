@@ -1,7 +1,9 @@
 package io.github.dumbgreenfish.dialogueforge.design
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 fun DialogueForgeTheme(content: @Composable () -> Unit) {
@@ -9,6 +11,10 @@ fun DialogueForgeTheme(content: @Composable () -> Unit) {
         colorScheme = ForgeColorScheme,
         typography  = ForgeTypography,
         shapes      = ForgeShapes,
-        content     = content,
-    )
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+            content = content,
+        )
+    }
 }

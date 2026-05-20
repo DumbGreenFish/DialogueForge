@@ -1,8 +1,10 @@
 package io.github.dumbgreenfish.dialogueforge
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -16,9 +18,9 @@ import androidx.compose.ui.Modifier
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
 import io.github.dumbgreenfish.dialogueforge.ui.home.HomeView
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ForgeBottomNav
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavTab
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavigationSidebar
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.ForgeBottomNav
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavigationSidebar
 import org.koin.compose.KoinApplication
 import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.koinConfiguration
@@ -55,13 +57,15 @@ fun App() {
                 return@DialogueForgeTheme
             }
 
-            Row(Modifier.fillMaxSize()) {
-                NavigationSidebar(
-                    selected = selectedTab,
-                    onSelect = { selectedTab = it },
-                )
-                VerticalDivider()
-                HomeView(Modifier.fillMaxSize().weight(1f))
+            Scaffold { innerPadding ->
+                Row(Modifier.fillMaxSize().padding(innerPadding)) {
+                    NavigationSidebar(
+                        selected = selectedTab,
+                        onSelect = { selectedTab = it },
+                    )
+                    VerticalDivider()
+                    HomeView(Modifier.fillMaxSize().weight(1f))
+                }
             }
         }
     }

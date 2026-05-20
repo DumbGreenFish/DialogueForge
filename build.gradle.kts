@@ -25,6 +25,26 @@ version = projectVersion
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
 val javaVersion = JavaVersion.toVersion(libs.versions.jvm.get())
 
+val generateBuildConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/buildConfig/kotlin")
+    val version = projectVersion
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().asFile
+            .resolve("${packageNamespace.replace('.', '/')}/BuildConfig.kt")
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+                package $packageNamespace
+
+                internal object BuildConfig {
+                    const val VERSION = "$version"
+                }
+                """.trimIndent()
+        )
+    }
+}
+
 kotlin {
     jvm("desktop") {
         compilerOptions {
@@ -90,6 +110,7 @@ kotlin {
         val wasmJsMain by getting
     }
 }
+
 android {
     namespace = packageNamespace
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -145,24 +166,4 @@ compose.desktop {
 
 koinCompiler {
     userLogs = true
-}
-
-val generateBuildConfig by tasks.registering {
-    val outputDir = layout.buildDirectory.dir("generated/buildConfig/kotlin")
-    val version = projectVersion
-    outputs.dir(outputDir)
-    doLast {
-        val file = outputDir.get().asFile
-            .resolve("${packageNamespace.replace('.', '/')}/BuildConfig.kt")
-        file.parentFile.mkdirs()
-        file.writeText(
-            """
-                package $packageNamespace
-
-                internal object BuildConfig {
-                    const val VERSION = "$version"
-                }
-                """.trimIndent()
-        )
-    }
 }

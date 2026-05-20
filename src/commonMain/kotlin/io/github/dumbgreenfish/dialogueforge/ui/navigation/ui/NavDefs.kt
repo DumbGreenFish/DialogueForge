@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.navigation
+package io.github.dumbgreenfish.dialogueforge.ui.navigation.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups

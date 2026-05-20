@@ -14,7 +14,7 @@ fun main() = application {
         title = "DialogueForge",
         state = state
     ) {
-        window.minimumSize = Dimension(600, 450)
+        window.minimumSize = Dimension(480, 640)
         initKoin()
         App()
     }
