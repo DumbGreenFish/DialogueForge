@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,12 +21,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberBottomNavItemAnimation
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -76,13 +75,7 @@ private fun NavItemColumn(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .selectable(
-                selected = isActive,
-                onClick = onClick,
-                role = Role.Tab,
-                interactionSource = interactionSource,
-                indication = null,
-            )
+            .navItemSelectable(isActive, onClick, interactionSource)
             .padding(horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
@@ -96,7 +89,7 @@ private fun NavItemColumn(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = if (isActive) item.iconFilled else item.iconOutlined,
+                imageVector = item.icon(isActive),
                 contentDescription = stringResource(item.labelRes),
                 modifier = Modifier.size(22.dp),
                 tint = anim.iconColor,

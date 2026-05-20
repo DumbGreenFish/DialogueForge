@@ -24,7 +24,9 @@ data class NavItemDef(
     val labelRes: StringResource,
     val iconOutlined: ImageVector,
     val iconFilled: ImageVector,
-)
+) {
+    fun icon(isActive: Boolean) = if (isActive) iconFilled else iconOutlined
+}
 
 val navItems = listOf(
     NavItemDef(NavTab.Characters, Res.string.nav_characters, Icons.Outlined.Groups,   Icons.Filled.Groups),

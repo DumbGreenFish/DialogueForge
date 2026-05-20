@@ -5,11 +5,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 
@@ -26,20 +27,31 @@ internal fun rememberBottomNavItemAnimation(
     interactionSource: MutableInteractionSource,
 ): BottomNavItemAnimation {
     val isPressed by interactionSource.collectIsPressedAsState()
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val colors = navAnimationColors()
+    val stateAlpha = ForgeAnimation.stateLayerAlpha(isHovered, isPressed)
 
     val pillColor by animateColorAsState(
-        targetValue = if (isActive) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        animationSpec = tween(ForgeAnimation.DurationStateTransition),
+        targetValue = when {
+            isActive        -> lerp(colors.primaryContainer, colors.onPrimaryContainer, stateAlpha)
+            stateAlpha > 0f -> colors.onSurface.copy(alpha = stateAlpha)
+            else            -> Color.Transparent
+        },
+        animationSpec = tween(ForgeAnimation.DurationHover),
         label = "pillColor",
     )
     val iconColor by animateColorAsState(
-        targetValue = if (isActive) ForgeColors.spark else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(ForgeAnimation.DurationStateTransition),
+        targetValue = when {
+            isActive        -> ForgeColors.spark
+            stateAlpha > 0f -> colors.onSurface
+            else            -> colors.onSurfaceVariant
+        },
+        animationSpec = tween(ForgeAnimation.DurationHover),
         label = "iconColor",
     )
     val labelColor by animateColorAsState(
-        targetValue = if (isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(ForgeAnimation.DurationStateTransition),
+        targetValue = if (isActive || stateAlpha > 0f) colors.onSurface else colors.onSurfaceVariant,
+        animationSpec = tween(ForgeAnimation.DurationHover),
         label = "labelColor",
     )
     val pillScale by animateFloatAsState(
