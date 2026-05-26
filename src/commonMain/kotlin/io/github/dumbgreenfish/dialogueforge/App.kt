@@ -1,71 +1,41 @@
 package io.github.dumbgreenfish.dialogueforge
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.window.core.layout.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.window.core.layout.WindowSizeClass
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
-import io.github.dumbgreenfish.dialogueforge.ui.home.HomeView
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.ForgeBottomNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavigationSidebar
 import org.koin.compose.KoinApplication
 import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.plugin.module.dsl.startKoin
 
 @KoinApplication(modules = [KoinConfigModule::class])
-class ForgeApp
+object ForgeApp {
+    fun initKoin() = startKoin<ForgeApp> {}
+}
 
-fun initKoin() = startKoin<ForgeApp> {}
+// currentWindowAdaptiveInfo is deprecated but there is no alternative for CMP project so
+// it's okay to use this version until normal one is presented
+@Suppress("DEPRECATION")
+private val isCompact: Boolean @Composable get() = !currentWindowAdaptiveInfo()
+    .windowSizeClass
+    .isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
 @Composable
 fun App() {
     KoinApplication(configuration = koinConfiguration {}) {
         DialogueForgeTheme {
             var selectedTab by remember { mutableStateOf(NavTab.Characters) }
-
-            // currentWindowAdaptiveInfo is deprecated but there is no alternative for CMP project so
-            // it's okay to use this version until normal one is presented
-            @Suppress("DEPRECATION")
-            val isCompact = !currentWindowAdaptiveInfo()
-                .windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-
-            if (isCompact) {
-                Scaffold(
-                    bottomBar = {
-                        ForgeBottomNav(
-                            selected = selectedTab,
-                            onSelect = { selectedTab = it },
-                        )
-                    },
-                ) { innerPadding ->
-                    HomeView(Modifier.fillMaxSize().padding(innerPadding))
-                }
-                return@DialogueForgeTheme
-            }
-
-            Scaffold { innerPadding ->
-                Row(Modifier.fillMaxSize().padding(innerPadding)) {
-                    NavigationSidebar(
-                        selected = selectedTab,
-                        onSelect = { selectedTab = it },
-                    )
-                    VerticalDivider()
-                    HomeView(Modifier.fillMaxSize().weight(1f))
-                }
+            val onTabChange: (NavTab) -> Unit = { selectedTab = it }
+            when {
+                isCompact -> CompactScaffold(selectedTab, onTabChange)
+                else -> WideScaffold(selectedTab, onTabChange)
             }
         }
     }

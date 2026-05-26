@@ -4,7 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import io.github.dumbgreenfish.dialogueforge.App
-import io.github.dumbgreenfish.dialogueforge.initKoin
+import io.github.dumbgreenfish.dialogueforge.ForgeApp
 import java.awt.Dimension
 
 fun main() = application {
@@ -15,7 +15,7 @@ fun main() = application {
         state = state
     ) {
         window.minimumSize = Dimension(480, 640)
-        initKoin()
+        ForgeApp.initKoin()
         App()
     }
 }
