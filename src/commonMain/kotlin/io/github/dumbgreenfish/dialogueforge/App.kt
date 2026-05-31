@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.window.core.layout.WindowSizeClass
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
+import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import org.koin.compose.KoinApplication
@@ -35,7 +36,7 @@ fun App() {
             val onTabChange: (NavTab) -> Unit = { selectedTab = it }
             when {
                 isCompact -> CompactScaffold(selectedTab, onTabChange)
-                else -> WideScaffold(selectedTab, onTabChange)
+                else -> WithReferenceDensity { WideScaffold(selectedTab, onTabChange) }
             }
         }
     }
