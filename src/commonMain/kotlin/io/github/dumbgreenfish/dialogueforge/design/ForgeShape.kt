@@ -19,8 +19,9 @@ val ForgeShapes: Shapes = Shapes(
 )
 
 object ForgeShape {
-    val pill = RoundedCornerShape(100.dp)
+    val pill   = RoundedCornerShape(100.dp)
     val avatar = RoundedCornerShape(6.dp)
+    const val pinRotationDeg = 35f
 
     val bubbleUser = RoundedCornerShape(
         topStart = 14.dp,

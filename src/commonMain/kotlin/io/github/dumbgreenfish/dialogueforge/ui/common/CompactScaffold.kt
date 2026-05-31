@@ -24,7 +24,7 @@ fun CompactScaffold(selectedTab: NavTab, onTabChange: (NavTab) -> Unit) {
     ) { innerPadding ->
         val contentModifier = Modifier.fillMaxSize().padding(innerPadding)
         when (selectedTab) {
-            NavTab.Characters -> CharactersView(contentModifier)
+            NavTab.Characters -> CharactersView(modifier = contentModifier, isCompact = true)
             NavTab.Persona    -> PersonaView(contentModifier)
             NavTab.Presets    -> PresetsView(contentModifier)
             NavTab.Settings   -> SettingsView(contentModifier)

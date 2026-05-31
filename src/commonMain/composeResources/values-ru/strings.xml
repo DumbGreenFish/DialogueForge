@@ -10,4 +10,11 @@
     <string name="nav_settings">Настройки</string>
     <string name="sidebar_active_model_label">Активная модель</string>
     <string name="sidebar_model_placeholder">Не настроена</string>
+    <string name="characters_search_placeholder">Поиск персонажей</string>
+    <string name="characters_subtitle">Выбери с кем говорить сегодня.</string>
+    <string name="characters_import">Импорт</string>
+    <string name="characters_create">Создать</string>
+    <string name="characters_empty">Никого не нашлось. Попробуй другой запрос или фильтр.</string>
+    <string name="filter_all">Все</string>
+    <string name="filter_pinned">Закреплённые</string>
 </resources>

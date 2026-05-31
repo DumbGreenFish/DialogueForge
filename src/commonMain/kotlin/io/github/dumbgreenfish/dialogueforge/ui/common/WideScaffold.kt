@@ -25,7 +25,7 @@ fun WideScaffold(selectedTab: NavTab, onTabChange: (NavTab) -> Unit) {
             VerticalDivider()
             val contentModifier = Modifier.fillMaxSize().weight(1f)
             when (selectedTab) {
-                NavTab.Characters -> CharactersView(contentModifier)
+                NavTab.Characters -> CharactersView(modifier = contentModifier, isCompact = false)
                 NavTab.Persona    -> PersonaView(contentModifier)
                 NavTab.Presets    -> PresetsView(contentModifier)
                 NavTab.Settings   -> SettingsView(contentModifier)

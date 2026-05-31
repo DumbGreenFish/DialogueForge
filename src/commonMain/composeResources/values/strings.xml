@@ -10,4 +10,11 @@
     <string name="nav_settings">Settings</string>
     <string name="sidebar_active_model_label">Active model</string>
     <string name="sidebar_model_placeholder">Not configured</string>
+    <string name="characters_search_placeholder">Search characters</string>
+    <string name="characters_subtitle">Pick who you\'re talking to today.</string>
+    <string name="characters_import">Import</string>
+    <string name="characters_create">Create</string>
+    <string name="characters_empty">No one matched. Try a different query or filter.</string>
+    <string name="filter_all">All</string>
+    <string name="filter_pinned">Pinned</string>
 </resources>
