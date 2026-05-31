@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui
+package io.github.dumbgreenfish.dialogueforge.ui.common
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.material3.MaterialTheme

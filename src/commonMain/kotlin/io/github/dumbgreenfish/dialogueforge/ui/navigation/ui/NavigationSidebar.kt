@@ -31,7 +31,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.app_name
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_active_model_label
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_model_placeholder
-import io.github.dumbgreenfish.dialogueforge.ui.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

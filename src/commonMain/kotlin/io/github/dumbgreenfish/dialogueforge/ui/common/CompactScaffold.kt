@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge
+package io.github.dumbgreenfish.dialogueforge.ui.common
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

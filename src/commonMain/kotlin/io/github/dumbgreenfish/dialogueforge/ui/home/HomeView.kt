@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.generated.resources.*
-import io.github.dumbgreenfish.dialogueforge.ui.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI

@@ -10,6 +10,8 @@ import androidx.window.core.layout.WindowSizeClass
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
+import io.github.dumbgreenfish.dialogueforge.ui.common.CompactScaffold
+import io.github.dumbgreenfish.dialogueforge.ui.common.WideScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import org.koin.compose.KoinApplication
 import org.koin.core.annotation.KoinApplication
