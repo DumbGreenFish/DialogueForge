@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +18,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersState
 @Composable
 internal fun CompactHeader(state: CharactersState, onIntent: (CharactersIntent) -> Unit) {
     Column(
-        modifier = Modifier.padding(top = 8.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         SearchField(

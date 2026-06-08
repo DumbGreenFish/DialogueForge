@@ -35,6 +35,15 @@ private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
 private val GRID_CELLS_GRID_WIDE    = GridCells.Adaptive(220.dp)
 
+private val ContentPaddingWideH    = 28.dp
+private val ContentPaddingWideB    = 32.dp
+private val ContentPaddingCompactH = 16.dp
+private val ContentPaddingCompactT = 4.dp
+private val ContentPaddingCompactB = 100.dp
+private val CardGapH               = 12.dp
+private val CardGapVWide           = 12.dp
+private val CardGapVCompact        = 10.dp
+
 @Composable
 @OptIn(KoinExperimentalAPI::class)
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
@@ -50,9 +59,12 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     LazyVerticalGrid(
         columns = gridColumns,
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = if (isCompact)
+            PaddingValues(start = ContentPaddingCompactH, top = ContentPaddingCompactT, end = ContentPaddingCompactH, bottom = ContentPaddingCompactB)
+        else
+            PaddingValues(start = ContentPaddingWideH, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
+        horizontalArrangement = Arrangement.spacedBy(CardGapH),
+        verticalArrangement = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             if (isCompact) CompactHeader(state, viewModel::handle)

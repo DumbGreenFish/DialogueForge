@@ -18,10 +18,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberSidebarNavItemAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
+
+private val ItemPaddingH    = 14.dp
+private val ItemPaddingV    = 10.dp
+private val ItemBottomGap   = 3.dp
+private val ItemIconSize    = 20.dp
+private val ItemIconTextGap = 12.dp
 
 @Composable
 internal fun SidebarNavItem(
@@ -35,24 +40,24 @@ internal fun SidebarNavItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 2.dp)
+            .padding(bottom = ItemBottomGap)
             .scale(anim.rowScale)
             .clip(MaterialTheme.shapes.medium)
             .background(anim.backgroundColor)
             .navItemSelectable(isActive, onClick, interactionSource)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = ItemPaddingH, vertical = ItemPaddingV),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(ItemIconTextGap),
     ) {
         Icon(
             imageVector = item.icon(isActive),
             contentDescription = null,
             tint = anim.iconColor,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(ItemIconSize),
         )
         Text(
             text = stringResource(item.labelRes),
-            fontSize = 13.5.sp,
+            style = MaterialTheme.typography.labelLarge,
             fontWeight = if (isActive) FontWeight.W600 else FontWeight.W500,
             color = anim.textColor,
             modifier = Modifier.weight(1f),

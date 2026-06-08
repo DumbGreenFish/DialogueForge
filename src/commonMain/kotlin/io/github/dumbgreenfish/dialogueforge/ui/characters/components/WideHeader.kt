@@ -33,18 +33,27 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import org.jetbrains.compose.resources.stringResource
 
+private val HeaderPaddingTop    = 24.dp
+private val HeaderPaddingBottom = 10.dp
+private val TitleCountGap       = 14.dp
+private val TitleSubtitleSpacer = 6.dp
+private val SubtitleSearchSpacer = 18.dp
+private val SearchRowGap        = 14.dp
+private val SearchFilterSpacer  = 16.dp
+private val FilterRowGap        = 10.dp
+
 @Composable
 internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> Unit) {
     val cs = MaterialTheme.colorScheme
-    Column(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
-        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(modifier = Modifier.padding(top = HeaderPaddingTop, bottom = HeaderPaddingBottom)) {
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(TitleCountGap)) {
             Text(stringResource(Res.string.nav_characters), style = MaterialTheme.typography.displaySmall, color = cs.onSurface)
             Text("${state.displayed.size}", style = MaterialTheme.typography.titleMedium, color = ForgeColors.onSurfaceFaint)
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(TitleSubtitleSpacer))
         Text(stringResource(Res.string.characters_subtitle), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
-        Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.height(SubtitleSearchSpacer))
+        Row(horizontalArrangement = Arrangement.spacedBy(SearchRowGap), verticalAlignment = Alignment.CenterVertically) {
             SearchField(
                 value = state.query,
                 onChange = { onIntent(CharactersIntent.SearchChanged(it)) },
@@ -67,8 +76,8 @@ internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> 
                 Text(stringResource(Res.string.characters_create))
             }
         }
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.height(SearchFilterSpacer))
+        Row(horizontalArrangement = Arrangement.spacedBy(FilterRowGap), verticalAlignment = Alignment.CenterVertically) {
             FilterChipsRow(
                 activeFilter = state.activeFilter,
                 availableTags = state.availableTags,

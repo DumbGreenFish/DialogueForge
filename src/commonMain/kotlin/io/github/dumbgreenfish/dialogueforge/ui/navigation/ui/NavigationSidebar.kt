@@ -34,6 +34,22 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_model_p
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
 import org.jetbrains.compose.resources.stringResource
 
+private val SidebarWidth          = 240.dp
+private val BrandPaddingH         = 18.dp
+private val BrandPaddingTop       = 20.dp
+private val BrandPaddingBottom    = 16.dp
+private val BrandMarkSize         = 26.dp
+private val BrandGap              = 10.dp
+private val NavPaddingH           = 12.dp
+private val NavPaddingTop         = 6.dp
+private val FooterPaddingH        = 16.dp
+private val FooterPaddingTop      = 14.dp
+private val FooterPaddingBottom   = 16.dp
+private val FooterInnerPadding    = 14.dp
+private val FooterDotSize         = 8.dp
+private val FooterGap             = 10.dp
+private val FooterIconSize        = 16.dp
+
 @Composable
 fun NavigationSidebar(
     selected: NavTab,
@@ -42,16 +58,16 @@ fun NavigationSidebar(
 ) {
     Column(
         modifier = modifier
-            .width(260.dp)
+            .width(SidebarWidth)
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background),
     ) {
         Row(
-            modifier = Modifier.padding(start = 20.dp, top = 18.dp, end = 20.dp, bottom = 16.dp),
+            modifier = Modifier.padding(start = BrandPaddingH, top = BrandPaddingTop, end = BrandPaddingH, bottom = BrandPaddingBottom),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(BrandGap),
         ) {
-            ForgeMark(Modifier.size(26.dp))
+            ForgeMark(Modifier.size(BrandMarkSize))
             Column {
                 Text(
                     text = stringResource(Res.string.app_name),
@@ -68,7 +84,7 @@ fun NavigationSidebar(
 
         Column(
             modifier = Modifier
-                .padding(horizontal = 10.dp)
+                .padding(start = NavPaddingH, end = NavPaddingH, top = NavPaddingTop)
                 .selectableGroup(),
         ) {
             navItems.forEach { item ->
@@ -84,17 +100,17 @@ fun NavigationSidebar(
 
         Row(
             modifier = Modifier
-                .padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 14.dp)
+                .padding(start = FooterPaddingH, end = FooterPaddingH, top = FooterPaddingTop, bottom = FooterPaddingBottom)
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
                 .background(ForgeColors.surfaceContainerHigh)
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(FooterInnerPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(FooterGap),
         ) {
             Box(
                 Modifier
-                    .size(8.dp)
+                    .size(FooterDotSize)
                     .background(ForgeColors.spark, shape = ForgeShape.pill)
             )
             Column(Modifier.weight(1f)) {
@@ -115,7 +131,7 @@ fun NavigationSidebar(
                 imageVector = Icons.Outlined.Tune,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(FooterIconSize),
             )
         }
     }
