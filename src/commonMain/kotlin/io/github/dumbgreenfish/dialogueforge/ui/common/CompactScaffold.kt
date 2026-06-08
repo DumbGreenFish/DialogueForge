@@ -15,6 +15,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.settings.SettingsView
 @Composable
 fun CompactScaffold(selectedTab: NavTab, onTabChange: (NavTab) -> Unit) {
     Scaffold(
+        topBar = { CompactTopBar(selectedTab) },
         bottomBar = {
             ForgeBottomNav(
                 selected = selectedTab,

@@ -1,6 +1,8 @@
 package io.github.dumbgreenfish.dialogueforge.ui.common
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,12 +25,15 @@ fun WideScaffold(selectedTab: NavTab, onTabChange: (NavTab) -> Unit) {
                 onSelect = onTabChange,
             )
             VerticalDivider()
-            val contentModifier = Modifier.fillMaxSize().weight(1f)
-            when (selectedTab) {
-                NavTab.Characters -> CharactersView(modifier = contentModifier, isCompact = false)
-                NavTab.Persona    -> PersonaView(contentModifier)
-                NavTab.Presets    -> PresetsView(contentModifier)
-                NavTab.Settings   -> SettingsView(contentModifier)
+            Column(Modifier.weight(1f).fillMaxHeight()) {
+                WideTopBar(selectedTab)
+                val contentModifier = Modifier.fillMaxSize().weight(1f)
+                when (selectedTab) {
+                    NavTab.Characters -> CharactersView(modifier = contentModifier, isCompact = false)
+                    NavTab.Persona    -> PersonaView(contentModifier)
+                    NavTab.Presets    -> PresetsView(contentModifier)
+                    NavTab.Settings   -> SettingsView(contentModifier)
+                }
             }
         }
     }
