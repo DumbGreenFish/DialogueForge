@@ -47,7 +47,7 @@ internal fun CharacterCardList(char: Character, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CharacterAvatar(letter = char.letter, modifier = Modifier.size(60.dp), shape = ForgeShape.avatar, fontSize = 25.sp)
+            CharacterAvatar(letter = char.letter, modifier = Modifier.size(60.dp), shape = ForgeShape.avatar, fontSize = 25.sp, avatarBytes = char.avatarBytes)
             ListContent(char)
         }
     }

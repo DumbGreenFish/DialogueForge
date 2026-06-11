@@ -64,7 +64,7 @@ private fun GridSquare(char: Character) {
     val visibleTags = char.tags.take(VISIBLE_TAGS_MAX)
     val extraCount = char.tags.size - visibleTags.size
     Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
-        CharacterAvatar(letter = char.letter, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar, fontSize = 56.sp)
+        CharacterAvatar(letter = char.letter, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar, fontSize = 56.sp, avatarBytes = char.avatarBytes)
         GradientOverlay(bg.copy(alpha = 0f), bg.copy(alpha = GRADIENT_ALPHA)) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 visibleTags.forEachIndexed { i, tag ->

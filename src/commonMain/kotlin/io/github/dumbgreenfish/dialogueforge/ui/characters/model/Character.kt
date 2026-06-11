@@ -10,4 +10,12 @@ data class Character(
     val lastUsed: String,
     val pinned: Boolean,
     val source: String,
-)
+    val avatarBytes: ByteArray? = null,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Character) return false
+        return id == other.id
+    }
+    override fun hashCode(): Int = id.hashCode()
+}

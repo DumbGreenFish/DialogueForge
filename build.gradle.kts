@@ -78,7 +78,7 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.ui)
                 implementation(libs.compose.components.resources)
-                implementation(compose.materialIconsExtended)
+                implementation(libs.compose.material.icons.extended)
                 implementation(project.dependencies.platform(libs.koin.bom))
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
@@ -91,12 +91,16 @@ kotlin {
                 implementation(libs.koin.navigation3)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.room3.runtime)
             }
         }
 
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation(libs.sqlite.bundled)
+                implementation(libs.kotlinx.coroutines.swing)
             }
         }
 
@@ -104,11 +108,22 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.koin.android)
+                implementation(libs.sqlite.bundled)
             }
         }
 
-        val wasmJsMain by getting
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.sqlite.web)
+            }
+        }
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.room3.compiler)
+    add("kspDesktop", libs.room3.compiler)
+    add("kspWasmJs", libs.room3.compiler)
 }
 
 android {

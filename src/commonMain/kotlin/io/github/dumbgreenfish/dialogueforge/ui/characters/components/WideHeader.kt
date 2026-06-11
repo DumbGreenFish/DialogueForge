@@ -29,9 +29,12 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_subt
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_characters
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersState
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import org.jetbrains.compose.resources.stringResource
+
+private val AcceptedFileTypes = listOf(".png", ".json", ".charx")
 
 private val HeaderPaddingTop    = 24.dp
 private val HeaderPaddingBottom = 10.dp
@@ -45,6 +48,9 @@ private val FilterRowGap        = 10.dp
 @Composable
 internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> Unit) {
     val cs = MaterialTheme.colorScheme
+    val launchPicker = rememberFilePicker(AcceptedFileTypes) { bytes, filename ->
+        onIntent(CharactersIntent.ImportFile(bytes, filename))
+    }
     Column(modifier = Modifier.padding(top = HeaderPaddingTop, bottom = HeaderPaddingBottom)) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(TitleCountGap)) {
             Text(stringResource(Res.string.nav_characters), style = MaterialTheme.typography.displaySmall, color = cs.onSurface)
@@ -59,7 +65,7 @@ internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> 
                 onChange = { onIntent(CharactersIntent.SearchChanged(it)) },
                 modifier = Modifier.weight(1f),
             )
-            OutlinedButton(onClick = {}) {
+            OutlinedButton(onClick = launchPicker) {
                 Icon(Icons.Filled.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(Res.string.characters_import))
