@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ internal fun ViewToggle(mode: CharactersViewMode, onToggle: (CharactersViewMode)
     val cs = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
+            .clip(ForgeShape.pill)
             .border(1.dp, cs.outlineVariant, ForgeShape.pill)
             .background(Color.Transparent, ForgeShape.pill),
     ) {
@@ -52,7 +54,7 @@ private fun ToggleButton(icon: ImageVector, iconActive: ImageVector, active: Boo
     Box(
         modifier = Modifier
             .size(width = 44.dp, height = 38.dp)
-            .background(if (active) cs.primaryContainer else Color.Transparent, ForgeShape.pill)
+            .background(if (active) cs.primaryContainer else Color.Transparent)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -68,6 +69,7 @@ private fun FilterChip(label: String, active: Boolean, onClick: () -> Unit, icon
     Row(
         modifier = Modifier
             .height(38.dp)
+            .clip(ForgeShape.pill)
             .border(1.dp, if (active) cs.primary else cs.outlineVariant, ForgeShape.pill)
             .background(if (active) cs.primaryContainer else Color.Transparent, ForgeShape.pill)
             .clickable(onClick = onClick)
