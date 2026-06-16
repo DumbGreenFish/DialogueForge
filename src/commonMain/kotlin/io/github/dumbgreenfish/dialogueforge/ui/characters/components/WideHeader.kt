@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -66,7 +66,7 @@ internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> 
                 modifier = Modifier.weight(1f),
             )
             OutlinedButton(onClick = launchPicker) {
-                Icon(Icons.Filled.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(stringResource(Res.string.characters_import))
             }

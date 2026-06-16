@@ -1,5 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -22,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_empty
-import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharacterCardGrid
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharacterCardList
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharactersSpeedDial
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CompactHeader
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.WideHeader
+import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -43,12 +50,22 @@ private val ContentPaddingCompactB = 100.dp
 private val CardGapH               = 12.dp
 private val CardGapVWide           = 12.dp
 private val CardGapVCompact        = 10.dp
+private val SpeedDialPaddingEnd    = 16.dp
+private val SpeedDialPaddingBottom = 16.dp
+private val EmptyStateVerticalPadding = 80.dp
+
+private val AcceptedFileTypes = listOf(".png", ".json", ".charx")
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val state by viewModel.state.collectAsState()
+    var fabExpanded by remember { mutableStateOf(false) }
+
+    val launchFilePicker = rememberFilePicker(AcceptedFileTypes) { bytes, filename ->
+        viewModel.handle(CharactersIntent.ImportFile(bytes, filename))
+    }
 
     val gridColumns = when {
         state.viewMode == CharactersViewMode.List -> GRID_CELLS_LIST
@@ -56,31 +73,55 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
         else                                      -> GRID_CELLS_GRID_WIDE
     }
 
-    LazyVerticalGrid(
-        columns = gridColumns,
-        modifier = modifier.fillMaxSize(),
-        contentPadding = if (isCompact)
-            PaddingValues(start = ContentPaddingCompactH, top = ContentPaddingCompactT, end = ContentPaddingCompactH, bottom = ContentPaddingCompactB)
-        else
-            PaddingValues(start = ContentPaddingWideH, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
-        horizontalArrangement = Arrangement.spacedBy(CardGapH),
-        verticalArrangement = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            if (isCompact) CompactHeader(state, viewModel::handle)
-            else           WideHeader(state, viewModel::handle)
-        }
+    Box(modifier = modifier) {
+        LazyVerticalGrid(
+            columns             = gridColumns,
+            modifier            = Modifier.fillMaxSize(),
+            contentPadding      = if (isCompact)
+                PaddingValues(start = ContentPaddingCompactH, top = ContentPaddingCompactT, end = ContentPaddingCompactH, bottom = ContentPaddingCompactB)
+            else
+                PaddingValues(start = ContentPaddingWideH, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
+            horizontalArrangement = Arrangement.spacedBy(CardGapH),
+            verticalArrangement   = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                if (isCompact) CompactHeader(state, viewModel::handle)
+                else           WideHeader(state, viewModel::handle)
+            }
 
-        if (state.displayed.isEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
-        } else {
-            items(state.displayed, key = { it.id }) { char ->
-                if (state.viewMode == CharactersViewMode.List) {
-                    CharacterCardList(char = char, onClick = {})
-                } else {
-                    CharacterCardGrid(char = char, onClick = {})
+            if (state.displayed.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
+            } else {
+                items(state.displayed, key = { it.id }) { char ->
+                    if (state.viewMode == CharactersViewMode.List) {
+                        CharacterCardList(char = char, onClick = {})
+                    } else {
+                        CharacterCardGrid(char = char, onClick = {})
+                    }
                 }
             }
+        }
+
+        if (isCompact) {
+            if (fabExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication        = null,
+                        ) { fabExpanded = false },
+                )
+            }
+            CharactersSpeedDial(
+                expanded      = fabExpanded,
+                onToggle      = { fabExpanded = !fabExpanded },
+                onImport      = { fabExpanded = false; launchFilePicker() },
+                onCreateClick = { fabExpanded = false },
+                modifier      = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = SpeedDialPaddingEnd, bottom = SpeedDialPaddingBottom),
+            )
         }
     }
 }
@@ -88,13 +129,13 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
 @Composable
 private fun EmptyState() {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 80.dp),
+        modifier        = Modifier.fillMaxWidth().padding(vertical = EmptyStateVerticalPadding),
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = stringResource(Res.string.characters_empty),
-            style = MaterialTheme.typography.bodyLarge,
-            color = ForgeColors.onSurfaceFaint,
+            text      = stringResource(Res.string.characters_empty),
+            style     = MaterialTheme.typography.bodyLarge,
+            color     = ForgeColors.onSurfaceFaint,
             textAlign = TextAlign.Center,
         )
     }
