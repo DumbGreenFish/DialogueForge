@@ -44,6 +44,21 @@ sdk.dir=/path/to/your/android/sdk
 
 > You can find this path in Android Studio: **File → Project Structure → SDK Location**.
 
+### 3. Create `keystore.properties` (release builds only)
+
+Required for signed APK / AAB builds. **Not committed** to the repository.
+
+Create `keystore.properties` in the project root:
+
+```properties
+storeFile=/absolute/path/to/keystore.jks
+storePassword=your-store-password
+keyAlias=your-key-alias
+keyPassword=your-key-password
+```
+
+> On Windows use forward slashes in the path: `C:/Users/YourName/.ssh/keystore.jks`
+
 ---
 
 ## Build All Platforms at Once
@@ -113,12 +128,22 @@ Manifest: `src/androidMain/AndroidManifest.xml`
 gradlew.bat assembleDebug        # Windows
 ./gradlew assembleDebug          # Unix
 
-# Release APK (requires signing config)
-gradlew.bat assembleRelease
-./gradlew assembleRelease
+# Release APK (requires keystore.properties)
+gradlew.bat assembleRelease      # Windows
+./gradlew assembleRelease        # Unix
 ```
 
 Output: `build/outputs/apk/debug/` or `build/outputs/apk/release/`
+
+### Build AAB (Google Play)
+
+```bash
+gradlew.bat bundleRelease        # Windows
+./gradlew bundleRelease          # Unix
+```
+
+Output: `build/outputs/bundle/release/`  
+Requires `keystore.properties` — see [Setup → Step 3](#3-create-keystoreproperties-release-builds-only).
 
 ### Install and Run on Device / Emulator
 

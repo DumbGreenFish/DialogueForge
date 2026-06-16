@@ -44,6 +44,21 @@ sdk.dir=/путь/к/android/sdk
 
 > Путь можно получить в Android Studio: **File → Project Structure → SDK Location**.
 
+### 3. Создание файла `keystore.properties` (только для release-сборок)
+
+Требуется для сборки подписанных APK и AAB. **Не хранится** в репозитории.
+
+В корне проекта необходимо создать `keystore.properties`:
+
+```properties
+storeFile=/абсолютный/путь/к/keystore.jks
+storePassword=пароль-хранилища
+keyAlias=псевдоним-ключа
+keyPassword=пароль-ключа
+```
+
+> На Windows используйте прямые слэши: `C:/Users/ИмяПользователя/.ssh/keystore.jks`
+
 ---
 
 ## Сборка всех платформ
@@ -111,12 +126,22 @@ gradlew.bat run
 gradlew.bat assembleDebug        # Windows
 ./gradlew assembleDebug          # Unix
 
-# Release APK (требуется настроенная подпись)
-gradlew.bat assembleRelease
-./gradlew assembleRelease
+# Release APK (требуется keystore.properties)
+gradlew.bat assembleRelease      # Windows
+./gradlew assembleRelease        # Unix
 ```
 
 Результат: `build/outputs/apk/debug/` или `build/outputs/apk/release/`.
+
+### Сборка AAB (Google Play)
+
+```bash
+gradlew.bat bundleRelease        # Windows
+./gradlew bundleRelease          # Unix
+```
+
+Результат: `build/outputs/bundle/release/`  
+Требуется `keystore.properties` — см. [Настройка → Шаг 3](#3-создание-файла-keystoreproperties-только-для-release-сборок).
 
 ### Установка на устройство или эмулятор
 
