@@ -1,5 +1,8 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -54,6 +58,9 @@ private val SpeedDialPaddingEnd    = 16.dp
 private val SpeedDialPaddingBottom = 16.dp
 private val EmptyStateVerticalPadding = 80.dp
 
+private val ScrimColor        = Color(0x52000000)
+private val ScrimAnimDuration = 180
+
 private val AcceptedFileTypes = listOf(".png", ".json", ".charx")
 
 @Composable
@@ -62,6 +69,11 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val state by viewModel.state.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
+    val scrimColor by animateColorAsState(
+        targetValue   = if (fabExpanded) ScrimColor else Color.Transparent,
+        animationSpec = tween(ScrimAnimDuration),
+        label         = "scrim-color",
+    )
 
     val launchFilePicker = rememberFilePicker(AcceptedFileTypes) { bytes, filename ->
         viewModel.handle(CharactersIntent.ImportFile(bytes, filename))
@@ -103,16 +115,18 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
         }
 
         if (isCompact) {
-            if (fabExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(scrimColor)
+                    .then(
+                        if (fabExpanded) Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication        = null,
-                        ) { fabExpanded = false },
-                )
-            }
+                        ) { fabExpanded = false }
+                        else Modifier
+                    ),
+            )
             CharactersSpeedDial(
                 expanded      = fabExpanded,
                 onToggle      = { fabExpanded = !fabExpanded },
