@@ -9,11 +9,11 @@ Targets: **Desktop** (JVM), **Android**, **Web** (Kotlin/Wasm).
 
 ## Requirements
 
-| Tool | Version |
-|------|---------|
-| JDK | 17+ |
-| Android SDK | API 35 (compile), API 24 (min) |
-| Android Studio / IntelliJ IDEA | Latest stable recommended |
+| Tool | Version                                             |
+|------|-----------------------------------------------------|
+| JDK | 17+                                                 |
+| Android SDK | API 37 (compile), API 28 (min)                      |
+| Android Studio / IntelliJ IDEA | Latest stable recommended                           |
 | Gradle | 9.5.0 (wrapper included — no manual install needed) |
 
 ---
