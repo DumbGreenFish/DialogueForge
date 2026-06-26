@@ -1,6 +1,7 @@
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import io.github.dumbgreenfish.dialogueforge.App
@@ -8,7 +9,7 @@ import io.github.dumbgreenfish.dialogueforge.ForgeApp
 import java.awt.Dimension
 
 fun main() = application {
-    val state = rememberWindowState(size = DpSize(800.dp, 600.dp))
+    val state = rememberWindowState(placement = WindowPlacement.Maximized)
     Window(
         onCloseRequest = ::exitApplication,
         title = "DialogueForge",
