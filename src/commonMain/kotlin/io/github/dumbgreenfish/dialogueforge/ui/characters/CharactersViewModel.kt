@@ -7,11 +7,14 @@ import io.github.dumbgreenfish.dialogueforge.data.format.TavernCardParser
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
+import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -39,11 +42,20 @@ class CharactersViewModel(private val repository: CharacterRepository) : ViewMod
 
     fun handle(intent: CharactersIntent) {
         when (intent) {
-            is CharactersIntent.SearchChanged   -> _state.value = _state.value.copy(query = intent.query)
-            is CharactersIntent.FilterChanged   -> _state.value = _state.value.copy(activeFilter = intent.filter)
-            is CharactersIntent.ViewModeChanged -> _state.value = _state.value.copy(viewMode = intent.mode)
+            is CharactersIntent.SearchChanged   -> _state.update { it.copy(query = intent.query) }
+            is CharactersIntent.ViewModeChanged -> _state.update { it.copy(viewMode = intent.mode) }
             is CharactersIntent.ImportFile      -> viewModelScope.launch { importFile(intent) }
+            is CharactersIntent.QuickFilterChanged -> updateFilter { it.copy(quick = intent.quick) }
+            is CharactersIntent.IncludeTagAdded    -> updateFilter { it.copy(includeTags = (it.includeTags + intent.tag).distinct(), excludeTags = it.excludeTags - intent.tag) }
+            is CharactersIntent.IncludeTagRemoved  -> updateFilter { it.copy(includeTags = it.includeTags - intent.tag) }
+            is CharactersIntent.ExcludeTagAdded    -> updateFilter { it.copy(excludeTags = (it.excludeTags + intent.tag).distinct(), includeTags = it.includeTags - intent.tag) }
+            is CharactersIntent.ExcludeTagRemoved  -> updateFilter { it.copy(excludeTags = it.excludeTags - intent.tag) }
+            is CharactersIntent.FiltersReset       -> updateFilter { CharacterFilter() }
         }
+    }
+
+    private fun updateFilter(transform: (CharacterFilter) -> CharacterFilter) {
+        _state.update { currentState -> currentState.copy(filter = transform(currentState.filter)) }
     }
 
     private suspend fun importFile(intent: CharactersIntent.ImportFile) {
@@ -58,7 +70,7 @@ class CharactersViewModel(private val repository: CharacterRepository) : ViewMod
         name = entity.name,
         letter = entity.name.firstOrNull()?.uppercase() ?: "?",
         tagline = entity.description.substituteCharName(entity.name).take(TAGLINE_PREVIEW_LENGTH),
-        tags = entity.tags,
+        tags = entity.tags.map { Tag(it) },
         chats = entity.chatCount,
         lastUsed = entity.lastUsedAt?.let { formatTimestamp(it) } ?: "",
         pinned = entity.pinned,

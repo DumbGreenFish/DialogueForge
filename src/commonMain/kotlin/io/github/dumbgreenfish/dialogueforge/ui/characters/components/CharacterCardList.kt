@@ -82,7 +82,7 @@ private fun RowScope.ListContent(char: Character) {
         )
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             visibleTags.forEachIndexed { i, tag ->
-                CharacterTag(label = tag, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
+                CharacterTag(label = tag.value, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
             }
             if (extraCount > 0) CharacterTag(label = "+$extraCount")
         }

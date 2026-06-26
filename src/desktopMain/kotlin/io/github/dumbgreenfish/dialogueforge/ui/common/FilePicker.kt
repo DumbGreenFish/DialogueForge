@@ -11,13 +11,14 @@ import javax.swing.SwingUtilities
 private const val FILE_DIALOG_TITLE = "Choose character card"
 
 @Composable
-actual fun rememberFilePicker(accept: List<String>, onResult: (ByteArray, String) -> Unit): () -> Unit =
-    remember(accept) {
+actual fun rememberFilePicker(onResult: (ByteArray, String) -> Unit): () -> Unit {
+    val accept = CharacterFileType.entries.toSet()
+    return remember(accept) {
         {
             SwingUtilities.invokeLater {
                 val dialog = FileDialog(null as Frame?, FILE_DIALOG_TITLE, FileDialog.LOAD)
                 dialog.filenameFilter = FilenameFilter { _, name ->
-                    accept.any { name.endsWith(it, ignoreCase = true) }
+                    accept.any { name.endsWith(it.extension, ignoreCase = true) }
                 }
                 dialog.isMultipleMode = false
                 dialog.isVisible = true
@@ -28,3 +29,4 @@ actual fun rememberFilePicker(accept: List<String>, onResult: (ByteArray, String
             }
         }
     }
+}

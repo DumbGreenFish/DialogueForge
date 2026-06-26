@@ -12,12 +12,14 @@ import org.w3c.files.FileReader
 private external fun int8At(arr: Int8Array, i: Int): Int
 
 @Composable
-actual fun rememberFilePicker(accept: List<String>, onResult: (ByteArray, String) -> Unit): () -> Unit =
-    remember(accept) {
+@OptIn(ExperimentalWasmJsInterop::class)
+actual fun rememberFilePicker(onResult: (ByteArray, String) -> Unit): () -> Unit {
+    val accept = CharacterFileType.entries.toSet()
+    return remember(accept) {
         {
             val input = document.createElement("input") as HTMLInputElement
             input.type = "file"
-            input.accept = accept.joinToString(",")
+            input.accept = accept.joinToString(",") { it.extension }
             input.addEventListener("change") {
                 val file = input.files?.item(0) ?: return@addEventListener
                 val reader = FileReader()
@@ -31,3 +33,4 @@ actual fun rememberFilePicker(accept: List<String>, onResult: (ByteArray, String
             input.click()
         }
     }
+}

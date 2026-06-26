@@ -5,7 +5,7 @@ data class Character(
     val name: String,
     val letter: String,
     val tagline: String,
-    val tags: List<String>,
+    val tags: List<Tag>,
     val chats: Int,
     val lastUsed: String,
     val pinned: Boolean,

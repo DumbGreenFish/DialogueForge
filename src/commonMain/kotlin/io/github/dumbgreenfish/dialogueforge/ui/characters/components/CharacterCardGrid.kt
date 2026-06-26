@@ -68,7 +68,7 @@ private fun GridSquare(char: Character) {
         GradientOverlay(bg.copy(alpha = 0f), bg.copy(alpha = GRADIENT_ALPHA)) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 visibleTags.forEachIndexed { i, tag ->
-                    CharacterTag(label = tag, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
+                    CharacterTag(label = tag.value, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
                 }
                 if (extraCount > 0) CharacterTag(label = "+$extraCount")
             }

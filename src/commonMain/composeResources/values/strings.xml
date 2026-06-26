@@ -17,4 +17,16 @@
     <string name="characters_empty">No one matched. Try a different query or filter.</string>
     <string name="filter_all">All</string>
     <string name="filter_pinned">Pinned</string>
+    <string name="characters_total">Total: %1$d</string>
+    <string name="characters_filter">Filter</string>
+    <string name="filter_made">Made by me</string>
+    <string name="filter_imported">Imported</string>
+    <string name="filter_title">Filters</string>
+    <string name="filter_reset">Reset</string>
+    <string name="filter_section_show">Show</string>
+    <string name="filter_section_include">Include tags</string>
+    <string name="filter_section_exclude">Exclude tags</string>
+    <string name="filter_include_placeholder">Include a tag…</string>
+    <string name="filter_exclude_placeholder">Exclude a tag…</string>
+    <string name="filter_remove_tag">Remove tag</string>
 </resources>

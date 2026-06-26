@@ -9,14 +9,33 @@ import androidx.compose.ui.platform.LocalContext
 private const val FALLBACK_FILENAME = "character"
 
 @Composable
-actual fun rememberFilePicker(accept: List<String>, onResult: (ByteArray, String) -> Unit): () -> Unit {
+actual fun rememberFilePicker(
+    onResult: (ByteArray, String) -> Unit,
+): () -> Unit {
+    val accept = CharacterFileType.entries.toSet()
     val context = LocalContext.current
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
-        val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        val bytes = context.contentResolver
+            .openInputStream(uri)
+            ?.use { it.readBytes() }
             ?: return@rememberLauncherForActivityResult
-        val filename = uri.lastPathSegment?.substringAfterLast('/') ?: FALLBACK_FILENAME
+        val filename =
+            uri.lastPathSegment?.substringAfterLast('/') ?: FALLBACK_FILENAME
         onResult(bytes, filename)
     }
-    return remember(accept) { { launcher.launch(accept.toTypedArray()) } }
+
+    return remember(accept) {
+        {
+            val mimeTypes = buildSet {
+                addAll(accept.flatMap { it.mimeTypes })
+                if (accept.contains(CharacterFileType.Charx)) {
+                    add("application/octet-stream")
+                }
+            }
+
+            launcher.launch(mimeTypes.toTypedArray())
+        }
+    }
 }

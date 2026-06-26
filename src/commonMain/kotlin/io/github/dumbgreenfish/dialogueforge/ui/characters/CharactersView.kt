@@ -61,8 +61,6 @@ private val EmptyStateVerticalPadding = 80.dp
 private val ScrimColor        = Color(0x52000000)
 private val ScrimAnimDuration = 180
 
-private val AcceptedFileTypes = listOf(".png", ".json", ".charx")
-
 @Composable
 @OptIn(KoinExperimentalAPI::class)
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
@@ -75,7 +73,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
         label         = "scrim-color",
     )
 
-    val launchFilePicker = rememberFilePicker(AcceptedFileTypes) { bytes, filename ->
+    val launchFilePicker = rememberFilePicker { bytes, filename ->
         viewModel.handle(CharactersIntent.ImportFile(bytes, filename))
     }
 
