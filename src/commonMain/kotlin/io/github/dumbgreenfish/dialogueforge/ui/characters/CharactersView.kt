@@ -43,6 +43,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.DeleteCharacterDialog
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.DialogueView
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
@@ -70,6 +71,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val state by viewModel.state.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<Character?>(null) }
+    var openedCharacter by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
         targetValue   = if (fabExpanded) ScrimColor else Color.Transparent,
         animationSpec = tween(ScrimAnimDuration),
@@ -109,14 +111,14 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                     if (state.viewMode == CharactersViewMode.List) {
                         CharacterCardList(
                             char = char,
-                            onClick = {},
+                            onClick = { openedCharacter = char },
                             onDeleteRequest = { deleteTarget = it },
                             isCompact = isCompact,
                         )
                     } else {
                         CharacterCardGrid(
                             char = char,
-                            onClick = {},
+                            onClick = { openedCharacter = char },
                             onDeleteRequest = { deleteTarget = it },
                             isCompact = isCompact,
                         )
@@ -155,6 +157,13 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                     deleteTarget = null
                 },
                 onDismiss = { deleteTarget = null },
+            )
+        }
+        openedCharacter?.let { opened ->
+            DialogueView(
+                character = opened,
+                onBack    = { openedCharacter = null },
+                modifier  = Modifier.fillMaxSize(),
             )
         }
     }

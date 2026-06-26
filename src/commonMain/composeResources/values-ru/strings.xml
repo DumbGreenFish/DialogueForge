@@ -36,4 +36,6 @@
     <string name="character_delete_message">Вы действительно хотите удалить эту карточку? Это действие нельзя отменить.</string>
     <string name="character_delete_confirm">Удалить</string>
     <string name="character_delete_cancel">Отмена</string>
+    <string name="dialogue_placeholder">Отправьте сообщение, чтобы начать диалог</string>
+    <string name="dialogue_input_hint">Сообщение…</string>
 </resources>
