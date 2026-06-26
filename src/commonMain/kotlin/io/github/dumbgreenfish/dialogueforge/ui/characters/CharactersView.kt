@@ -41,6 +41,8 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.DeleteCharacterDialog
+import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
@@ -67,6 +69,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val state by viewModel.state.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
+    var deleteTarget by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
         targetValue   = if (fabExpanded) ScrimColor else Color.Transparent,
         animationSpec = tween(ScrimAnimDuration),
@@ -104,9 +107,19 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             } else {
                 items(state.displayed, key = { it.id }) { char ->
                     if (state.viewMode == CharactersViewMode.List) {
-                        CharacterCardList(char = char, onClick = {})
+                        CharacterCardList(
+                            char = char,
+                            onClick = {},
+                            onDeleteRequest = { deleteTarget = it },
+                            isCompact = isCompact,
+                        )
                     } else {
-                        CharacterCardGrid(char = char, onClick = {})
+                        CharacterCardGrid(
+                            char = char,
+                            onClick = {},
+                            onDeleteRequest = { deleteTarget = it },
+                            isCompact = isCompact,
+                        )
                     }
                 }
             }
@@ -133,6 +146,15 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                 modifier      = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = SpeedDialPaddingEnd, bottom = SpeedDialPaddingBottom),
+            )
+        }
+        deleteTarget?.let { target ->
+            DeleteCharacterDialog(
+                onConfirm = {
+                    viewModel.handle(CharactersIntent.DeleteCharacter(target.id))
+                    deleteTarget = null
+                },
+                onDismiss = { deleteTarget = null },
             )
         }
     }

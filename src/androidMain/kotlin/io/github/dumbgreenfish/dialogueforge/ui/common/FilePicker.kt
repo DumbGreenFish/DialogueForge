@@ -12,30 +12,20 @@ private const val FALLBACK_FILENAME = "character"
 actual fun rememberFilePicker(
     onResult: (ByteArray, String) -> Unit,
 ): () -> Unit {
-    val accept = CharacterFileType.entries.toSet()
     val context = LocalContext.current
-
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        uri ?: return@rememberLauncherForActivityResult
-        val bytes = context.contentResolver
-            .openInputStream(uri)
-            ?.use { it.readBytes() }
-            ?: return@rememberLauncherForActivityResult
-        val filename =
-            uri.lastPathSegment?.substringAfterLast('/') ?: FALLBACK_FILENAME
-        onResult(bytes, filename)
-    }
-
-    return remember(accept) {
-        {
-            val mimeTypes = buildSet {
-                addAll(accept.flatMap { it.mimeTypes })
-                if (accept.contains(CharacterFileType.Charx)) {
-                    add("application/octet-stream")
-                }
-            }
-
-            launcher.launch(mimeTypes.toTypedArray())
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri ?: return@rememberLauncherForActivityResult
+            val bytes = context.contentResolver
+                .openInputStream(uri)
+                ?.use { it.readBytes() }
+                ?: return@rememberLauncherForActivityResult
+            val filename =
+                uri.lastPathSegment?.substringAfterLast('/') ?: FALLBACK_FILENAME
+            onResult(bytes, filename)
         }
-    }
+    return remember { { launcher.launch(characterCardMimeTypes()) } }
 }
+
+private fun characterCardMimeTypes(): Array<String> =
+    CharacterFileType.entries.flatMap { it.mimeTypes }.distinct().toTypedArray()

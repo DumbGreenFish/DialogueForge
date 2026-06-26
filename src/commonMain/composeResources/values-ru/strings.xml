@@ -29,4 +29,11 @@
     <string name="filter_include_placeholder">Добавить тег…</string>
     <string name="filter_exclude_placeholder">Исключить тег…</string>
     <string name="filter_remove_tag">Удалить тег</string>
+    <string name="character_menu_edit">Редактировать</string>
+    <string name="character_menu_delete">Удалить</string>
+    <string name="character_menu_more">Ещё</string>
+    <string name="character_delete_title">Удалить карточку?</string>
+    <string name="character_delete_message">Вы действительно хотите удалить эту карточку? Это действие нельзя отменить.</string>
+    <string name="character_delete_confirm">Удалить</string>
+    <string name="character_delete_cancel">Отмена</string>
 </resources>

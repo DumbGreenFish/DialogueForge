@@ -51,6 +51,7 @@ class CharactersViewModel(private val repository: CharacterRepository) : ViewMod
             is CharactersIntent.ExcludeTagAdded    -> updateFilter { it.copy(excludeTags = (it.excludeTags + intent.tag).distinct(), includeTags = it.includeTags - intent.tag) }
             is CharactersIntent.ExcludeTagRemoved  -> updateFilter { it.copy(excludeTags = it.excludeTags - intent.tag) }
             is CharactersIntent.FiltersReset       -> updateFilter { CharacterFilter() }
+            is CharactersIntent.DeleteCharacter -> viewModelScope.launch { repository.delete(intent.id) }
         }
     }
 

@@ -29,4 +29,11 @@
     <string name="filter_include_placeholder">Include a tag…</string>
     <string name="filter_exclude_placeholder">Exclude a tag…</string>
     <string name="filter_remove_tag">Remove tag</string>
+    <string name="character_menu_edit">Edit</string>
+    <string name="character_menu_delete">Delete</string>
+    <string name="character_menu_more">More options</string>
+    <string name="character_delete_title">Delete character?</string>
+    <string name="character_delete_message">Are you sure you want to delete this card? This action cannot be undone.</string>
+    <string name="character_delete_confirm">Delete</string>
+    <string name="character_delete_cancel">Cancel</string>
 </resources>
