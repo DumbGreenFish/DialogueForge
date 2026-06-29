@@ -20,7 +20,16 @@ class DialogueViewModel(private val repository: CharacterRepository) : ViewModel
         when (intent) {
             is DialogueIntent.LoadCharacter -> loadCharacter(intent.id)
             is DialogueIntent.Back -> {} // processed by onBack callback in View
+            is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.text) }
+            is DialogueIntent.Send -> onSend()
         }
+    }
+
+    private fun onSend() {
+        val text = _state.value.inputText.trim()
+        if (text.isEmpty()) return
+        _state.update { it.copy(inputText = "") }
+        // TODO: not implemented — will send message via API layer
     }
 
     private fun loadCharacter(id: String) {
