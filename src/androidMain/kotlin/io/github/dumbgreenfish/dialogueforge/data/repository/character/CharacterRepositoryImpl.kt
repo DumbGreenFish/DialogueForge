@@ -22,6 +22,8 @@ class CharacterRepositoryImpl(private val app: Application) : CharacterRepositor
     override val characters: Flow<List<CharacterEntity>>
         get() = db.characterDao().getAllFlow()
 
+    override suspend fun getById(id: String) = db.characterDao().getById(id)
+
     override suspend fun import(data: TavernCardData) = db.characterDao().insert(data.toEntity())
 
     override suspend fun delete(id: String) = db.characterDao().delete(id)

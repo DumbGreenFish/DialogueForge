@@ -57,7 +57,15 @@ desktop.ini
 .env
 .env.local
 
-# ===== Claude =====
-.clau/btwde/
+# ===== AI assistants =====
+.claude/
 .claude
 CLAUDE.md
+AGENTS.md
+.opencode/
+opencode.json
+opencode.jsonc
+.cursor/
+.copilot/
+.specstory/
+.aider*

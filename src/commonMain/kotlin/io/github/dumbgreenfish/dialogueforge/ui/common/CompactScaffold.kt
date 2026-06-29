@@ -6,20 +6,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersView
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.ForgeBottomNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import io.github.dumbgreenfish.dialogueforge.ui.persona.PersonaView
 import io.github.dumbgreenfish.dialogueforge.ui.presets.PresetsView
 import io.github.dumbgreenfish.dialogueforge.ui.settings.SettingsView
+import org.koin.compose.koinInject
 
 @Composable
-fun CompactScaffold(selectedTab: NavTab, onTabChange: (NavTab) -> Unit) {
+fun CompactScaffold(selectedTab: NavTab) {
+    val controller = koinInject<NavController>()
     Scaffold(
         topBar = { CompactTopBar(selectedTab) },
         bottomBar = {
             ForgeBottomNav(
                 selected = selectedTab,
-                onSelect = onTabChange,
+                onSelect = { controller.switchTab(it) },
             )
         },
     ) { innerPadding ->

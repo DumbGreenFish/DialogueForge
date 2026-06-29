@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CharacterRepository {
     val characters: Flow<List<CharacterEntity>>
+    suspend fun getById(id: String): CharacterEntity?
     suspend fun import(data: TavernCardData)
     suspend fun delete(id: String)
     suspend fun togglePin(id: String)

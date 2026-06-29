@@ -1,19 +1,19 @@
 package io.github.dumbgreenfish.dialogueforge
 
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.window.core.layout.WindowSizeClass
+import androidx.compose.runtime.key
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
-import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
-import io.github.dumbgreenfish.dialogueforge.ui.common.CompactScaffold
-import io.github.dumbgreenfish.dialogueforge.ui.common.WideScaffold
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavScreen
 import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.plugin.module.dsl.startKoin
@@ -23,22 +23,21 @@ object ForgeApp {
     fun initKoin() = startKoin<ForgeApp> {}
 }
 
-// currentWindowAdaptiveInfo is deprecated but there is no alternative for CMP project so
-// it's okay to use this version until normal one is presented
-@Suppress("DEPRECATION")
-private val isCompact: Boolean @Composable get() = !currentWindowAdaptiveInfo()
-    .windowSizeClass
-    .isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-
 @Composable
 fun App() {
     KoinApplication(configuration = koinConfiguration {}) {
         DialogueForgeTheme {
-            var selectedTab by remember { mutableStateOf(NavTab.Characters) }
-            val onTabChange: (NavTab) -> Unit = { selectedTab = it }
-            when {
-                isCompact -> CompactScaffold(selectedTab, onTabChange)
-                else -> WithReferenceDensity { WideScaffold(selectedTab, onTabChange) }
+            val controller = koinInject<NavController>()
+            val bar by controller.currentBar.collectAsState()
+            key(bar) {
+                @Suppress("UNCHECKED_CAST")
+                NavDisplay(
+                    backStack = (bar as NavBar<NavScreen>).stack as List<NavScreen>,
+                    entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                    onBack = { bar.popBack() },
+                ) { screen ->
+                    NavEntry(screen) { s -> s.Render(onBack = { bar.popBack() }) }
+                }
             }
         }
     }

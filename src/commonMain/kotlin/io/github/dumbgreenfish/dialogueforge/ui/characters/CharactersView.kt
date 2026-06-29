@@ -39,11 +39,13 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.WideHeader
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.DeleteCharacterDialog
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.DialogueView
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.CharactersTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
@@ -68,10 +70,10 @@ private val ScrimAnimDuration = 180
 @OptIn(KoinExperimentalAPI::class)
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
+    val controller = koinInject<NavController>()
     val state by viewModel.state.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<Character?>(null) }
-    var openedCharacter by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
         targetValue   = if (fabExpanded) ScrimColor else Color.Transparent,
         animationSpec = tween(ScrimAnimDuration),
@@ -108,17 +110,23 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                 item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
             } else {
                 items(state.displayed, key = { it.id }) { char ->
+                    val onClick: () -> Unit = {
+                        val tab = controller.currentBar.value
+                        if (tab is CharactersTab) {
+                            tab.navigateTo(CharactersTab.Screen.ChatScreen(char.id))
+                        }
+                    }
                     if (state.viewMode == CharactersViewMode.List) {
                         CharacterCardList(
                             char = char,
-                            onClick = { openedCharacter = char },
+                            onClick = onClick,
                             onDeleteRequest = { deleteTarget = it },
                             isCompact = isCompact,
                         )
                     } else {
                         CharacterCardGrid(
                             char = char,
-                            onClick = { openedCharacter = char },
+                            onClick = onClick,
                             onDeleteRequest = { deleteTarget = it },
                             isCompact = isCompact,
                         )
@@ -157,13 +165,6 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                     deleteTarget = null
                 },
                 onDismiss = { deleteTarget = null },
-            )
-        }
-        openedCharacter?.let { opened ->
-            DialogueView(
-                character = opened,
-                onBack    = { openedCharacter = null },
-                modifier  = Modifier.fillMaxSize(),
             )
         }
     }
