@@ -28,10 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
-private val ComposerOuterPaddingT = 8.dp
-private val ComposerOuterPaddingB = 10.dp
-private val ComposerOuterPaddingH = 10.dp
-private val BodyPaddingH          = 12.dp
+private val BodyPaddingH = 12.dp
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
@@ -76,14 +73,6 @@ fun DialogueView(characterId: String, onBack: () -> Unit) {
                         inputText = state.inputText,
                         onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
                         onSend = { viewModel.handle(DialogueIntent.Send) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                top = ComposerOuterPaddingT,
-                                bottom = ComposerOuterPaddingB,
-                                start = ComposerOuterPaddingH,
-                                end = ComposerOuterPaddingH,
-                            ),
                     )
                 }
             }

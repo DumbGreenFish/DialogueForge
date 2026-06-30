@@ -38,4 +38,6 @@
     <string name="character_delete_cancel">Отмена</string>
     <string name="dialogue_placeholder">Отправьте сообщение, чтобы начать диалог</string>
     <string name="dialogue_input_hint">Сообщение…</string>
+    <string name="dialogue_no_preset">Нет пресета</string>
+    <string name="dialogue_no_model">Нет модели</string>
 </resources>

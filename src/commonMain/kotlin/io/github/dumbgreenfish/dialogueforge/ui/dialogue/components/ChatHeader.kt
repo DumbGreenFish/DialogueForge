@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -28,9 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
+import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_no_model
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_no_preset
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharacterAvatar
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
+import org.jetbrains.compose.resources.stringResource
 
 private val HeightCompact      = 64.dp
 private val HeightWide         = 56.dp
@@ -38,11 +43,14 @@ private val PaddingHCompact    = 4.dp
 private val PaddingHWide       = 12.dp
 private val GapCompact         = 0.dp
 private val GapWide            = 4.dp
+private val ActionBtnTarget     = 36.dp
 private val AvatarSizeCompact  = 36.dp
 private val AvatarSizeWide     = 32.dp
 private val AvatarFontCompact  = 16.sp
 private val AvatarFontWide     = 14.sp
 private val TitleBlockGap      = 10.dp
+private val TitleBlockPadH     = 6.dp
+private val TitleBlockPadV     = 4.dp
 private val SubtitleGap        = 5.dp
 private val SparkDotSize       = 6.dp
 
@@ -76,41 +84,36 @@ internal fun ChatHeader(
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = cs.onSurface)
         }
         character?.let { char ->
-            CharacterAvatar(
-                letter = char.letter,
-                modifier = Modifier.size(avatarSize),
-                shape = ForgeShape.avatar,
-                fontSize = avatarFont,
-                avatarBytes = char.avatarBytes,
-            )
-            Column(
-                modifier = Modifier.weight(1f).padding(start = TitleBlockGap),
+            Row(
+                modifier = Modifier.weight(1f).padding(
+                    horizontal = TitleBlockPadH,
+                    vertical = TitleBlockPadV,
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(TitleBlockGap),
             ) {
-                Text(
-                    text = char.name,
-                    style = titleStyle,
-                    color = cs.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                CharacterAvatar(
+                    letter = char.letter,
+                    modifier = Modifier.size(avatarSize),
+                    shape = ForgeShape.avatar,
+                    fontSize = avatarFont,
+                    avatarBytes = char.avatarBytes,
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SubtitleGap),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(SparkDotSize)
-                            .clip(CircleShape)
-                            .background(ForgeColors.spark),
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = char.name,
+                        style = titleStyle,
+                        color = cs.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    val subtitle = buildString {
-                        if (presetName.isNotEmpty()) append(presetName)
-                        if (presetName.isNotEmpty() && modelName.isNotEmpty()) append(" · ")
-                        if (modelName.isNotEmpty()) append(modelName)
-                    }
-                    if (subtitle.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(SubtitleGap),
+                    ) {
+                        val model = modelName.ifEmpty { stringResource(Res.string.dialogue_no_model) }
                         Text(
-                            text = subtitle,
+                            text = model,
                             style = subtitleStyle,
                             color = ForgeColors.onSurfaceFaint,
                             maxLines = 1,
@@ -121,15 +124,15 @@ internal fun ChatHeader(
             }
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false) {
+        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
             Icon(Icons.Filled.History, contentDescription = null, tint = cs.onSurfaceVariant)
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false) {
+        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
             Icon(Icons.Filled.Add, contentDescription = null, tint = cs.onSurfaceVariant)
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false) {
+        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
             Icon(Icons.Filled.MoreVert, contentDescription = null, tint = cs.onSurfaceVariant)
         }
     }

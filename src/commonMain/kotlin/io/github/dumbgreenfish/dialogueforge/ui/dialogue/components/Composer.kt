@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -29,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -37,16 +41,20 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_
 import org.jetbrains.compose.resources.stringResource
 
 private val Radius           = 22.dp
+private val OuterPaddingT    = 8.dp
+private val OuterPaddingB    = 10.dp
+private val OuterPaddingH    = 10.dp
 private val InnerPaddingT    = 10.dp
 private val InnerPaddingB    = 8.dp
-private val InnerPaddingH    = 12.dp
+private val InnerPaddingH    = 16.dp
 private val FieldMinHeight   = 22.dp
 private val FieldMaxHeight   = 160.dp
 private val FieldPaddingT    = 4.dp
+private val FieldPaddingH    = 6.dp
+private val FieldBottomGap   = 6.dp
 private val BottomRowGap     = 4.dp
 private val AttachBtnSize    = 32.dp
-private val ActionBtnSize    = 36.dp
-private val PresetChipHeight = 30.dp
+private val PresetChipHeight = 32.dp
 private val PresetChipPadH   = 10.dp
 private val PresetChipGap    = 6.dp
 
@@ -59,19 +67,28 @@ internal fun Composer(
 ) {
     val cs = MaterialTheme.colorScheme
 
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(Radius),
-        color = cs.surface,
-        border = BorderStroke(1.dp, cs.outlineVariant),
-    ) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(
+                    top = OuterPaddingT,
+                    bottom = OuterPaddingB,
+                    start = OuterPaddingH,
+                    end = OuterPaddingH,
+                ),
+            shape = RoundedCornerShape(Radius),
+            color = cs.surface,
+            border = BorderStroke(1.dp, cs.outlineVariant),
+            shadowElevation = 1.dp,
+        ) {
         Column(
-            modifier = Modifier.padding(
+            modifier = Modifier.fillMaxWidth().padding(
                 top = InnerPaddingT,
                 bottom = InnerPaddingB,
                 start = InnerPaddingH,
                 end = InnerPaddingH,
             ),
+            verticalArrangement = Arrangement.spacedBy(FieldBottomGap),
         ) {
             BasicTextField(
                 value = inputText,
@@ -81,10 +98,11 @@ internal fun Composer(
                     lineHeight = 20.sp,
                 ),
                 cursorBrush = SolidColor(ForgeColors.spark),
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = FieldMinHeight, max = FieldMaxHeight)
-                    .padding(top = FieldPaddingT),
+                    .padding(top = FieldPaddingT, start = FieldPaddingH, end = FieldPaddingH),
                 decorationBox = { innerTextField ->
                     Box {
                         if (inputText.isEmpty()) {
@@ -104,13 +122,20 @@ internal fun Composer(
                 horizontalArrangement = Arrangement.spacedBy(BottomRowGap),
             ) {
                 // TODO: not implemented
-                IconButton(onClick = {}, enabled = false, modifier = Modifier.size(AttachBtnSize)) {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = cs.onSurfaceVariant,
-                    )
+                Surface(
+                    modifier = Modifier.requiredSize(AttachBtnSize),
+                    shape = CircleShape,
+                    color = cs.surface,
+                    border = BorderStroke(1.dp, cs.outline),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = cs.onSurfaceVariant,
+                        )
+                    }
                 }
                 Spacer(Modifier.weight(1f))
                 // TODO: preset not implemented — chip rendered empty
@@ -137,7 +162,6 @@ internal fun Composer(
                 if (hasText) {
                     FilledIconButton(
                         onClick = onSend,
-                        modifier = Modifier.size(ActionBtnSize),
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = cs.primary,
                             contentColor = cs.onPrimary,
@@ -146,16 +170,16 @@ internal fun Composer(
                         Icon(
                             Icons.Filled.ArrowUpward,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 } else {
                     // TODO: mic permission not implemented
-                    IconButton(onClick = {}, enabled = false, modifier = Modifier.size(ActionBtnSize)) {
+                    IconButton(onClick = {}, enabled = false) {
                         Icon(
                             Icons.Filled.Mic,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(24.dp),
                             tint = cs.primary,
                         )
                     }
