@@ -133,6 +133,10 @@ jobs:
           touch /tmp/android-stub/platforms/android-37/android.jar
           echo "sdk.dir=/tmp/android-stub" > local.properties
 
+      - name: Build Web (WASM)
+        run: |
+          ./gradlew clean wasmJsBrowserDistribution
+
       - name: Package web as ZIP
         run: |
           cd build/dist/wasmJs/productionExecutable
