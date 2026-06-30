@@ -46,6 +46,16 @@ jobs:
           path: build/compose/binaries/main/
           retention-days: 1
 
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            build/compose/binaries/main/msi/*.msi
+            build/compose/binaries/main/exe/*.exe
+          draft: true
+          prerelease: true
+          generate_release_notes: true
+
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -86,6 +96,17 @@ jobs:
           path: build/compose/binaries/main/
           retention-days: 1
 
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            build/compose/binaries/main/deb/*.deb
+            build/compose/binaries/main/rpm/*.rpm
+            build/compose/binaries/main/app/*.AppImage
+          draft: true
+          prerelease: true
+          generate_release_notes: true
+
   build-web:
     runs-on: ubuntu-latest
     steps:
@@ -116,12 +137,23 @@ jobs:
         run: |
           ./gradlew wasmJsBrowserProductionWebpack
 
+      - name: Package web as ZIP
+        run: zip -r build/dist/web-dist.zip -j build/dist/wasmJs/productionExecutable/
+
       - name: Upload Web artifacts
         uses: actions/upload-artifact@v4
         with:
           name: web-artifacts
-          path: build/dist/wasmJs/productionExecutable/
+          path: build/dist/web-dist.zip
           retention-days: 1
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: build/dist/web-dist.zip
+          draft: true
+          prerelease: true
+          generate_release_notes: true
 
   build-android:
     runs-on: ubuntu-latest
@@ -182,28 +214,15 @@ jobs:
             build/outputs/apk/release/
           retention-days: 1
 
-  create-release:
-    needs: [build-windows, build-linux, build-web, build-android]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3
         with:
-          path: artifacts
+          files: |
+            build/outputs/bundle/release/*.aab
+            build/outputs/apk/release/*.apk
+          draft: true
+          prerelease: true
+          generate_release_notes: true
 
-      - name: Create Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="${{ github.ref }}"
-          VERSION=${VERSION#refs/tags/}
-          gh release create "$VERSION" \
-            --title "Release $VERSION" \
-            --draft \
-            artifacts/**/*
 
-      - name: List artifacts
-        run: |
-          find artifacts -type f | head -20
+
