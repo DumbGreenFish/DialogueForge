@@ -27,8 +27,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Prepare Android SDK stub
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\android-stub\platforms\android-37"
+          New-Item -ItemType File -Force -Path "$env:RUNNER_TEMP\android-stub\platforms\android-37\android.jar"
+          "sdk.dir=$env:RUNNER_TEMP\android-stub" | Out-File -FilePath local.properties -Encoding ASCII
 
       - name: Build Windows distributions
         run: |
@@ -61,12 +64,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Linux packaging tools
+        run: sudo apt install -y rpm libfuse2
+
+      - name: Prepare Android SDK stub
+        run: |
+          mkdir -p /tmp/android-stub/platforms/android-37
+          touch /tmp/android-stub/platforms/android-37/android.jar
+          echo "sdk.dir=/tmp/android-stub" > local.properties
 
       - name: Build Linux distributions
         run: |
-          ./gradlew packageDistributionForCurrentOS
+          ./gradlew packageDeb packageRpm packageAppImage
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
@@ -95,8 +104,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Prepare Android SDK stub
+        run: |
+          mkdir -p /tmp/android-stub/platforms/android-37
+          touch /tmp/android-stub/platforms/android-37/android.jar
+          echo "sdk.dir=/tmp/android-stub" > local.properties
 
       - name: Build macOS distributions
         run: |
@@ -129,8 +141,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Prepare Android SDK stub
+        run: |
+          mkdir -p /tmp/android-stub/platforms/android-37
+          touch /tmp/android-stub/platforms/android-37/android.jar
+          echo "sdk.dir=/tmp/android-stub" > local.properties
 
       - name: Build Web (WASM)
         run: |
