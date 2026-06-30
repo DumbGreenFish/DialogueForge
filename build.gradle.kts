@@ -26,8 +26,11 @@ version = projectVersion
 val jvmTargetVersion = JvmTarget.fromTarget(libs.versions.jvm.get())
 val javaVersion = JavaVersion.toVersion(libs.versions.jvm.get())
 
+val keystoreFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
-    load(rootProject.file("keystore.properties").inputStream())
+    if (keystoreFile.exists()) {
+        load(keystoreFile.inputStream())
+    }
 }
 
 val generateBuildConfig by tasks.registering {
@@ -162,7 +165,15 @@ android {
 
     buildTypes {
         getByName("release") {
-            signingConfig = releaseSigning
+            if (keystoreProperties.isNotEmpty()) {
+                val releaseSigning = signingConfigs.create("release") {
+                    storeFile = file(keystoreProperties["storeFile"] as String)
+                    storePassword = keystoreProperties["storePassword"] as String
+                    keyAlias = keystoreProperties["keyAlias"] as String
+                    keyPassword = keystoreProperties["keyPassword"] as String
+                }
+                signingConfig = releaseSigning
+            }
         }
     }
 
