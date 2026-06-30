@@ -138,7 +138,7 @@ jobs:
           ./gradlew wasmJsBrowserProductionWebpack
 
       - name: Package web as ZIP
-        run: zip -r build/dist/web-dist.zip -j build/dist/wasmJs/productionExecutable/
+        run: (cd build/dist/wasmJs/productionExecutable && zip -r ../../web-dist.zip .)
 
       - name: Upload Web artifacts
         uses: actions/upload-artifact@v4
