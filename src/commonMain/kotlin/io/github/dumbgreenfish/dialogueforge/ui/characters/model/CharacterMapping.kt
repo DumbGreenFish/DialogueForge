@@ -29,4 +29,5 @@ fun CharacterEntity.toCharacter(): Character = Character(
     pinned = pinned,
     source = creator,
     avatarBytes = avatarData,
+    firstMessage = firstMessage,
 )

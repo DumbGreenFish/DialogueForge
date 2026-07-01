@@ -1,0 +1,9 @@
+package io.github.dumbgreenfish.dialogueforge.data.repository.dialogue
+
+import kotlinx.coroutines.flow.Flow
+
+interface DialogueRepository {
+    fun getMessages(conversationId: String): Flow<List<MessageEntity>>
+    suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity
+    suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity
+}

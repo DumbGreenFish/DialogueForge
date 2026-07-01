@@ -16,6 +16,7 @@ class WasmDatabaseConfig() : DatabaseConfig {
 
     override fun mainDatabase() : MainDatabase = Room.databaseBuilder<MainDatabase>(name = MAIN_DB_NAME)
             .setDriver(WebWorkerSQLiteDriver(createModuleWorker(SQLITE_WORKER_SCRIPT)))
+            .fallbackToDestructiveMigration()
             .build()
 
     companion object {

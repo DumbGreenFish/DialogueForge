@@ -11,6 +11,7 @@ data class Character(
     val pinned: Boolean,
     val source: String,
     val avatarBytes: ByteArray? = null,
+    val firstMessage: String = "",
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

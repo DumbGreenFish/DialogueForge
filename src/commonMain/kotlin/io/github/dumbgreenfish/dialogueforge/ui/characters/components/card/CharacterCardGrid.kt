@@ -46,6 +46,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.Chara
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.ContextAction
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.characterContextActions
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
 import org.jetbrains.compose.resources.stringResource
 
 private const val VISIBLE_TAGS_MAX  = 2

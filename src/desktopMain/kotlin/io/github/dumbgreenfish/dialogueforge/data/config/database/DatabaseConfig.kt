@@ -24,5 +24,5 @@ private fun appDataDir(): java.io.File {
 class DesktopDatabaseConfig() : DatabaseConfig {
     override fun mainDatabase() = Room.databaseBuilder<MainDatabase>(
         name = appDataDir().resolve(MAIN_DB_NAME).absolutePath
-    ).setDriver(BundledSQLiteDriver()).setQueryCoroutineContext(Dispatchers.IO).build()
+    ).setDriver(BundledSQLiteDriver()).setQueryCoroutineContext(Dispatchers.IO).fallbackToDestructiveMigration().build()
 }

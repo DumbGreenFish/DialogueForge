@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components.card
+package io.github.dumbgreenfish.dialogueforge.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

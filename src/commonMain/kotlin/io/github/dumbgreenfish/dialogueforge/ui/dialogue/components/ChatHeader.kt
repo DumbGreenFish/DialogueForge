@@ -27,8 +27,8 @@ import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_no_model
-import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterAvatar
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
 import org.jetbrains.compose.resources.stringResource
 

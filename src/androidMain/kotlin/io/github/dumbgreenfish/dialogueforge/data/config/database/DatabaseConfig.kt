@@ -18,6 +18,7 @@ class AndroidDatabaseConfig(val app: Application) : DatabaseConfig {
         return Room.databaseBuilder<MainDatabase>(name = dbFile.absolutePath)
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
+            .fallbackToDestructiveMigration()
             .build()
     }
 }
