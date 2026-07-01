@@ -1,6 +1,8 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,8 +63,10 @@ private fun formatTime(ms: Long): String {
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 internal fun MessageBubble(
     message: Message,
+    onLongPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     if (message.role == MessageRole.System) {
@@ -99,6 +103,12 @@ internal fun MessageBubble(
                 .then(
                     if (!compact) Modifier.widthIn(max = BubbleMaxWidthDesktop)
                     else Modifier
+                )
+                .then(
+                    if (onLongPress != null) Modifier.combinedClickable(
+                        onClick = {},
+                        onLongClick = onLongPress,
+                    ) else Modifier
                 ),
         ) {
             Column(

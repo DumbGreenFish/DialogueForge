@@ -40,4 +40,23 @@
     <string name="dialogue_input_hint">Message…</string>
     <string name="dialogue_no_preset">No preset</string>
     <string name="dialogue_no_model">No model</string>
+    <string name="preset_endpoint_label">API Endpoint</string>
+    <string name="preset_endpoint_placeholder">https://api.deepseek.com/chat/completions</string>
+    <string name="preset_api_key_label">API Key</string>
+    <string name="preset_api_key_placeholder">sk-…</string>
+    <string name="preset_model_label">Model</string>
+    <string name="preset_model_placeholder">deepseek-chat</string>
+    <string name="preset_temperature_label">Temperature</string>
+    <string name="preset_max_tokens_label">Response Length</string>
+    <string name="preset_save">Save</string>
+    <string name="preset_saved">Saved</string>
+    <string name="presets_title">LLM Configuration</string>
+    <string name="dialogue_generating">%1$s is typing…</string>
+    <string name="dialogue_error_dismiss">Dismiss</string>
+    <string name="dialogue_error_retry">Retry</string>
+    <string name="dialogue_delete_title">Delete message?</string>
+    <string name="dialogue_delete_message">This message will be permanently removed.</string>
+    <string name="dialogue_delete_confirm">Delete</string>
+    <string name="dialogue_delete_cancel">Cancel</string>
+    <string name="dialogue_stop">Stop</string>
 </resources>

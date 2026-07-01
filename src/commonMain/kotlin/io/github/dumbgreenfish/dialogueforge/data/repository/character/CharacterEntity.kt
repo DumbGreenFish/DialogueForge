@@ -18,6 +18,8 @@ data class CharacterEntity(
     @ColumnInfo(name = "imported_at") val importedAt: Long,
     @ColumnInfo(name = "last_used_at") val lastUsedAt: Long?,
     @ColumnInfo(name = "first_message") val firstMessage: String = "",
+    @ColumnInfo(name = "personality") val personality: String = "",
+    @ColumnInfo(name = "scenario") val scenario: String = "",
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
