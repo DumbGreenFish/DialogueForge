@@ -1,26 +1,17 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.character
 
-import android.app.Application
-import androidx.room3.Room
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.data.config.MainDatabase
 import io.github.dumbgreenfish.dialogueforge.data.model.TavernCardData
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
 
 @Single(binds = [CharacterRepository::class])
-class CharacterRepositoryImpl(private val app: Application) : CharacterRepository {
-    private val db = run {
-        val dbFile = app.getDatabasePath(CHARACTER_DB_NAME)
-        dbFile.parentFile?.mkdirs()
-        Room.databaseBuilder<CharacterDatabase>(name = dbFile.absolutePath)
-            .setDriver(BundledSQLiteDriver())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .build()
-    }
+class CharacterRepositoryImpl(dbConfig: DatabaseConfig) : CharacterRepository {
 
-    override val characters: Flow<List<CharacterEntity>>
-        get() = db.characterDao().getAllFlow()
+    private val db = dbConfig.mainDatabase()
+
+    override val characters: Flow<List<CharacterEntity>> = db.characterDao().getAllFlow()
 
     override suspend fun getById(id: String) = db.characterDao().getById(id)
 
