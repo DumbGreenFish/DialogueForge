@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.DropdownMenu

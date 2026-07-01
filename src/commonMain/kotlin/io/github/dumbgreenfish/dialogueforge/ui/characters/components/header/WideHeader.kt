@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.header
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,15 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_create
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_import
-import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_subtitle
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_total
-import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_characters
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersState
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterControl
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import org.jetbrains.compose.resources.stringResource
 
@@ -78,9 +76,9 @@ internal fun WideHeader(state: CharactersState, onIntent: (CharactersIntent) -> 
         Spacer(Modifier.height(SearchFilterSpacer))
         Row(horizontalArrangement = Arrangement.spacedBy(FilterRowGap), verticalAlignment = Alignment.CenterVertically) {
             FilterControl(
-                filter        = state.filter,
+                filter = state.filter,
                 availableTags = state.availableTags,
-                onIntent      = onIntent,
+                onIntent = onIntent,
             )
             Text(
                 text  = stringResource(Res.string.characters_total, state.displayed.size),

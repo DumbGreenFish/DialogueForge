@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

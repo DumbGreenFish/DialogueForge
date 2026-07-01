@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme

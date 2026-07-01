@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

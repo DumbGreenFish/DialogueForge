@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete

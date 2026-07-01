@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.card
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -41,6 +41,10 @@ import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.character_menu_more
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextMenu
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextSheet
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.ContextAction
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.characterContextActions
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import org.jetbrains.compose.resources.stringResource
 
@@ -95,7 +99,11 @@ internal fun CharacterCardGrid(
             GridInfo(char)
         }
     }
-    CharacterContextSheet(expanded = sheetExpanded, onDismiss = { sheetExpanded = false }, actions = actions)
+    CharacterContextSheet(
+        expanded = sheetExpanded,
+        onDismiss = { sheetExpanded = false },
+        actions = actions
+    )
 }
 
 @Composable
@@ -130,7 +138,11 @@ private fun GridSquare(
                 if (!isCompact) {
                     Box {
                         MoreBadge(onClick = onMoreClick)
-                        CharacterContextMenu(expanded = menuExpanded, onDismiss = onMenuDismiss, actions = actions)
+                        CharacterContextMenu(
+                            expanded = menuExpanded,
+                            onDismiss = onMenuDismiss,
+                            actions = actions
+                        )
                     }
                 }
             }

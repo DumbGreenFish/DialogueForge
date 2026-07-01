@@ -1,23 +1,21 @@
-package io.github.dumbgreenfish.dialogueforge.ui.characters.components
+package io.github.dumbgreenfish.dialogueforge.ui.characters.components.header
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_total
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersState
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterControl
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -33,10 +31,10 @@ internal fun CompactHeader(state: CharactersState, onIntent: (CharactersIntent) 
                 modifier = Modifier.weight(1f),
             )
             FilterControl(
-                filter        = state.filter,
-                availableTags = state.availableTags ,
-                onIntent      = onIntent,
-                iconOnly      = true
+                filter = state.filter,
+                availableTags = state.availableTags,
+                onIntent = onIntent,
+                iconOnly = true
             )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
