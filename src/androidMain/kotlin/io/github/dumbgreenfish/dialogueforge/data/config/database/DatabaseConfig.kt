@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.data.repository.config.database
+package io.github.dumbgreenfish.dialogueforge.data.config.database
 
 import android.app.Application
 import androidx.room3.Room

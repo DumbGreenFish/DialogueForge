@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.data.repository.database
+package io.github.dumbgreenfish.dialogueforge.data.config.database
 
 import androidx.room3.Room
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
@@ -12,7 +12,7 @@ import org.w3c.dom.Worker
 private external fun createModuleWorker(url: String): Worker
 
 @Single
-class DesktopDatabaseConfig() : DatabaseConfig {
+class WasmDatabaseConfig() : DatabaseConfig {
 
     override fun mainDatabase() : MainDatabase = Room.databaseBuilder<MainDatabase>(name = MAIN_DB_NAME)
             .setDriver(WebWorkerSQLiteDriver(createModuleWorker(SQLITE_WORKER_SCRIPT)))
