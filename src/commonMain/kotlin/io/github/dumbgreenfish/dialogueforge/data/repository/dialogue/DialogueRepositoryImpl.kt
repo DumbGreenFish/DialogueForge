@@ -57,4 +57,8 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
         db.conversationDao().touch(conversationId, now)
         return message
     }
+
+    override suspend fun deleteMessage(id: String) {
+        db.messageDao().deleteById(id)
+    }
 }

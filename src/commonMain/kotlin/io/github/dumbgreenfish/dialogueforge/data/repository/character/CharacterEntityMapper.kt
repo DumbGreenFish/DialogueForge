@@ -18,6 +18,8 @@ internal fun TavernCardData.toEntity(): CharacterEntity = CharacterEntity(
     pinned = false,
     chatCount = 0,
     firstMessage = firstMessage,
+    personality = personality,
+    scenario = scenario,
     importedAt = Clock.System.now().toEpochMilliseconds(),
     lastUsedAt = null,
 )

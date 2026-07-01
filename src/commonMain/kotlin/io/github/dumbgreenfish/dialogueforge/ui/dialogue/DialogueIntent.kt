@@ -6,4 +6,8 @@ sealed class DialogueIntent {
     data object Back : DialogueIntent()
     data class UpdateInput(val text: String) : DialogueIntent()
     data object Send : DialogueIntent()
+    data object DismissError : DialogueIntent()
+    data object StopGeneration : DialogueIntent()
+    data object Regenerate : DialogueIntent()
+    data class DeleteMessage(val messageId: String) : DialogueIntent()
 }

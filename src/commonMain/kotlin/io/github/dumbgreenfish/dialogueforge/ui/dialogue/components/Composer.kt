@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.FilledIconButton
@@ -63,6 +64,8 @@ internal fun Composer(
     inputText: String,
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
+    isGenerating: Boolean = false,
+    onStop: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -99,6 +102,7 @@ internal fun Composer(
                 ),
                 cursorBrush = SolidColor(ForgeColors.spark),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                enabled = !isGenerating,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = FieldMinHeight, max = FieldMaxHeight)
@@ -121,7 +125,6 @@ internal fun Composer(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(BottomRowGap),
             ) {
-                // TODO: not implemented
                 Surface(
                     modifier = Modifier.requiredSize(AttachBtnSize),
                     shape = CircleShape,
@@ -138,7 +141,6 @@ internal fun Composer(
                     }
                 }
                 Spacer(Modifier.weight(1f))
-                // TODO: preset not implemented — chip rendered empty
                 Surface(
                     shape = RoundedCornerShape(PresetChipHeight / 2),
                     color = cs.surface,
@@ -158,8 +160,21 @@ internal fun Composer(
                         )
                     }
                 }
-                val hasText = inputText.isNotBlank()
-                if (hasText) {
+                if (isGenerating) {
+                    FilledIconButton(
+                        onClick = onStop,
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = cs.error,
+                            contentColor = cs.onError,
+                        ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                } else if (inputText.isNotBlank()) {
                     FilledIconButton(
                         onClick = onSend,
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -174,7 +189,6 @@ internal fun Composer(
                         )
                     }
                 } else {
-                    // TODO: mic permission not implemented
                     IconButton(onClick = {}, enabled = false) {
                         Icon(
                             Icons.Filled.Mic,

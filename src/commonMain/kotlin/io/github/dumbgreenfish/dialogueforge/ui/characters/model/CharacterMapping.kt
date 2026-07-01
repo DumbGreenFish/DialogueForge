@@ -23,6 +23,7 @@ fun CharacterEntity.toCharacter(): Character = Character(
     name = name,
     letter = name.firstOrNull()?.uppercase() ?: "?",
     tagline = description.substituteCharName(name).take(TAGLINE_PREVIEW_LENGTH),
+    description = description,
     tags = tags.map { Tag(it) },
     chats = chatCount,
     lastUsed = lastUsedAt?.let { formatTimestamp(it) } ?: "",
@@ -30,4 +31,6 @@ fun CharacterEntity.toCharacter(): Character = Character(
     source = creator,
     avatarBytes = avatarData,
     firstMessage = firstMessage,
+    personality = personality,
+    scenario = scenario,
 )

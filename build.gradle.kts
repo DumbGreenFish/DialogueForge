@@ -101,6 +101,9 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.room3.runtime)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
             }
         }
 
@@ -109,6 +112,7 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.sqlite.bundled)
                 implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.ktor.client.cio)
             }
         }
 
@@ -117,12 +121,14 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.koin.android)
                 implementation(libs.sqlite.bundled)
+                implementation(libs.ktor.client.okhttp)
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
                 implementation(libs.sqlite.web)
+                implementation(libs.ktor.client.js)
             }
         }
     }
