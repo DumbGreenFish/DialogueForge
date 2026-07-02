@@ -46,6 +46,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.Delet
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.CharactersTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
@@ -111,9 +112,9 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             } else {
                 items(state.displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
-                        val tab = controller.currentBar.value
-                        if (tab is CharactersTab) {
-                            tab.navigateTo(CharactersTab.Screen.ChatScreen(char.id))
+                        val bar = controller.getBar(NavTab.Characters)
+                        if (bar is CharactersTab) {
+                            bar.navigateTo(CharactersTab.Screen.ChatScreen(char.id))
                         }
                     }
                     if (state.viewMode == CharactersViewMode.List) {

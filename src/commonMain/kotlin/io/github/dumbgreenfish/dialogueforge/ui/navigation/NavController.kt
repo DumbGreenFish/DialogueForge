@@ -15,8 +15,9 @@ class NavController {
         NavTab.Settings to SettingsTab(),
     )
 
-    private val _currentBar = MutableStateFlow(bars.get(NavTab.Characters)!!)
-    val currentBar: StateFlow<NavBar<*>> = _currentBar.asStateFlow()
+    private val _activeTab = MutableStateFlow(NavTab.Characters)
+    val activeTab: StateFlow<NavTab> = _activeTab.asStateFlow()
 
-    fun switchTab(tab: NavTab) { _currentBar.value = bars[tab]!! }
+    fun switchTab(tab: NavTab) { _activeTab.value = tab }
+    fun getBar(tab: NavTab): NavBar<*> = bars[tab]!!
 }
