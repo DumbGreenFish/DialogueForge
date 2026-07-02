@@ -2,6 +2,7 @@ package io.github.dumbgreenfish.dialogueforge.ui.presets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.PresetsSavedNotifier
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,7 @@ sealed class PresetsIntent {
 @KoinViewModel
 class PresetsViewModel(
     private val settings: SettingsRepository,
+    private val notifier: PresetsSavedNotifier,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PresetsState())
     val state: StateFlow<PresetsState> = _state.asStateFlow()
@@ -74,6 +76,7 @@ class PresetsViewModel(
             settings.setTemperature(s.temperature)
             settings.setMaxTokens(s.maxTokens)
             _state.update { it.copy(isSaved = true) }
+            notifier.notifySaved()
         }
     }
 }
