@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersView
+import io.github.dumbgreenfish.dialogueforge.ui.characters.components.header.CharactersCompactTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.ForgeBottomNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
@@ -18,7 +19,10 @@ import org.koin.compose.koinInject
 fun CompactScaffold(selectedTab: NavTab) {
     val controller = koinInject<NavController>()
     Scaffold(
-        topBar = { CompactTopBar(selectedTab) },
+        topBar = {
+            if (selectedTab == NavTab.Characters) CharactersCompactTopBar()
+            else CompactTopBar(selectedTab)
+        },
         bottomBar = {
             ForgeBottomNav(
                 selected = selectedTab,
