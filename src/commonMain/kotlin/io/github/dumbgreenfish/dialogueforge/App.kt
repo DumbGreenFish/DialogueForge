@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
+import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
@@ -39,35 +40,37 @@ object ForgeApp {
 fun App() {
     KoinApplication(configuration = koinConfiguration {}) {
         DialogueForgeTheme {
-            val controller = koinInject<NavController>()
-            val activeTab by controller.activeTab.collectAsState()
+            WithReferenceDensity {
+                val controller = koinInject<NavController>()
+                val activeTab by controller.activeTab.collectAsState()
 
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                key(activeTab) {
-                    val bar = controller.getBar(activeTab)
-                    @Suppress("UNCHECKED_CAST")
-                    val stack = (bar as NavBar<NavScreen>).stack
-                    val topScreen = stack.lastOrNull()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    key(activeTab) {
+                        val bar = controller.getBar(activeTab)
+                        @Suppress("UNCHECKED_CAST")
+                        val stack = (bar as NavBar<NavScreen>).stack
+                        val topScreen = stack.lastOrNull()
 
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        AnimatedContent(
-                            targetState = topScreen,
-                            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
-                            label = "screen-transition",
-                        ) { screen ->
-                            screen?.Render(onBack = { bar.popBack() })
-                        }
-
-                        Box(modifier = Modifier.size(0.dp)) {
-                            @Suppress("UNCHECKED_CAST")
-                            NavDisplay(
-                                backStack = stack as List<NavScreen>,
-                                onBack = { bar.popBack() },
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            AnimatedContent(
+                                targetState = topScreen,
+                                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
+                                label = "screen-transition",
                             ) { screen ->
-                                NavEntry(screen) {}
+                                screen?.Render(onBack = { bar.popBack() })
+                            }
+
+                            Box(modifier = Modifier.size(0.dp)) {
+                                @Suppress("UNCHECKED_CAST")
+                                NavDisplay(
+                                    backStack = stack as List<NavScreen>,
+                                    onBack = { bar.popBack() },
+                                ) { screen ->
+                                    NavEntry(screen) {}
+                                }
                             }
                         }
                     }

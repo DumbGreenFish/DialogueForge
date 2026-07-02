@@ -1,7 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.navigation
 
 import androidx.compose.runtime.Composable
-import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.ui.common.CompactScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.common.WideScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
@@ -14,7 +13,7 @@ class PresetsTab : NavBar<PresetsTab.Screen>(Screen.MainScreen) {
         data object MainScreen : Screen() {
             @Composable override fun Render(onBack: () -> Unit) {
                 if (isCompact) CompactScaffold(NavTab.Presets)
-                else WithReferenceDensity { WideScaffold(NavTab.Presets) }
+                else WideScaffold(NavTab.Presets)
             }
         }
     }

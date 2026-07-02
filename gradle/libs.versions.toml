@@ -14,12 +14,12 @@ lifecycle-nav3 = "2.10.0"
 android-compileSdk = "37"
 android-minSdk = "28"
 android-targetSdk = "37"
-room3 = "3.0.0-rc01"
-sqlite = "2.7.0-rc01"
+room3 = "3.0.0"
+sqlite = "2.7.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.11.0"
 compose-material-icons = "1.7.3"
-ktor = "3.0.3"
+ktor = "3.5.1"
 
 # It's required to keep this version
 # for compitability with Compose Multiplatform

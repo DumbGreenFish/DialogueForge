@@ -15,7 +15,7 @@ class ModelNameProvider(
     private val settings: SettingsRepository,
     notifier: PresetsSavedNotifier,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val _modelName = MutableStateFlow("")
     val modelName: StateFlow<String> = _modelName.asStateFlow()
