@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.navigation.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +19,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.BuildConfig
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ModelNameProvider
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.design.LabelSmallText
@@ -32,7 +36,9 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.app_name
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_active_model_label
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_model_placeholder
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 private val SidebarWidth          = 240.dp
 private val BrandPaddingH         = 18.dp
@@ -56,6 +62,10 @@ fun NavigationSidebar(
     onSelect: (NavTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val controller = koinInject<NavController>()
+    val modelNameProvider = koinInject<ModelNameProvider>()
+    val modelName by modelNameProvider.modelName.collectAsState()
+
     Column(
         modifier = modifier
             .width(SidebarWidth)
@@ -104,6 +114,7 @@ fun NavigationSidebar(
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
                 .background(ForgeColors.surfaceContainerHigh)
+                .clickable { controller.switchTab(NavTab.Presets) }
                 .padding(FooterInnerPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FooterGap),
@@ -119,7 +130,7 @@ fun NavigationSidebar(
                     color = ForgeColors.onSurfaceFaint,
                 )
                 Text(
-                    text = stringResource(Res.string.sidebar_model_placeholder),
+                    text = modelName.ifBlank { stringResource(Res.string.sidebar_model_placeholder) },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
