@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +24,6 @@ private val TopBarPaddingH         = 4.dp
 private val ForgeMarkContainerSize = 48.dp
 private val ForgeMarkSize          = 26.dp
 private val ForgeMarkTitlePad      = 4.dp
-private val OverflowButtonSize     = 44.dp
 
 @Composable
 fun CompactTopBar(selectedTab: NavTab) {
@@ -54,15 +49,5 @@ fun CompactTopBar(selectedTab: NavTab) {
             color = cs.onSurface,
             modifier = Modifier.weight(1f).padding(start = ForgeMarkTitlePad),
         )
-        IconButton(
-            onClick = {},
-            modifier = Modifier.size(OverflowButtonSize),
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.MoreVert,
-                contentDescription = null,
-                tint = cs.onSurfaceVariant,
-            )
-        }
     }
 }
