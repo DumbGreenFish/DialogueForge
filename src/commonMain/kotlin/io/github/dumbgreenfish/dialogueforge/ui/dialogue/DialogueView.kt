@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,14 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isAltPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -51,7 +49,6 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_placeholder
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
-import io.github.dumbgreenfish.dialogueforge.ui.common.isDesktopPlatform
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.ChatHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.DateSeparator
@@ -80,28 +77,33 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
 
     val cs = MaterialTheme.colorScheme
     val listState = rememberLazyListState()
+    var needsInstantScroll by remember { mutableStateOf(true) }
 
-    LaunchedEffect(state.messages) {
+    LaunchedEffect(state.isLoading, state.messages.size) {
         if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(buildChatItems(state.messages).size - 1)
+            withFrameNanos { }
+            if (needsInstantScroll) {
+                listState.scrollToItem(0)
+                needsInstantScroll = false
+            } else {
+                listState.animateScrollToItem(0, 0)
+            }
         }
     }
 
     var deleteTargetId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
-        modifier = modifier.onPreviewKeyEvent { keyEvent ->
-            if (isDesktopPlatform && keyEvent.type == KeyEventType.KeyDown
-                && keyEvent.key == Key.DirectionLeft && keyEvent.isAltPressed
-            ) {
-                onBack()
-                true
-            } else {
-                false
-            }
-        },
-    ) { innerPadding ->
-        Surface(modifier = Modifier.fillMaxSize().padding(innerPadding), color = cs.background) {
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        modifier = modifier,
+    ) { _ ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .imePadding(),
+            color = cs.background,
+        ) {
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = ForgeColors.spark)
@@ -148,16 +150,16 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                                     )
                                 }
                             } else {
-                                val items = buildChatItems(messages)
+                                val items = buildChatItems(messages).reversed()
                                 LazyColumn(
                                     state = listState,
+                                    reverseLayout = true,
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxWidth(),
                                 ) {
                                     itemsIndexed(
                                         items = items,
-                                        key = { _, item -> item.message?.id ?: "date-${item.dateLabel}" },
                                     ) { _, item ->
                                         when {
                                             item.dateLabel != null -> DateSeparator(label = item.dateLabel)

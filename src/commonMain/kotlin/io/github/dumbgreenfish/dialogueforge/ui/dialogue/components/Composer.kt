@@ -109,7 +109,6 @@ internal fun Composer(
                 ),
                 cursorBrush = SolidColor(ForgeColors.spark),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                enabled = !isGenerating,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = FieldMinHeight, max = FieldMaxHeight)

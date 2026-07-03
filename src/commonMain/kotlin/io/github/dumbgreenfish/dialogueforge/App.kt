@@ -21,6 +21,7 @@ import androidx.navigation3.ui.NavDisplay
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
+import io.github.dumbgreenfish.dialogueforge.ui.common.mouseNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavScreen
@@ -45,7 +46,20 @@ fun App() {
                 val activeTab by controller.activeTab.collectAsState()
 
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .mouseNav(
+                            onBack = {
+                                @Suppress("UNCHECKED_CAST")
+                                val bar = controller.getBar(activeTab) as? NavBar<NavScreen>
+                                bar?.popBack()
+                            },
+                            onForward = {
+                                @Suppress("UNCHECKED_CAST")
+                                val bar = controller.getBar(activeTab) as? NavBar<NavScreen>
+                                bar?.popForward()
+                            },
+                        ),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     key(activeTab) {

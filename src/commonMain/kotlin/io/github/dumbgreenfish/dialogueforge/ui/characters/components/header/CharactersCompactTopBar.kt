@@ -60,13 +60,13 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val TopBarHeight           = 64.dp
 private val TopBarPaddingH         = 4.dp
-private val ForgeMarkContainerSize = 48.dp
-private val ForgeMarkSize          = 26.dp
+private val ForgeMarkContainerSize = 32.dp
+private val ForgeMarkSize          = 16.dp
 private val ForgeMarkTitlePad      = 4.dp
-private val GapItems               = 6.dp
+private val GapItems               = 4.dp
 private val FilterBadgeSize        = 16.dp
 private val FilterBadgeOffset      = 2.dp
-private val FilterBadgeFontSize    = 10.sp
+private val FilterBadgeFontSize    = 8.sp
 private val ShadowElevation        = 4.dp
 
 @OptIn(ExperimentalMaterial3Api::class)

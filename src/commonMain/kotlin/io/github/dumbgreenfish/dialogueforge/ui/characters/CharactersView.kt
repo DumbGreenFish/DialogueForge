@@ -35,7 +35,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.Chara
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardList
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharactersSpeedDial
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.header.CompactHeader
-import io.github.dumbgreenfish.dialogueforge.ui.characters.components.header.WideHeader
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +52,7 @@ private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
 private val GRID_CELLS_GRID_WIDE    = GridCells.Adaptive(160.dp)
 
 private val ContentPaddingWideH    = 28.dp
+private val ContentPaddingWideT    = 24.dp
 private val ContentPaddingWideB    = 32.dp
 private val ContentPaddingCompactH = 16.dp
 private val ContentPaddingCompactT = 4.dp
@@ -98,13 +98,14 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             contentPadding      = if (isCompact)
                 PaddingValues(start = ContentPaddingCompactH, top = ContentPaddingCompactT, end = ContentPaddingCompactH, bottom = ContentPaddingCompactB)
             else
-                PaddingValues(start = ContentPaddingWideH, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
+                PaddingValues(start = ContentPaddingWideH, top = ContentPaddingWideT, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
             horizontalArrangement = Arrangement.spacedBy(CardGapH),
             verticalArrangement   = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
         ) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                if (isCompact) CompactHeader(state, viewModel::handle)
-                else           WideHeader(state, viewModel::handle)
+            if (isCompact) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    CompactHeader(state, viewModel::handle)
+                }
             }
 
             if (state.displayed.isEmpty()) {

@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import io.github.dumbgreenfish.dialogueforge.ui.common.CompactScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.common.WideScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
@@ -18,9 +19,14 @@ class CharactersTab : NavBar<CharactersTab.Screen>(Screen.MainScreen) {
             }
         }
         class ChatScreen(val characterId: String) : Screen() {
+            internal val entryId: Long = _entryCounter++
             @Composable override fun Render(onBack: () -> Unit) {
-                DialogueView(characterId = characterId, onBack = onBack)
+                key(entryId) {
+                    DialogueView(characterId = characterId, onBack = onBack)
+                }
             }
+
+            companion object { private var _entryCounter = 0L }
         }
     }
 }
