@@ -35,29 +35,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_hint
 import org.jetbrains.compose.resources.stringResource
 
-private val Radius           = 22.dp
-private val OuterPaddingT    = 8.dp
-private val OuterPaddingB    = 10.dp
-private val OuterPaddingH    = 10.dp
-private val InnerPaddingT    = 10.dp
-private val InnerPaddingB    = 8.dp
-private val InnerPaddingH    = 16.dp
-private val FieldMinHeight   = 22.dp
-private val FieldMaxHeight   = 160.dp
-private val FieldPaddingT    = 4.dp
-private val FieldPaddingH    = 6.dp
-private val FieldBottomGap   = 6.dp
-private val BottomRowGap     = 4.dp
-private val AttachBtnSize    = 32.dp
+private val Radius = 20.dp
+private val OuterPaddingT = 8.dp
+private val OuterPaddingB = 12.dp
+private val OuterPaddingH = 12.dp
+private val InnerPaddingT = 12.dp
+private val InnerPaddingB = 8.dp
+private val InnerPaddingH = 16.dp
+private val FieldMinHeight = 20.dp
+private val FieldMaxHeight = 160.dp
+private val FieldPaddingT = 4.dp
+private val FieldPaddingH = 8.dp
+private val FieldBottomGap = 8.dp
+private val BottomRowGap = 4.dp
+private val AttachBtnSize = 32.dp
 private val PresetChipHeight = 32.dp
-private val PresetChipPadH   = 10.dp
-private val PresetChipGap    = 6.dp
+private val PresetChipPadH = 12.dp
+private val PresetChipGap = 8.dp
 
 @Composable
 internal fun Composer(
@@ -70,20 +69,19 @@ internal fun Composer(
 ) {
     val cs = MaterialTheme.colorScheme
 
-        Surface(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(
-                    top = OuterPaddingT,
-                    bottom = OuterPaddingB,
-                    start = OuterPaddingH,
-                    end = OuterPaddingH,
-                ),
-            shape = RoundedCornerShape(Radius),
-            color = cs.surface,
-            border = BorderStroke(1.dp, cs.outlineVariant),
-            shadowElevation = 1.dp,
-        ) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                top = OuterPaddingT,
+                bottom = OuterPaddingB,
+                start = OuterPaddingH,
+                end = OuterPaddingH,
+            ),
+        shape = RoundedCornerShape(Radius),
+        color = cs.surfaceVariant,
+        border = BorderStroke(1.dp, cs.outlineVariant),
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(
                 top = InnerPaddingT,
@@ -98,7 +96,6 @@ internal fun Composer(
                 onValueChange = onInputChange,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = cs.onSurface,
-                    lineHeight = 20.sp,
                 ),
                 cursorBrush = SolidColor(ForgeColors.spark),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),

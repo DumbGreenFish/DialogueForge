@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_placeholder
+import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.ChatHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.DateSeparator
@@ -54,12 +56,14 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 private val BodyPaddingH = 12.dp
+private const val DialogueContentWidthFraction = 0.65f
+private const val DialogueComposerWidthFraction = 0.80f
 
 private data class ChatItem(val dateLabel: String?, val message: Message?)
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
-fun DialogueView(characterId: String, onBack: () -> Unit) {
+fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<DialogueViewModel>()
     val state by viewModel.state.collectAsState()
 
@@ -78,13 +82,14 @@ fun DialogueView(characterId: String, onBack: () -> Unit) {
 
     var deleteTargetId by remember { mutableStateOf<String?>(null) }
 
-    Scaffold { innerPadding ->
+    Scaffold(modifier = modifier) { innerPadding ->
         Surface(modifier = Modifier.fillMaxSize().padding(innerPadding), color = cs.background) {
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = ForgeColors.spark)
                 }
             } else {
+                val compact = isCompact
                 Column(Modifier.fillMaxSize()) {
                     ChatHeader(
                         character = state.character,
@@ -93,107 +98,208 @@ fun DialogueView(characterId: String, onBack: () -> Unit) {
                         onBack = onBack,
                     )
                     HorizontalDivider(color = cs.outline)
-                    val messages = state.messages
-                    if (messages.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .padding(horizontal = BodyPaddingH),
-                            contentAlignment = Alignment.Center,
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = if (compact) Alignment.TopStart else Alignment.TopCenter,
+                    ) {
+                        Column(
+                            modifier = if (compact) {
+                                Modifier.fillMaxSize()
+                            } else {
+                                Modifier
+                                    .fillMaxWidth(DialogueContentWidthFraction)
+                                    .fillMaxHeight()
+                            },
                         ) {
-                            Text(
-                                text = stringResource(Res.string.dialogue_placeholder),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = ForgeColors.onSurfaceFaint,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    } else {
-                        val items = buildChatItems(messages)
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        ) {
-                            itemsIndexed(
-                                items = items,
-                                key = { _, item -> item.message?.id ?: "date-${item.dateLabel}" },
-                            ) { _, item ->
-                                when {
-                                    item.dateLabel != null -> DateSeparator(label = item.dateLabel)
-                                    item.message != null -> MessageBubble(
-                                        message = item.message,
-                                        onLongPress = { deleteTargetId = item.message.id },
-                                        modifier = Modifier.padding(horizontal = BodyPaddingH),
+                            val messages = state.messages
+                            if (messages.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = BodyPaddingH),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.dialogue_placeholder),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = ForgeColors.onSurfaceFaint,
+                                        textAlign = TextAlign.Center,
                                     )
+                                }
+                            } else {
+                                val items = buildChatItems(messages)
+                                LazyColumn(
+                                    state = listState,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                ) {
+                                    itemsIndexed(
+                                        items = items,
+                                        key = { _, item -> item.message?.id ?: "date-${item.dateLabel}" },
+                                    ) { _, item ->
+                                        when {
+                                            item.dateLabel != null -> DateSeparator(label = item.dateLabel)
+                                            item.message != null -> MessageBubble(
+                                                message = item.message,
+                                                onLongPress = { deleteTargetId = item.message.id },
+                                                modifier = Modifier.padding(horizontal = BodyPaddingH),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            if (compact) {
+                                HorizontalDivider(color = cs.outline)
+                                AnimatedVisibility(
+                                    visible = state.isGenerating,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(14.dp),
+                                            strokeWidth = 2.dp,
+                                            color = ForgeColors.spark,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.dialogue_generating, state.character?.name ?: "Character"),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = ForgeColors.onSurfaceFaint,
+                                        )
+                                    }
+                                }
+                                AnimatedVisibility(
+                                    visible = state.error != null,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        Text(
+                                            text = state.error ?: "",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = cs.error,
+                                            modifier = Modifier.weight(1f).padding(start = 4.dp),
+                                        )
+                                        TextButton(onClick = { viewModel.handle(DialogueIntent.Regenerate) }) {
+                                            Text(
+                                                stringResource(Res.string.dialogue_error_retry),
+                                                color = ForgeColors.spark,
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                        }
+                                        TextButton(onClick = { viewModel.handle(DialogueIntent.DismissError) }) {
+                                            Text(
+                                                stringResource(Res.string.dialogue_error_dismiss),
+                                                color = ForgeColors.onSurfaceFaint,
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    HorizontalDivider(color = cs.outline)
-                    AnimatedVisibility(
-                        visible = state.isGenerating,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    if (!compact) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                strokeWidth = 2.dp,
-                                color = ForgeColors.spark,
-                            )
-                            Text(
-                                text = stringResource(Res.string.dialogue_generating, state.character?.name ?: "Character"),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = ForgeColors.onSurfaceFaint,
-                            )
+                            Column(
+                                modifier = Modifier.fillMaxWidth(DialogueComposerWidthFraction),
+                            ) {
+                                AnimatedVisibility(
+                                    visible = state.isGenerating,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(14.dp),
+                                            strokeWidth = 2.dp,
+                                            color = ForgeColors.spark,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.dialogue_generating, state.character?.name ?: "Character"),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = ForgeColors.onSurfaceFaint,
+                                        )
+                                    }
+                                }
+                                AnimatedVisibility(
+                                    visible = state.error != null,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        Text(
+                                            text = state.error ?: "",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = cs.error,
+                                            modifier = Modifier.weight(1f).padding(start = 4.dp),
+                                        )
+                                        TextButton(onClick = { viewModel.handle(DialogueIntent.Regenerate) }) {
+                                            Text(
+                                                stringResource(Res.string.dialogue_error_retry),
+                                                color = ForgeColors.spark,
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                        }
+                                        TextButton(onClick = { viewModel.handle(DialogueIntent.DismissError) }) {
+                                            Text(
+                                                stringResource(Res.string.dialogue_error_dismiss),
+                                                color = ForgeColors.onSurfaceFaint,
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                    AnimatedVisibility(
-                        visible = state.error != null,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = BodyPaddingH, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    if (compact) {
+                        Composer(
+                            inputText = state.inputText,
+                            onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
+                            onSend = { viewModel.handle(DialogueIntent.Send) },
+                            isGenerating = state.isGenerating,
+                            onStop = { viewModel.handle(DialogueIntent.StopGeneration) },
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = state.error ?: "",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = cs.error,
-                                modifier = Modifier.weight(1f).padding(start = 4.dp),
-                            )
-                            TextButton(onClick = { viewModel.handle(DialogueIntent.Regenerate) }) {
-                                Text(
-                                    stringResource(Res.string.dialogue_error_retry),
-                                    color = ForgeColors.spark,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-                            TextButton(onClick = { viewModel.handle(DialogueIntent.DismissError) }) {
-                                Text(
-                                    stringResource(Res.string.dialogue_error_dismiss),
-                                    color = ForgeColors.onSurfaceFaint,
-                                    style = MaterialTheme.typography.labelSmall,
+                            Box(modifier = Modifier.fillMaxWidth(DialogueComposerWidthFraction)) {
+                                Composer(
+                                    inputText = state.inputText,
+                                    onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
+                                    onSend = { viewModel.handle(DialogueIntent.Send) },
+                                    isGenerating = state.isGenerating,
+                                    onStop = { viewModel.handle(DialogueIntent.StopGeneration) },
                                 )
                             }
                         }
                     }
-                    Composer(
-                        inputText = state.inputText,
-                        onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
-                        onSend = { viewModel.handle(DialogueIntent.Send) },
-                        isGenerating = state.isGenerating,
-                        onStop = { viewModel.handle(DialogueIntent.StopGeneration) },
-                    )
                 }
             }
         }

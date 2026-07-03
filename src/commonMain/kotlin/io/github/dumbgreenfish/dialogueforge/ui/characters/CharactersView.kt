@@ -50,7 +50,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
-private val GRID_CELLS_GRID_WIDE    = GridCells.Adaptive(220.dp)
+private val GRID_CELLS_GRID_WIDE    = GridCells.Adaptive(160.dp)
 
 private val ContentPaddingWideH    = 28.dp
 private val ContentPaddingWideB    = 32.dp

@@ -7,10 +7,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 
 enum class CharacterTagTone { Primary, Secondary, Tertiary }
+
+internal val TagHorzPadding = 8.dp
+internal val TagVertPadding = 4.dp
 
 @Composable
 internal fun CharacterTag(label: String, tone: CharacterTagTone = CharacterTagTone.Secondary) {
@@ -29,8 +33,10 @@ internal fun CharacterTag(label: String, tone: CharacterTagTone = CharacterTagTo
         text = label,
         style = MaterialTheme.typography.labelMedium,
         color = fg,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier
             .background(bg, RoundedCornerShape(4.dp))
-            .padding(horizontal = 9.dp, vertical = 3.dp),
+            .padding(horizontal = TagHorzPadding, vertical = TagVertPadding),
     )
 }

@@ -6,8 +6,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -35,6 +37,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -46,10 +51,10 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.Chara
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.ContextAction
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.characterContextActions
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Tag
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
 import org.jetbrains.compose.resources.stringResource
 
-private const val VISIBLE_TAGS_MAX  = 2
 private const val NAME_MAX_LINES    = 1
 private const val TAGLINE_MAX_LINES = 2
 private const val GRADIENT_ALPHA    = 0.85f
@@ -59,6 +64,10 @@ private val MoreBadgeSize       = 30.dp
 private val MoreIconSize        = 18.dp
 private val BadgeClusterPadding = 8.dp
 private val BadgeClusterGap     = 6.dp
+private val GradientOverlayPadH      = 8.dp
+private val GradientOverlayPadTop    = 16.dp
+private val GradientOverlayPadBottom = 8.dp
+private val TagRowGap                = 4.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -117,12 +126,19 @@ private fun GridSquare(
     actions: List<ContextAction>,
 ) {
     val bg = MaterialTheme.colorScheme.background
-    val visibleTags = char.tags.take(VISIBLE_TAGS_MAX)
-    val extraCount = char.tags.size - visibleTags.size
-    Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
+        val flowWidth = maxWidth - GradientOverlayPadH * 2
+        val maxVisible = calculateVisibleTags(
+            tags = char.tags,
+            containerWidth = flowWidth,
+            chipPadH = TagHorzPadding,
+            gap = TagRowGap,
+        )
+        val visibleTags = char.tags.take(maxVisible)
+        val extraCount = char.tags.size - maxVisible
         CharacterAvatar(letter = char.letter, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar, fontSize = 56.sp, avatarBytes = char.avatarBytes)
         GradientOverlay(bg.copy(alpha = 0f), bg.copy(alpha = GRADIENT_ALPHA)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(TagRowGap), verticalArrangement = Arrangement.spacedBy(TagRowGap)) {
                 visibleTags.forEachIndexed { i, tag ->
                     CharacterTag(label = tag.value, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
                 }
@@ -162,8 +178,46 @@ private fun BoxScope.GradientOverlay(
             .fillMaxWidth()
             .align(Alignment.BottomStart)
             .background(Brush.verticalGradient(0f to colorTop, 1f to colorBottom))
-            .padding(start = 10.dp, end = 10.dp, top = 24.dp, bottom = 10.dp),
+            .padding(start = GradientOverlayPadH, end = GradientOverlayPadH, top = GradientOverlayPadTop, bottom = GradientOverlayPadBottom),
     ) { content() }
+}
+
+@Composable
+private fun calculateVisibleTags(
+    tags: List<Tag>,
+    containerWidth: Dp,
+    chipPadH: Dp,
+    gap: Dp,
+    maxLines: Int = 1,
+): Int {
+    if (containerWidth <= 0.dp || tags.isEmpty()) return 0
+
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val style = MaterialTheme.typography.labelMedium
+    val padTotalPx = with(density) { (chipPadH * 2).toPx() }
+    val gapPx = with(density) { gap.toPx() }
+    val maxPx = with(density) { containerWidth.toPx() }
+
+    val widths = tags.map { tag ->
+        measurer.measure(tag.value, style, maxLines = 1).size.width + padTotalPx
+    }
+
+    var lines = 1
+    var linePx = 0f
+    var count = 0
+    for (w in widths) {
+        val needed = if (linePx == 0f) w else w + gapPx
+        if (linePx + needed > maxPx) {
+            lines++
+            if (lines > maxLines) break
+            linePx = w
+        } else {
+            linePx += needed
+        }
+        count++
+    }
+    return count.coerceAtLeast(1)
 }
 
 @Composable

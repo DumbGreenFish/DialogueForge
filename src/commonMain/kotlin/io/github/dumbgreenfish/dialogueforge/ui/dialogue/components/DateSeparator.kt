@@ -5,25 +5,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
+import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-private val SeparatorPaddingV = 3.dp
+private val SeparatorPaddingV = 4.dp
 private val SeparatorPaddingH = 12.dp
-private val SeparatorFontSize = 11.sp
-private val SeparatorMarginT = 14.dp
+private val SeparatorMarginT = 12.dp
 private val SeparatorMarginB = 8.dp
 
 internal fun formatDateLabel(ms: Long): String {
@@ -45,8 +42,8 @@ internal fun DateSeparator(
         horizontalArrangement = Arrangement.Center,
     ) {
         Surface(
-            shape = RoundedCornerShape(100.dp),
-            color = cs.surface,
+            shape = ForgeShape.pill,
+            color = cs.surfaceContainerLow,
             border = androidx.compose.foundation.BorderStroke(1.dp, cs.outline),
         ) {
             Text(
@@ -56,8 +53,7 @@ internal fun DateSeparator(
                     horizontal = SeparatorPaddingH,
                 ),
                 color = ForgeColors.onSurfaceFaint,
-                fontSize = SeparatorFontSize,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.labelSmall,
             )
         }
     }

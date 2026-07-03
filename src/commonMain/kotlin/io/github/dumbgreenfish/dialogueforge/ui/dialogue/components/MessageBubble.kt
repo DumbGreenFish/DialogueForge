@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Info
@@ -24,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
@@ -34,26 +32,21 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-private val BubblePaddingT = 9.dp
-private val BubblePaddingB = 6.dp
-private val BubblePaddingH = 13.dp
-private val BubbleFontSize = 14.sp
-private val BubbleLineHeight = 20.sp
+private val BubblePaddingT = 8.dp
+private val BubblePaddingB = 8.dp
+private val BubblePaddingH = 12.dp
 private val BubbleWidthCompact = 0.84f
 private val BubbleWidthDesktop = 0.76f
 private val BubbleMaxWidthDesktop = 588.dp
-private val TimestampFontSize = 10.sp
 private val TimestampUserAlpha = 0.55f
 private val CheckmarkSize = 12.dp
 private val SystemChipPaddingV = 4.dp
-private val SystemChipPaddingH = 10.dp
-private val SystemChipFontSize = 11.sp
+private val SystemChipPaddingH = 12.dp
 private val SystemInfoIconSize = 12.dp
 private val RowPaddingH = 2.dp
 private val RowPaddingV = 2.dp
 private val TimestampTop = 2.dp
 private val SystemChipMargin = 8.dp
-private val PillRadius = 100.dp
 
 private fun formatTime(ms: Long): String {
     val dt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
@@ -122,8 +115,7 @@ internal fun MessageBubble(
                 Text(
                     text = message.text,
                     color = fg,
-                    fontSize = BubbleFontSize,
-                    lineHeight = BubbleLineHeight,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 Row(
                     modifier = Modifier
@@ -135,7 +127,7 @@ internal fun MessageBubble(
                     Text(
                         text = formatTime(message.timestamp),
                         color = timestampColor,
-                        fontSize = TimestampFontSize,
+                        style = MaterialTheme.typography.labelSmall,
                     )
                     if (isUser) {
                         Spacer(Modifier.size(4.dp))
@@ -160,7 +152,7 @@ private fun SystemMessageChip(text: String, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.Center,
     ) {
         Surface(
-            shape = RoundedCornerShape(PillRadius),
+            shape = ForgeShape.pill,
             color = cs.surfaceVariant,
             border = BorderStroke(1.dp, cs.outline),
             modifier = Modifier.padding(vertical = SystemChipMargin),
@@ -182,7 +174,7 @@ private fun SystemMessageChip(text: String, modifier: Modifier = Modifier) {
                 Text(
                     text = text,
                     color = ForgeColors.onSurfaceFaint,
-                    fontSize = SystemChipFontSize,
+                    style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Center,
                 )
             }
