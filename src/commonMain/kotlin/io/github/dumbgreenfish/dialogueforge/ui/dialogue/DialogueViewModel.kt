@@ -1,5 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
@@ -37,7 +38,7 @@ class DialogueViewModel(
             is DialogueIntent.LoadCharacter -> loadCharacter(intent.id)
             is DialogueIntent.LoadConversation -> loadConversation()
             is DialogueIntent.Back -> {}
-            is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.text) }
+            is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.value) }
             is DialogueIntent.Send -> onSend()
             is DialogueIntent.DismissError -> _state.update { it.copy(error = null) }
             is DialogueIntent.StopGeneration -> stopGeneration()
@@ -47,11 +48,11 @@ class DialogueViewModel(
     }
 
     private fun onSend() {
-        val text = _state.value.inputText.trim()
+        val text = _state.value.inputText.text.trim()
         if (text.isEmpty()) return
         val conversationId = _state.value.conversationId ?: return
         val character = _state.value.character ?: return
-        _state.update { it.copy(inputText = "", isGenerating = true, error = null, lastSentText = text) }
+        _state.update { it.copy(inputText = TextFieldValue(), isGenerating = true, error = null, lastSentText = text) }
 
         generationJob = viewModelScope.launch {
             val history = buildHistory(conversationId)

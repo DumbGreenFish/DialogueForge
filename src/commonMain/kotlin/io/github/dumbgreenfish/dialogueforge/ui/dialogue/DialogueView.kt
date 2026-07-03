@@ -32,6 +32,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -45,6 +51,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_placeholder
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
+import io.github.dumbgreenfish.dialogueforge.ui.common.isDesktopPlatform
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.ChatHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.DateSeparator
@@ -82,7 +89,18 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
 
     var deleteTargetId by remember { mutableStateOf<String?>(null) }
 
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(
+        modifier = modifier.onPreviewKeyEvent { keyEvent ->
+            if (isDesktopPlatform && keyEvent.type == KeyEventType.KeyDown
+                && keyEvent.key == Key.DirectionLeft && keyEvent.isAltPressed
+            ) {
+                onBack()
+                true
+            } else {
+                false
+            }
+        },
+    ) { innerPadding ->
         Surface(modifier = Modifier.fillMaxSize().padding(innerPadding), color = cs.background) {
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -278,7 +296,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                     }
                     if (compact) {
                         Composer(
-                            inputText = state.inputText,
+                            textFieldValue = state.inputText,
                             onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
                             onSend = { viewModel.handle(DialogueIntent.Send) },
                             isGenerating = state.isGenerating,
@@ -291,7 +309,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         ) {
                             Box(modifier = Modifier.fillMaxWidth(DialogueComposerWidthFraction)) {
                                 Composer(
-                                    inputText = state.inputText,
+                                    textFieldValue = state.inputText,
                                     onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
                                     onSend = { viewModel.handle(DialogueIntent.Send) },
                                     isGenerating = state.isGenerating,

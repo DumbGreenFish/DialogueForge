@@ -1,5 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
+import androidx.compose.ui.text.input.TextFieldValue
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 
@@ -8,7 +9,7 @@ data class DialogueState(
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
     val error: String? = null,
-    val inputText: String = "",
+    val inputText: TextFieldValue = TextFieldValue(),
     val presetName: String = "",
     val modelName: String = "",
     val messages: List<Message> = emptyList(),

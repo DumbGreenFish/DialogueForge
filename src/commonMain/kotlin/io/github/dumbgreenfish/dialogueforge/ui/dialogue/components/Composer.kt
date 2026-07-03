@@ -33,11 +33,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_hint
+import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import org.jetbrains.compose.resources.stringResource
 
 private val Radius = 20.dp
@@ -60,8 +70,8 @@ private val PresetChipGap = 8.dp
 
 @Composable
 internal fun Composer(
-    inputText: String,
-    onInputChange: (String) -> Unit,
+    textFieldValue: TextFieldValue,
+    onInputChange: (TextFieldValue) -> Unit,
     onSend: () -> Unit,
     isGenerating: Boolean = false,
     onStop: () -> Unit = {},
@@ -92,7 +102,7 @@ internal fun Composer(
             verticalArrangement = Arrangement.spacedBy(FieldBottomGap),
         ) {
             BasicTextField(
-                value = inputText,
+                value = textFieldValue,
                 onValueChange = onInputChange,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = cs.onSurface,
@@ -103,10 +113,35 @@ internal fun Composer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = FieldMinHeight, max = FieldMaxHeight)
-                    .padding(top = FieldPaddingT, start = FieldPaddingH, end = FieldPaddingH),
+                    .padding(top = FieldPaddingT, start = FieldPaddingH, end = FieldPaddingH)
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (!isMobilePlatform && keyEvent.type == KeyEventType.KeyDown) {
+                            val shouldNewline = (keyEvent.key == Key.J && keyEvent.isCtrlPressed)
+                                || (keyEvent.key == Key.Enter && keyEvent.isShiftPressed)
+                            when {
+                                shouldNewline -> {
+                                    val v = textFieldValue
+                                    val pos = v.selection.start
+                                    val newText = v.text.substring(0, pos) + "\n" + v.text.substring(pos)
+                                    onInputChange(v.copy(
+                                        text = newText,
+                                        selection = TextRange(pos + 1, pos + 1),
+                                    ))
+                                    true
+                                }
+                                keyEvent.key == Key.Enter -> {
+                                    onSend()
+                                    true
+                                }
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
                 decorationBox = { innerTextField ->
                     Box {
-                        if (inputText.isEmpty()) {
+                        if (textFieldValue.text.isEmpty()) {
                             Text(
                                 text = stringResource(Res.string.dialogue_input_hint),
                                 style = MaterialTheme.typography.bodyLarge,
@@ -171,7 +206,7 @@ internal fun Composer(
                             modifier = Modifier.size(24.dp),
                         )
                     }
-                } else if (inputText.isNotBlank()) {
+                } else if (textFieldValue.text.isNotBlank()) {
                     FilledIconButton(
                         onClick = onSend,
                         colors = IconButtonDefaults.filledIconButtonColors(
