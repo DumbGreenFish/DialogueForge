@@ -7,4 +7,5 @@ interface DialogueRepository {
     suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity
     suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity
     suspend fun deleteMessage(id: String)
+    suspend fun updateMessage(id: String, text: String)
 }

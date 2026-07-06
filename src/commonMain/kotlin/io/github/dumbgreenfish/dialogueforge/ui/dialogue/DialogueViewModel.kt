@@ -47,6 +47,15 @@ class DialogueViewModel(
             is DialogueIntent.ToggleMessageSelection -> toggleMessageSelection(intent.messageId)
             is DialogueIntent.ClearSelection -> clearSelection()
             is DialogueIntent.DeleteSelected -> deleteSelected()
+            is DialogueIntent.ShowActionRow -> showActionRow(intent.messageId)
+            is DialogueIntent.HideActionRow -> hideActionRow()
+            is DialogueIntent.StartEditing -> startEditing(intent.messageId, intent.text)
+            is DialogueIntent.UpdateEditText -> _state.update { it.copy(editText = intent.value) }
+            is DialogueIntent.SaveEdit -> saveEdit()
+            is DialogueIntent.CancelEdit -> cancelEdit()
+            is DialogueIntent.ShowDeleteDialog -> showDeleteDialog(intent.messageId)
+            is DialogueIntent.DismissDeleteDialog -> dismissDeleteDialog()
+            is DialogueIntent.ConfirmDelete -> confirmDelete()
         }
     }
 
@@ -111,15 +120,19 @@ class DialogueViewModel(
     }
 
     private fun toggleMessageSelection(messageId: String) {
+        if (_state.value.isGenerating) return
         _state.update { state ->
             val newSet = state.selectedMessageIds.toMutableSet()
             if (messageId in newSet) newSet.remove(messageId) else newSet.add(messageId)
-            state.copy(selectedMessageIds = newSet)
+            state.copy(
+                selectedMessageIds = newSet,
+                activeActionRowMessageId = if (newSet.isNotEmpty()) null else state.activeActionRowMessageId,
+            )
         }
     }
 
     private fun clearSelection() {
-        _state.update { it.copy(selectedMessageIds = emptySet()) }
+        _state.update { it.copy(selectedMessageIds = emptySet(), activeActionRowMessageId = null) }
     }
 
     private fun deleteSelected() {
@@ -129,6 +142,68 @@ class DialogueViewModel(
                 dialogueRepository.deleteMessage(id)
             }
             _state.update { it.copy(selectedMessageIds = emptySet()) }
+        }
+    }
+
+    private fun showActionRow(messageId: String) {
+        _state.update {
+            if (it.activeActionRowMessageId == messageId) {
+                it.copy(activeActionRowMessageId = null)
+            } else {
+                it.copy(activeActionRowMessageId = messageId)
+            }
+        }
+    }
+
+    private fun hideActionRow() {
+        _state.update { it.copy(activeActionRowMessageId = null, editingMessageId = null, editText = TextFieldValue()) }
+    }
+
+    private fun startEditing(messageId: String, text: String) {
+        _state.update { it.copy(editingMessageId = messageId, editText = TextFieldValue(text)) }
+    }
+
+    private fun saveEdit() {
+        val messageId = _state.value.editingMessageId ?: return
+        val newText = _state.value.editText.text
+        viewModelScope.launch {
+            dialogueRepository.updateMessage(messageId, newText)
+            _state.update { it.copy(editingMessageId = null, editText = TextFieldValue()) }
+        }
+    }
+
+    private fun cancelEdit() {
+        _state.update { it.copy(editingMessageId = null, editText = TextFieldValue()) }
+    }
+
+    private fun showDeleteDialog(messageId: String?) {
+        _state.update { it.copy(showDeleteDialog = true, deleteDialogMessageId = messageId) }
+    }
+
+    private fun dismissDeleteDialog() {
+        _state.update { it.copy(showDeleteDialog = false, deleteDialogMessageId = null) }
+    }
+
+    private fun confirmDelete() {
+        viewModelScope.launch {
+            val messageId = _state.value.deleteDialogMessageId
+            if (messageId != null) {
+                dialogueRepository.deleteMessage(messageId)
+            } else {
+                val ids = _state.value.selectedMessageIds
+                for (id in ids) {
+                    dialogueRepository.deleteMessage(id)
+                }
+            }
+            _state.update {
+                it.copy(
+                    showDeleteDialog = false,
+                    deleteDialogMessageId = null,
+                    selectedMessageIds = emptySet(),
+                    activeActionRowMessageId = null,
+                    editingMessageId = null,
+                )
+            }
         }
     }
 

@@ -15,4 +15,13 @@ sealed class DialogueIntent {
     data class ToggleMessageSelection(val messageId: String) : DialogueIntent()
     data object ClearSelection : DialogueIntent()
     data object DeleteSelected : DialogueIntent()
+    data class ShowActionRow(val messageId: String) : DialogueIntent()
+    data object HideActionRow : DialogueIntent()
+    data class StartEditing(val messageId: String, val text: String) : DialogueIntent()
+    data class UpdateEditText(val value: TextFieldValue) : DialogueIntent()
+    data object SaveEdit : DialogueIntent()
+    data object CancelEdit : DialogueIntent()
+    data class ShowDeleteDialog(val messageId: String? = null) : DialogueIntent()
+    data object DismissDeleteDialog : DialogueIntent()
+    data object ConfirmDelete : DialogueIntent()
 }

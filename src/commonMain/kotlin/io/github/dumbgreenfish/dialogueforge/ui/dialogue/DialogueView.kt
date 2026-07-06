@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_cancel
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_confirm
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_message
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_title
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
@@ -122,7 +127,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                                 clipboardManager.setText(AnnotatedString(text))
                                 viewModel.handle(DialogueIntent.ClearSelection)
                             },
-                            onDeleteSelected = { viewModel.handle(DialogueIntent.DeleteSelected) },
+                            onDeleteSelected = { viewModel.handle(DialogueIntent.ShowDeleteDialog(null)) },
                         )
                     } else {
                         ChatHeader(
@@ -183,6 +188,22 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                                                 inSelectionMode = isSelectionMode,
                                                 onToggleSelection = { id -> viewModel.handle(DialogueIntent.ToggleMessageSelection(id)) },
                                                 onEnterSelectionMode = { id -> viewModel.handle(DialogueIntent.ToggleMessageSelection(id)) },
+                                                showActionRow = state.activeActionRowMessageId == item.message.id,
+                                                isEditing = state.editingMessageId == item.message.id,
+                                                onShowActionRow = { id -> viewModel.handle(DialogueIntent.ShowActionRow(id)) },
+                                                onCopy = { id ->
+                                                    state.messages.find { m -> m.id == id }?.text?.let { text ->
+                                                        clipboardManager.setText(AnnotatedString(text))
+                                                        viewModel.handle(DialogueIntent.HideActionRow)
+                                                    }
+                                                },
+                                                onEdit = { id -> viewModel.handle(DialogueIntent.StartEditing(id, item.message.text)) },
+                                                onDelete = { id -> viewModel.handle(DialogueIntent.ShowDeleteDialog(id)) },
+                                                onSave = { viewModel.handle(DialogueIntent.SaveEdit) },
+                                                onCancel = { viewModel.handle(DialogueIntent.CancelEdit) },
+                                                onEditTextChange = { value -> viewModel.handle(DialogueIntent.UpdateEditText(value)) },
+                                                editTextValue = state.editText,
+                                                isGenerating = state.isGenerating,
                                                 modifier = Modifier.padding(horizontal = BodyPaddingH),
                                             )
                                         }
@@ -336,8 +357,26 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                                 )
                             }
                         }
-                    }
                 }
+
+                if (state.showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { viewModel.handle(DialogueIntent.DismissDeleteDialog) },
+                        title = { Text(stringResource(Res.string.dialogue_delete_title)) },
+                        text = { Text(stringResource(Res.string.dialogue_delete_message)) },
+                        confirmButton = {
+                            TextButton(onClick = { viewModel.handle(DialogueIntent.ConfirmDelete) }) {
+                                Text(stringResource(Res.string.dialogue_delete_confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { viewModel.handle(DialogueIntent.DismissDeleteDialog) }) {
+                                Text(stringResource(Res.string.dialogue_delete_cancel))
+                            }
+                        },
+                    )
+                }
+            }
             }
         }
     }

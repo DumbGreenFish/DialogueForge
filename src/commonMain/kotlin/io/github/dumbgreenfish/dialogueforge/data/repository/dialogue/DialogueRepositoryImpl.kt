@@ -61,4 +61,8 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override suspend fun deleteMessage(id: String) {
         db.messageDao().deleteById(id)
     }
+
+    override suspend fun updateMessage(id: String, text: String) {
+        db.messageDao().updateText(id, text)
+    }
 }

@@ -16,4 +16,9 @@ data class DialogueState(
     val conversationId: String? = null,
     val lastSentText: String? = null,
     val selectedMessageIds: Set<String> = emptySet(),
+    val activeActionRowMessageId: String? = null,
+    val editingMessageId: String? = null,
+    val editText: TextFieldValue = TextFieldValue(),
+    val showDeleteDialog: Boolean = false,
+    val deleteDialogMessageId: String? = null,
 )
