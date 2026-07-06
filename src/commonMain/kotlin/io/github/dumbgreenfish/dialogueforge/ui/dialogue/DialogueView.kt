@@ -45,7 +45,8 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_placeholder
-import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
+import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
+import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.ChatHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.DateSeparator
@@ -108,7 +109,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                     CircularProgressIndicator(color = ForgeColors.spark)
                 }
             } else {
-                val compact = isCompact
+                val compact = windowClass != WindowClass.Wide
                 Column(Modifier.fillMaxSize()) {
                     if (isSelectionMode) {
                         SelectedHeader(

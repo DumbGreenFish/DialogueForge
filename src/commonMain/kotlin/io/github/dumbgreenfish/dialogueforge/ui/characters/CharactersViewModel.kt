@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.dumbgreenfish.dialogueforge.data.format.ParseResult
 import io.github.dumbgreenfish.dialogueforge.data.format.TavernCardParser
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,11 +18,15 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
-class CharactersViewModel(private val repository: CharacterRepository) : ViewModel() {
+class CharactersViewModel(
+    private val repository: CharacterRepository,
+    private val forgeSettings: ForgeSettings,
+) : ViewModel() {
     private val _state = MutableStateFlow(CharactersState())
     val state: StateFlow<CharactersState> = _state.asStateFlow()
 
     init {
+        _state.update { it.copy(viewMode = forgeSettings.defaultViewMode.value) }
         repository.characters
             .onEach { entities -> _state.value = _state.value.copy(characters = entities.map { it.toCharacter() }) }
             .launchIn(viewModelScope)

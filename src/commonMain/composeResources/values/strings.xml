@@ -63,4 +63,25 @@
         <item quantity="one">%1$d selected</item>
         <item quantity="other">%1$d selected</item>
     </plurals>
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_density_scale">Interface scale</string>
+    <string name="settings_font_scale">Font scale</string>
+    <string name="settings_animation_speed">Animation speed</string>
+    <string name="settings_default_view_mode">Default view</string>
+    <string name="settings_animation_fast">Fast</string>
+    <string name="settings_animation_normal">Normal</string>
+    <string name="settings_animation_slow">Slow</string>
+    <string name="settings_animation_off">Off</string>
+    <string name="settings_view_list">List</string>
+    <string name="settings_view_grid">Grid</string>
+    <string name="settings_section_chat">Chat</string>
+    <string name="settings_message_width">Message width</string>
+    <string name="settings_message_compact">Compact</string>
+    <string name="settings_message_normal">Normal</string>
+    <string name="settings_message_wide">Wide</string>
+    <string name="settings_composer_max_height">Max input height</string>
+    <string name="settings_section_navigation">Navigation</string>
+    <string name="settings_sidebar_width">Sidebar width</string>
+    <string name="settings_reset">Reset to defaults</string>
 </resources>

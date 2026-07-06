@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
@@ -41,7 +42,10 @@ object ForgeApp {
 fun App() {
     KoinApplication(configuration = koinConfiguration {}) {
         DialogueForgeTheme {
-            WithReferenceDensity {
+            val forgeSettings = koinInject<ForgeSettings>()
+            val densityScale by forgeSettings.densityScale.collectAsState()
+            val fontScale by forgeSettings.fontScale.collectAsState()
+            WithReferenceDensity(densityScale, fontScale) {
                 val controller = koinInject<NavController>()
                 val activeTab by controller.activeTab.collectAsState()
 

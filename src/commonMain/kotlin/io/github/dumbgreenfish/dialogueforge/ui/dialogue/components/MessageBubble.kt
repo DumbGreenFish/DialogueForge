@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,22 +49,22 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
-import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
+import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
+import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.koin.compose.koinInject
 
 private val BubblePaddingT = 8.dp
 private val BubblePaddingB = 8.dp
 private val BubblePaddingH = 12.dp
-private val BubbleWidthCompact = 0.84f
-private val BubbleWidthDesktop = 0.76f
-private val BubbleMaxWidthDesktop = 588.dp
 private val TimestampUserAlpha = 0.55f
 private val CheckmarkSize = 12.dp
 private val SystemChipPaddingV = 4.dp
@@ -103,9 +104,12 @@ internal fun MessageBubble(
     }
 
     val cs = MaterialTheme.colorScheme
-    val compact = isCompact
+    val compact = windowClass != WindowClass.Wide
     val isUser = message.role == MessageRole.User
     val duration = ForgeAnimation.DurationStateTransition
+
+    val forgeSettings = koinInject<ForgeSettings>()
+    val messageWidth by forgeSettings.messageWidth.collectAsState()
 
     val bg = if (isUser) ForgeColors.copperDim else cs.surfaceVariant
     val fg = if (isUser) cs.onPrimaryContainer else cs.onSurface
@@ -141,9 +145,9 @@ internal fun MessageBubble(
         contentAlignment = boxAlignment,
     ) {
         val bubbleWidth = if (compact) {
-            maxWidth * BubbleWidthCompact
+            maxWidth * messageWidth.compactFraction
         } else {
-            minOf(maxWidth * BubbleWidthDesktop, BubbleMaxWidthDesktop)
+            minOf(maxWidth * messageWidth.desktopFraction, messageWidth.desktopMaxWidthDp.dp)
         }
 
         Row(

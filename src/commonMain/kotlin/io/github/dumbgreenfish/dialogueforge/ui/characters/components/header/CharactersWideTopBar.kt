@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -54,15 +55,14 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_tota
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
-import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.common.WideTopBarHeight
+import io.github.dumbgreenfish.dialogueforge.ui.common.WideTopBarPaddingH
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val TopBarHeight   = 64.dp
-private val TopBarPaddingH = 4.dp
 private val GapItems            = 2.dp
 private val ViewTogglePad       = 12.dp
 private val TitleSeparatorPad   = 4.dp
@@ -73,7 +73,7 @@ private val FilterPopupBorder   = 1.dp
 private val FilterPopupShadow   = 12.dp
 
 @Composable
-internal fun CharactersWideTopBar() {
+internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val state by viewModel.state.collectAsState()
     var searchExpanded by remember { mutableStateOf(false) }
@@ -104,8 +104,8 @@ internal fun CharactersWideTopBar() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(TopBarHeight)
-                    .padding(horizontal = TopBarPaddingH),
+                    .height(WideTopBarHeight)
+                    .padding(horizontal = WideTopBarPaddingH),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (expanded) {
@@ -128,10 +128,16 @@ internal fun CharactersWideTopBar() {
                         )
                     }
                 } else {
-                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                        ForgeMark(Modifier.size(16.dp))
+                    if (onMenuClick != null) {
+                        IconButton(onClick = onMenuClick) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = null,
+                                tint = cs.onSurfaceVariant,
+                            )
+                        }
+                        Spacer(Modifier.width(GapItems))
                     }
-                    Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(item.labelRes),
                         style = MaterialTheme.typography.titleMedium,
@@ -183,7 +189,7 @@ internal fun CharactersWideTopBar() {
                             val density = LocalDensity.current
                             Popup(
                                 alignment = Alignment.TopEnd,
-                                offset = IntOffset(0, with(density) { (TopBarHeight + FilterPopupGap).roundToPx() }),
+                                offset = IntOffset(0, with(density) { (WideTopBarHeight + FilterPopupGap).roundToPx() }),
                                 onDismissRequest = { filterOpen = false },
                                 properties = PopupProperties(focusable = true),
                             ) {

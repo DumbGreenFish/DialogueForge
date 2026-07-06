@@ -30,6 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -44,11 +46,13 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_hint
 import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 private val Radius = 20.dp
 private val OuterPaddingT = 8.dp
@@ -58,7 +62,6 @@ private val InnerPaddingT = 12.dp
 private val InnerPaddingB = 8.dp
 private val InnerPaddingH = 16.dp
 private val FieldMinHeight = 20.dp
-private val FieldMaxHeight = 160.dp
 private val FieldPaddingT = 4.dp
 private val FieldPaddingH = 8.dp
 private val FieldBottomGap = 8.dp
@@ -78,6 +81,8 @@ internal fun Composer(
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
+    val forgeSettings = koinInject<ForgeSettings>()
+    val composerMaxHeightDp by forgeSettings.composerMaxHeightDp.collectAsState()
 
     Surface(
         modifier = modifier
@@ -111,7 +116,7 @@ internal fun Composer(
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = FieldMinHeight, max = FieldMaxHeight)
+                    .heightIn(min = FieldMinHeight, max = composerMaxHeightDp.dp)
                     .padding(top = FieldPaddingT, start = FieldPaddingH, end = FieldPaddingH)
                     .onPreviewKeyEvent { keyEvent ->
                         if (!isMobilePlatform && keyEvent.type == KeyEventType.KeyDown) {

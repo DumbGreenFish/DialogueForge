@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.BuildConfig
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ModelNameProvider
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
@@ -40,7 +41,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-private val SidebarWidth          = 240.dp
 private val BrandPaddingH         = 18.dp
 private val BrandPaddingTop       = 20.dp
 private val BrandPaddingBottom    = 16.dp
@@ -64,11 +64,13 @@ fun NavigationSidebar(
 ) {
     val controller = koinInject<NavController>()
     val modelNameProvider = koinInject<ModelNameProvider>()
+    val forgeSettings = koinInject<ForgeSettings>()
     val modelName by modelNameProvider.modelName.collectAsState()
+    val sidebarWidthDp by forgeSettings.sidebarWidthDp.collectAsState()
 
     Column(
         modifier = modifier
-            .width(SidebarWidth)
+            .width(sidebarWidthDp.dp)
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background),
     ) {

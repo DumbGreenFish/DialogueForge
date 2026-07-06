@@ -20,7 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_selection_count
-import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
+import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
+import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import org.jetbrains.compose.resources.pluralStringResource
 
 private val HeightCompact = 64.dp
@@ -40,7 +41,7 @@ internal fun SelectedHeader(
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
-    val compact = isCompact
+    val compact = windowClass != WindowClass.Wide
 
     val height = if (compact) HeightCompact else HeightWide
     val paddingH = if (compact) PaddingHCompact else PaddingHWide
