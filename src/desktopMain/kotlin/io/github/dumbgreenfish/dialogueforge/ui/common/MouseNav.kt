@@ -16,6 +16,7 @@ actual fun Modifier.mouseNav(
     val isLinux = remember { System.getProperty("os.name").lowercase().contains("linux") }
 
     return if (isLinux) {
+        // Linux has a little bit different mapping for these purposes
         this.onPointerEvent(PointerEventType.Press) { event ->
             when (event.button?.index) {
                 4, 6 -> onForward()

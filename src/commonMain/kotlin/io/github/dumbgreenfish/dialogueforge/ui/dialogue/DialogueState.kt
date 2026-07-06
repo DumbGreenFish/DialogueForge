@@ -15,4 +15,5 @@ data class DialogueState(
     val messages: List<Message> = emptyList(),
     val conversationId: String? = null,
     val lastSentText: String? = null,
+    val selectedMessageIds: Set<String> = emptySet(),
 )

@@ -12,4 +12,7 @@ sealed class DialogueIntent {
     data object StopGeneration : DialogueIntent()
     data object Regenerate : DialogueIntent()
     data class DeleteMessage(val messageId: String) : DialogueIntent()
+    data class ToggleMessageSelection(val messageId: String) : DialogueIntent()
+    data object ClearSelection : DialogueIntent()
+    data object DeleteSelected : DialogueIntent()
 }

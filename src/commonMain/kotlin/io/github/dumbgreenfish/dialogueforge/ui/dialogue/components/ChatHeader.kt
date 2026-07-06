@@ -32,27 +32,25 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
 import io.github.dumbgreenfish.dialogueforge.ui.common.isCompact
 import org.jetbrains.compose.resources.stringResource
 
-private val HeightCompact      = 64.dp
-private val HeightWide         = 56.dp
-private val PaddingHCompact    = 4.dp
-private val PaddingHWide       = 12.dp
-private val GapCompact         = 0.dp
-private val GapWide            = 4.dp
-private val ActionBtnTarget     = 36.dp
-private val AvatarSizeCompact  = 36.dp
-private val AvatarSizeWide     = 32.dp
-private val AvatarFontCompact  = 16.sp
-private val AvatarFontWide     = 14.sp
-private val TitleBlockGap      = 10.dp
-private val TitleBlockPadH     = 6.dp
-private val TitleBlockPadV     = 4.dp
-private val SubtitleGap        = 5.dp
-private val SparkDotSize       = 6.dp
+private val HeightCompact = 64.dp
+private val HeightWide = 56.dp
+private val PaddingHCompact = 4.dp
+private val PaddingHWide = 12.dp
+private val GapCompact = 0.dp
+private val GapWide = 4.dp
+private val ActionBtnTarget = 36.dp
+private val AvatarSizeCompact = 36.dp
+private val AvatarSizeWide = 32.dp
+private val AvatarFontCompact = 16.sp
+private val AvatarFontWide = 14.sp
+private val TitleBlockGap = 10.dp
+private val TitleBlockPadH = 6.dp
+private val TitleBlockPadV = 4.dp
+private val SubtitleGap = 5.dp
 
 @Composable
 internal fun ChatHeader(
     character: Character?,
-    presetName: String,
     modelName: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -60,23 +58,30 @@ internal fun ChatHeader(
     val cs = MaterialTheme.colorScheme
     val compact = isCompact
 
-    val height        = if (compact) HeightCompact      else HeightWide
-    val paddingH      = if (compact) PaddingHCompact    else PaddingHWide
-    val gap           = if (compact) GapCompact         else GapWide
-    val avatarSize    = if (compact) AvatarSizeCompact  else AvatarSizeWide
-    val avatarFont    = if (compact) AvatarFontCompact  else AvatarFontWide
-    val titleStyle    = if (compact) MaterialTheme.typography.titleMedium
-                       else MaterialTheme.typography.titleSmall
+    val height = if (compact) HeightCompact else HeightWide
+    val paddingH = if (compact) PaddingHCompact else PaddingHWide
+    val gap = if (compact) GapCompact else GapWide
+    val avatarSize = if (compact) AvatarSizeCompact else AvatarSizeWide
+    val avatarFont = if (compact) AvatarFontCompact else AvatarFontWide
+    val titleStyle = if (compact) MaterialTheme.typography.titleMedium
+    else MaterialTheme.typography.titleSmall
     val subtitleStyle = if (compact) MaterialTheme.typography.labelMedium
-                       else MaterialTheme.typography.labelSmall
+    else MaterialTheme.typography.labelSmall
 
     Row(
-        modifier = modifier.fillMaxWidth().height(height).padding(horizontal = paddingH),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .padding(horizontal = paddingH),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(gap),
     ) {
         IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = cs.onSurface)
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = cs.onSurface
+            )
         }
         character?.let { char ->
             Row(
@@ -106,7 +111,8 @@ internal fun ChatHeader(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(SubtitleGap),
                     ) {
-                        val model = modelName.ifEmpty { stringResource(Res.string.dialogue_no_model) }
+                        val model =
+                            modelName.ifEmpty { stringResource(Res.string.dialogue_no_model) }
                         Text(
                             text = model,
                             style = subtitleStyle,
@@ -119,15 +125,27 @@ internal fun ChatHeader(
             }
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
+        IconButton(
+            onClick = {},
+            enabled = false,
+            modifier = Modifier.requiredSize(ActionBtnTarget)
+        ) {
             Icon(Icons.Filled.History, contentDescription = null, tint = cs.onSurfaceVariant)
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
+        IconButton(
+            onClick = {},
+            enabled = false,
+            modifier = Modifier.requiredSize(ActionBtnTarget)
+        ) {
             Icon(Icons.Filled.Add, contentDescription = null, tint = cs.onSurfaceVariant)
         }
         // TODO: not implemented
-        IconButton(onClick = {}, enabled = false, modifier = Modifier.requiredSize(ActionBtnTarget)) {
+        IconButton(
+            onClick = {},
+            enabled = false,
+            modifier = Modifier.requiredSize(ActionBtnTarget)
+        ) {
             Icon(Icons.Filled.MoreVert, contentDescription = null, tint = cs.onSurfaceVariant)
         }
     }

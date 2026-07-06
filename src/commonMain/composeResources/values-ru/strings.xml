@@ -59,4 +59,9 @@
     <string name="dialogue_delete_confirm">Удалить</string>
     <string name="dialogue_delete_cancel">Отмена</string>
     <string name="dialogue_stop">Стоп</string>
+    <plurals name="dialogue_selection_count">
+        <item quantity="one">Выделено: %1$d</item>
+        <item quantity="few">Выделено: %1$d</item>
+        <item quantity="other">Выделено: %1$d</item>
+    </plurals>
 </resources>

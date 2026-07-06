@@ -59,4 +59,8 @@
     <string name="dialogue_delete_confirm">Delete</string>
     <string name="dialogue_delete_cancel">Cancel</string>
     <string name="dialogue_stop">Stop</string>
+    <plurals name="dialogue_selection_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
 </resources>

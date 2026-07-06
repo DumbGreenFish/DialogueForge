@@ -44,6 +44,9 @@ class DialogueViewModel(
             is DialogueIntent.StopGeneration -> stopGeneration()
             is DialogueIntent.Regenerate -> regenerate()
             is DialogueIntent.DeleteMessage -> deleteMessage(intent.messageId)
+            is DialogueIntent.ToggleMessageSelection -> toggleMessageSelection(intent.messageId)
+            is DialogueIntent.ClearSelection -> clearSelection()
+            is DialogueIntent.DeleteSelected -> deleteSelected()
         }
     }
 
@@ -104,6 +107,28 @@ class DialogueViewModel(
     private fun deleteMessage(messageId: String) {
         viewModelScope.launch {
             dialogueRepository.deleteMessage(messageId)
+        }
+    }
+
+    private fun toggleMessageSelection(messageId: String) {
+        _state.update { state ->
+            val newSet = state.selectedMessageIds.toMutableSet()
+            if (messageId in newSet) newSet.remove(messageId) else newSet.add(messageId)
+            state.copy(selectedMessageIds = newSet)
+        }
+    }
+
+    private fun clearSelection() {
+        _state.update { it.copy(selectedMessageIds = emptySet()) }
+    }
+
+    private fun deleteSelected() {
+        viewModelScope.launch {
+            val ids = _state.value.selectedMessageIds
+            for (id in ids) {
+                dialogueRepository.deleteMessage(id)
+            }
+            _state.update { it.copy(selectedMessageIds = emptySet()) }
         }
     }
 

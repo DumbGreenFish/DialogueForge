@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -36,14 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
-import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_cancel
-import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_confirm
-import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_message
-import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_delete_title
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_generating
@@ -53,6 +50,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.ChatHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.DateSeparator
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.MessageBubble
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.SelectedHeader
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.formatDateLabel
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import org.jetbrains.compose.resources.stringResource
@@ -91,7 +89,8 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
         }
     }
 
-    var deleteTargetId by remember { mutableStateOf<String?>(null) }
+    val clipboardManager = LocalClipboardManager.current
+    val isSelectionMode = state.selectedMessageIds.isNotEmpty()
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -111,12 +110,26 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
             } else {
                 val compact = isCompact
                 Column(Modifier.fillMaxSize()) {
-                    ChatHeader(
-                        character = state.character,
-                        presetName = state.presetName,
-                        modelName = state.modelName,
-                        onBack = onBack,
-                    )
+                    if (isSelectionMode) {
+                        SelectedHeader(
+                            selectedCount = state.selectedMessageIds.size,
+                            onClearSelection = { viewModel.handle(DialogueIntent.ClearSelection) },
+                            onCopySelected = {
+                                val text = state.messages
+                                    .filter { it.id in state.selectedMessageIds }
+                                    .joinToString("\n\n") { it.text }
+                                clipboardManager.setText(AnnotatedString(text))
+                                viewModel.handle(DialogueIntent.ClearSelection)
+                            },
+                            onDeleteSelected = { viewModel.handle(DialogueIntent.DeleteSelected) },
+                        )
+                    } else {
+                        ChatHeader(
+                            character = state.character,
+                            modelName = state.modelName,
+                            onBack = onBack,
+                        )
+                    }
                     HorizontalDivider(color = cs.outline)
                     Box(
                         modifier = Modifier
@@ -165,7 +178,10 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                                             item.dateLabel != null -> DateSeparator(label = item.dateLabel)
                                             item.message != null -> MessageBubble(
                                                 message = item.message,
-                                                onLongPress = { deleteTargetId = item.message.id },
+                                                isSelected = item.message.id in state.selectedMessageIds,
+                                                inSelectionMode = isSelectionMode,
+                                                onToggleSelection = { id -> viewModel.handle(DialogueIntent.ToggleMessageSelection(id)) },
+                                                onEnterSelectionMode = { id -> viewModel.handle(DialogueIntent.ToggleMessageSelection(id)) },
                                                 modifier = Modifier.padding(horizontal = BodyPaddingH),
                                             )
                                         }
@@ -325,26 +341,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
         }
     }
 
-    deleteTargetId?.let { id ->
-        AlertDialog(
-            onDismissRequest = { deleteTargetId = null },
-            title = { Text(stringResource(Res.string.dialogue_delete_title)) },
-            text = { Text(stringResource(Res.string.dialogue_delete_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.handle(DialogueIntent.DeleteMessage(id))
-                    deleteTargetId = null
-                }) {
-                    Text(stringResource(Res.string.dialogue_delete_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { deleteTargetId = null }) {
-                    Text(stringResource(Res.string.dialogue_delete_cancel))
-                }
-            },
-        )
-    }
+
 }
 
 private fun buildChatItems(messages: List<Message>): List<ChatItem> {
