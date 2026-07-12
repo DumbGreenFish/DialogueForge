@@ -1,23 +1,30 @@
 package io.github.dumbgreenfish.dialogueforge.design
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.runtime.mutableIntStateOf
 
 object ForgeAnimation {
     private const val BASE_DURATION_TRANSITION = 220
     private const val BASE_DURATION_HOVER = 150
 
-    var DurationStateTransition: Int = BASE_DURATION_TRANSITION
-        private set
-    var DurationHover: Int = BASE_DURATION_HOVER
-        private set
+    private val _durationStateTransition = mutableIntStateOf(BASE_DURATION_TRANSITION)
+    val DurationStateTransition: Int get() = _durationStateTransition.intValue
+
+    private val _durationHover = mutableIntStateOf(BASE_DURATION_HOVER)
+    val DurationHover: Int get() = _durationHover.intValue
 
     const val PressStiffness = Spring.StiffnessMediumLow
     const val PressScaleEmphasized = 0.9f
     const val PressScaleSubtle = 0.97f
 
+    const val PredictiveBackMinScale = 0.9f
+    const val PredictiveBackMinAlpha = 0.85f
+
     fun setSpeedMultiplier(multiplier: Float) {
-        DurationStateTransition = if (multiplier == 0f) 0 else (BASE_DURATION_TRANSITION * multiplier).toInt().coerceAtLeast(1)
-        DurationHover = if (multiplier == 0f) 0 else (BASE_DURATION_HOVER * multiplier).toInt().coerceAtLeast(1)
+        _durationStateTransition.intValue =
+            if (multiplier == 0f) 0 else (BASE_DURATION_TRANSITION * multiplier).toInt().coerceAtLeast(1)
+        _durationHover.intValue =
+            if (multiplier == 0f) 0 else (BASE_DURATION_HOVER * multiplier).toInt().coerceAtLeast(1)
     }
 
     fun stateLayerAlpha(isHovered: Boolean, isPressed: Boolean) = when {

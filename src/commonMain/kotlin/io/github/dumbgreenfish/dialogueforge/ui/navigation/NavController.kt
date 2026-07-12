@@ -19,5 +19,5 @@ class NavController {
     val activeTab: StateFlow<NavTab> = _activeTab.asStateFlow()
 
     fun switchTab(tab: NavTab) { _activeTab.value = tab }
-    fun getBar(tab: NavTab): NavBar<*> = bars[tab]!!
+    fun getBar(tab: NavTab): NavBar<*> = bars.getValue(tab)
 }

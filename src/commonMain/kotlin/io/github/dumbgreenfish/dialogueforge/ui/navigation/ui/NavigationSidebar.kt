@@ -37,7 +37,6 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.app_name
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_active_model_label
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_model_placeholder
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -62,7 +61,6 @@ fun NavigationSidebar(
     onSelect: (NavTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val controller = koinInject<NavController>()
     val modelNameProvider = koinInject<ModelNameProvider>()
     val forgeSettings = koinInject<ForgeSettings>()
     val modelName by modelNameProvider.modelName.collectAsState()
@@ -116,7 +114,7 @@ fun NavigationSidebar(
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
                 .background(ForgeColors.surfaceContainerHigh)
-                .clickable { controller.switchTab(NavTab.Presets) }
+                .clickable { onSelect(NavTab.Presets) }
                 .padding(FooterInnerPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FooterGap),

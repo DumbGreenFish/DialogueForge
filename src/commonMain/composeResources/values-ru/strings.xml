@@ -1,15 +1,13 @@
 <resources>
     <string name="app_name">Dialogue Forge</string>
-    <string name="greetings">Привет!</string>
-    <string name="text_click">Нажми на кнопку!!</string>
-    <string name="button_text_click">Кликни меня!</string>
-    <string name="button_text_clicked">Кнопка нажата!</string>
     <string name="nav_characters">Персонажи</string>
     <string name="nav_persona">Персона</string>
     <string name="nav_presets">Пресеты</string>
     <string name="nav_settings">Настройки</string>
     <string name="sidebar_active_model_label">Активная модель</string>
     <string name="sidebar_model_placeholder">Не настроена</string>
+    <string name="import_error_title">Ошибка импорта</string>
+    <string name="action_ok">OK</string>
     <string name="characters_search_placeholder">Поиск персонажей</string>
     <string name="characters_subtitle">Выбери с кем говорить сегодня.</string>
     <string name="characters_import">Импорт</string>

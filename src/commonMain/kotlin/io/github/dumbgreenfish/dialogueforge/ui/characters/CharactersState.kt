@@ -1,6 +1,5 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters
 
-import androidx.compose.ui.text.toLowerCase
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterQuickFilter
@@ -12,6 +11,7 @@ data class CharactersState(
     val query: String = "",
     val filter: CharacterFilter = CharacterFilter(),
     val viewMode: CharactersViewMode = CharactersViewMode.List,
+    val error: String? = null,
 ) {
     val availableTags: List<Tag>
         get() = characters.flatMap { it.tags }.distinct().sortedBy { it.value }

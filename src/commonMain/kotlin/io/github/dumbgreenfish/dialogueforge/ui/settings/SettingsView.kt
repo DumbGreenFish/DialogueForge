@@ -135,7 +135,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
 
         SettingsCard {
             ExpandableSliderSetting(
-                id = "density",
                 headline = stringResource(Res.string.settings_density_scale),
                 value = state.densityScale,
                 onValueChange = { viewModel.handle(SettingsIntent.UpdateDensityScale(it)) },
@@ -146,7 +145,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
             )
             SettingsDivider()
             ExpandableSliderSetting(
-                id = "font_scale",
                 headline = stringResource(Res.string.settings_font_scale),
                 value = state.fontScale,
                 onValueChange = { viewModel.handle(SettingsIntent.UpdateFontScale(it)) },
@@ -157,7 +155,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
             )
             SettingsDivider()
             ExpandableEnumSetting(
-                id = "animation",
                 headline = stringResource(Res.string.settings_animation_speed),
                 options = AnimationSpeed.entries,
                 selected = state.animationSpeed,
@@ -171,7 +168,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
             )
             SettingsDivider()
             ExpandableEnumSetting(
-                id = "view_mode",
                 headline = stringResource(Res.string.settings_default_view_mode),
                 options = CharactersViewMode.entries,
                 selected = state.defaultViewMode,
@@ -193,7 +189,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
 
         SettingsCard {
             ExpandableEnumSetting(
-                id = "msg_width",
                 headline = stringResource(Res.string.settings_message_width),
                 options = MessageWidth.entries,
                 selected = state.messageWidth,
@@ -207,7 +202,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
             )
             SettingsDivider()
             ExpandableSliderSetting(
-                id = "composer",
                 headline = stringResource(Res.string.settings_composer_max_height),
                 value = state.composerMaxHeightDp.toFloat(),
                 onValueChange = {
@@ -229,7 +223,6 @@ fun SettingsView(modifier: Modifier = Modifier) {
 
         SettingsCard {
             ExpandableSliderSetting(
-                id = "sidebar",
                 headline = stringResource(Res.string.settings_sidebar_width),
                 value = state.sidebarWidthDp.toFloat(),
                 onValueChange = {
@@ -302,7 +295,6 @@ private fun ChevronIcon(isExpanded: Boolean) {
 
 @Composable
 private fun ExpandableSliderSetting(
-    id: String,
     headline: String,
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -375,7 +367,6 @@ private fun ExpandableSliderSetting(
 
 @Composable
 private fun <T> ExpandableEnumSetting(
-    id: String,
     headline: String,
     options: List<T>,
     selected: T,

@@ -1,5 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.data.service
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,7 +8,7 @@ data class ChatCompletionRequest(
     val model: String,
     val messages: List<ChatMessage>,
     val temperature: Float = 0.7f,
-    val max_tokens: Int = 4096,
+    @SerialName("max_tokens") val maxTokens: Int = 4096,
 )
 
 @Serializable

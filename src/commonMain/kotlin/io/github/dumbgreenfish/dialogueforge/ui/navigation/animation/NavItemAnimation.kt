@@ -14,18 +14,20 @@ import androidx.compose.ui.graphics.lerp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 
-internal data class SidebarNavItemAnimation(
+internal data class NavItemAnimation(
     val backgroundColor: Color,
     val iconColor: Color,
-    val textColor: Color,
-    val rowScale: Float,
+    val labelColor: Color,
+    val scale: Float,
 )
 
 @Composable
-internal fun rememberSidebarNavItemAnimation(
+internal fun rememberNavItemAnimation(
     isActive: Boolean,
     interactionSource: MutableInteractionSource,
-): SidebarNavItemAnimation {
+    pressScale: Float,
+    labelColorFor: (isActive: Boolean, stateAlpha: Float, colors: NavAnimationColors) -> Color,
+): NavItemAnimation {
     val isPressed by interactionSource.collectIsPressedAsState()
     val isHovered by interactionSource.collectIsHoveredAsState()
     val colors = navAnimationColors()
@@ -38,7 +40,7 @@ internal fun rememberSidebarNavItemAnimation(
             else            -> Color.Transparent
         },
         animationSpec = tween(ForgeAnimation.DurationHover),
-        label = "backgroundColor",
+        label = "navItemBackground",
     )
     val iconColor by animateColorAsState(
         targetValue = when {
@@ -47,18 +49,18 @@ internal fun rememberSidebarNavItemAnimation(
             else            -> colors.onSurfaceVariant
         },
         animationSpec = tween(ForgeAnimation.DurationHover),
-        label = "iconColor",
+        label = "navItemIcon",
     )
-    val textColor by animateColorAsState(
-        targetValue = if (isActive) colors.onPrimaryContainer else colors.onSurface,
+    val labelColor by animateColorAsState(
+        targetValue = labelColorFor(isActive, stateAlpha, colors),
         animationSpec = tween(ForgeAnimation.DurationHover),
-        label = "textColor",
+        label = "navItemLabel",
     )
-    val rowScale by animateFloatAsState(
-        targetValue = if (isPressed) ForgeAnimation.PressScaleSubtle else 1f,
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) pressScale else 1f,
         animationSpec = spring(stiffness = ForgeAnimation.PressStiffness),
-        label = "rowScale",
+        label = "navItemScale",
     )
 
-    return SidebarNavItemAnimation(backgroundColor, iconColor, textColor, rowScale)
+    return NavItemAnimation(backgroundColor, iconColor, labelColor, scale)
 }

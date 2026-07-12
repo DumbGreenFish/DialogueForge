@@ -161,6 +161,7 @@ internal fun Composer(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(BottomRowGap),
             ) {
+                // TODO: not implemented
                 Surface(
                     modifier = Modifier.requiredSize(AttachBtnSize),
                     shape = CircleShape,
@@ -177,6 +178,7 @@ internal fun Composer(
                     }
                 }
                 Spacer(Modifier.weight(1f))
+                // TODO: not implemented
                 Surface(
                     shape = RoundedCornerShape(PresetChipHeight / 2),
                     color = cs.surface,

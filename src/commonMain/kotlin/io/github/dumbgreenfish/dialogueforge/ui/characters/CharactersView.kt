@@ -15,8 +15,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,7 +32,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.generated.resources.action_ok
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_empty
+import io.github.dumbgreenfish.dialogueforge.generated.resources.import_error_title
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardGrid
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardList
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.CharactersSpeedDial
@@ -102,16 +106,17 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             horizontalArrangement = Arrangement.spacedBy(CardGapH),
             verticalArrangement   = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
         ) {
+            val displayed = state.displayed
             if (isCompact) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     CompactHeader(state, viewModel::handle)
                 }
             }
 
-            if (state.displayed.isEmpty()) {
+            if (displayed.isEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
             } else {
-                items(state.displayed, key = { it.id }) { char ->
+                items(displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
                         val bar = controller.getBar(NavTab.Characters)
                         if (bar is CharactersTab) {
@@ -167,6 +172,18 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                     deleteTarget = null
                 },
                 onDismiss = { deleteTarget = null },
+            )
+        }
+        state.error?.let { message ->
+            AlertDialog(
+                onDismissRequest = { viewModel.handle(CharactersIntent.DismissError) },
+                title = { Text(stringResource(Res.string.import_error_title)) },
+                text = { Text(message) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.handle(CharactersIntent.DismissError) }) {
+                        Text(stringResource(Res.string.action_ok))
+                    }
+                },
             )
         }
     }

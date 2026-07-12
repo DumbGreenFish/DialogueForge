@@ -19,8 +19,5 @@ class CharacterRepositoryImpl(dbConfig: DatabaseConfig) : CharacterRepository {
 
     override suspend fun delete(id: String) = db.characterDao().delete(id)
 
-    override suspend fun togglePin(id: String) {
-        val entity = db.characterDao().getById(id) ?: return
-        db.characterDao().update(entity.copy(pinned = !entity.pinned))
-    }
+    override suspend fun togglePin(id: String) = db.characterDao().togglePin(id)
 }

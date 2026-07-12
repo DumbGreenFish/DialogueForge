@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,4 +24,15 @@ interface MessageDao {
 
     @Query("UPDATE messages SET text = :text WHERE id = :id")
     suspend fun updateText(id: String, text: String)
+
+    @Query("UPDATE conversations SET updated_at = :updatedAt WHERE id = :id")
+    suspend fun touchConversation(id: String, updatedAt: Long)
+
+    @Transaction
+    suspend fun insertWithOrder(entity: MessageEntity): MessageEntity {
+        val ordered = entity.copy(orderInConversation = countByConversation(entity.conversationId))
+        insert(ordered)
+        touchConversation(ordered.conversationId, ordered.timestamp)
+        return ordered
+    }
 }

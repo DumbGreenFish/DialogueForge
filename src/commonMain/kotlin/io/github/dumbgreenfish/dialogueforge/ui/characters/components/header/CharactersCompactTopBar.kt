@@ -1,12 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters.components.header
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -89,17 +83,7 @@ internal fun CharactersCompactTopBar() {
     ) {
         AnimatedContent(
             targetState = searchExpanded,
-            transitionSpec = {
-                if (targetState) {
-                    (fadeIn() + slideInHorizontally { it / 4 }).togetherWith(
-                        fadeOut() + slideOutHorizontally { -it / 4 }
-                    ).using(SizeTransform(clip = false))
-                } else {
-                    (fadeIn() + slideInHorizontally { -it / 4 }).togetherWith(
-                        fadeOut() + slideOutHorizontally { it / 4 }
-                    ).using(SizeTransform(clip = false))
-                }
-            },
+            transitionSpec = { searchBarTransition() },
         ) { expanded ->
             Row(
                 modifier = Modifier

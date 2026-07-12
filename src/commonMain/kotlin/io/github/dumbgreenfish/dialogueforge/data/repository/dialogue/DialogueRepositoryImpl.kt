@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.dialogue
 
 import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -18,9 +19,6 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
         db.messageDao().getByConversation(conversationId)
 
     override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity {
-        val existing = db.conversationDao().getByCharacterId(characterId).firstOrNull()
-        if (existing != null) return existing
-
         val now = Clock.System.now().toEpochMilliseconds()
         val conversation = ConversationEntity(
             id = Uuid.random().toString(),
@@ -29,33 +27,30 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
             createdAt = now,
             updatedAt = now,
         )
-        db.conversationDao().insert(conversation)
-
-        if (greeting.isNotBlank()) {
-            addMessage(
+        val greetingMessage = greeting.takeIf { it.isNotBlank() }?.let {
+            MessageEntity(
+                id = Uuid.random().toString(),
                 conversationId = conversation.id,
-                role = "assistant",
-                text = greeting,
+                role = MessageRole.Assistant.wire,
+                text = it,
+                timestamp = now,
+                orderInConversation = 0,
             )
         }
-
-        return conversation
+        return db.conversationDao().getOrCreate(conversation, greetingMessage)
     }
 
     override suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity {
         val now = Clock.System.now().toEpochMilliseconds()
-        val order = db.messageDao().countByConversation(conversationId)
         val message = MessageEntity(
             id = Uuid.random().toString(),
             conversationId = conversationId,
             role = role,
             text = text,
             timestamp = now,
-            orderInConversation = order,
+            orderInConversation = 0,
         )
-        db.messageDao().insert(message)
-        db.conversationDao().touch(conversationId, now)
-        return message
+        return db.messageDao().insertWithOrder(message)
     }
 
     override suspend fun deleteMessage(id: String) {

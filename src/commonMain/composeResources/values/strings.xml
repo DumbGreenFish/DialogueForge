@@ -1,15 +1,13 @@
 <resources>
     <string name="app_name">Dialogue Forge</string>
-    <string name="greetings">Hello!</string>
-    <string name="text_click">Click the button!</string>
-    <string name="button_text_click">Click the button!</string>
-    <string name="button_text_clicked">Button clicked!</string>
     <string name="nav_characters">Characters</string>
     <string name="nav_persona">Persona</string>
     <string name="nav_presets">Presets</string>
     <string name="nav_settings">Settings</string>
     <string name="sidebar_active_model_label">Active model</string>
     <string name="sidebar_model_placeholder">Not configured</string>
+    <string name="import_error_title">Import failed</string>
+    <string name="action_ok">OK</string>
     <string name="characters_search_placeholder">Search characters</string>
     <string name="characters_subtitle">Pick who you\'re talking to today.</string>
     <string name="characters_import">Import</string>

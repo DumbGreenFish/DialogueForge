@@ -1,9 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters.components.card
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,13 +21,8 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -47,9 +39,7 @@ import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.character_menu_more
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextMenu
-import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextSheet
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.ContextAction
-import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.characterContextActions
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Tag
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
@@ -69,7 +59,6 @@ private val GradientOverlayPadTop    = 16.dp
 private val GradientOverlayPadBottom = 8.dp
 private val TagRowGap                = 4.dp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun CharacterCardGrid(
     char: Character,
@@ -77,43 +66,19 @@ internal fun CharacterCardGrid(
     onDeleteRequest: (Character) -> Unit,
     isCompact: Boolean,
 ) {
-    val cs = MaterialTheme.colorScheme
-    val borderColor = if (char.pinned) cs.outlineVariant else cs.outline
-    var menuExpanded by remember { mutableStateOf(false) }
-    var sheetExpanded by remember { mutableStateOf(false) }
-    val actions = characterContextActions(onDelete = { onDeleteRequest(char) })
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, borderColor, MaterialTheme.shapes.medium)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = if (isCompact) {
-                    { sheetExpanded = true }
-                } else {
-                    null
-                },
-            ),
-        shape = MaterialTheme.shapes.medium,
-        color = cs.surface,
-    ) {
+    CharacterCardShell(char, onClick, onDeleteRequest, isCompact) { menuExpanded, onMoreClick, onMenuDismiss, actions ->
         Column {
             GridSquare(
                 char          = char,
                 isCompact     = isCompact,
                 menuExpanded  = menuExpanded,
-                onMoreClick   = { menuExpanded = true },
-                onMenuDismiss = { menuExpanded = false },
+                onMoreClick   = onMoreClick,
+                onMenuDismiss = onMenuDismiss,
                 actions       = actions,
             )
             GridInfo(char)
         }
     }
-    CharacterContextSheet(
-        expanded = sheetExpanded,
-        onDismiss = { sheetExpanded = false },
-        actions = actions
-    )
 }
 
 @Composable
@@ -139,10 +104,7 @@ private fun GridSquare(
         CharacterAvatar(letter = char.letter, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar, fontSize = 56.sp, avatarBytes = char.avatarBytes)
         GradientOverlay(bg.copy(alpha = 0f), bg.copy(alpha = GRADIENT_ALPHA)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(TagRowGap), verticalArrangement = Arrangement.spacedBy(TagRowGap)) {
-                visibleTags.forEachIndexed { i, tag ->
-                    CharacterTag(label = tag.value, tone = if (i == 0) CharacterTagTone.Primary else CharacterTagTone.Secondary)
-                }
-                if (extraCount > 0) CharacterTag(label = "+$extraCount")
+                CardTagChips(visibleTags, extraCount)
             }
         }
         if (char.pinned || !isCompact) {

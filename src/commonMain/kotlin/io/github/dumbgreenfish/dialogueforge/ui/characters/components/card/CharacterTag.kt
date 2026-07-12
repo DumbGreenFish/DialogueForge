@@ -11,7 +11,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 
-enum class CharacterTagTone { Primary, Secondary, Tertiary }
+enum class CharacterTagTone { Primary, Secondary }
 
 internal val TagHorzPadding = 8.dp
 internal val TagVertPadding = 4.dp
@@ -22,12 +22,10 @@ internal fun CharacterTag(label: String, tone: CharacterTagTone = CharacterTagTo
     val bg = when (tone) {
         CharacterTagTone.Primary   -> cs.primaryContainer
         CharacterTagTone.Secondary -> ForgeColors.surfaceContainerHigh
-        CharacterTagTone.Tertiary  -> cs.tertiaryContainer
     }
     val fg = when (tone) {
         CharacterTagTone.Primary   -> cs.onPrimaryContainer
         CharacterTagTone.Secondary -> cs.onSurfaceVariant
-        CharacterTagTone.Tertiary  -> cs.onTertiaryContainer
     }
     Text(
         text = label,

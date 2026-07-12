@@ -9,6 +9,7 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRe
 import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +69,7 @@ class DialogueViewModel(
 
         generationJob = viewModelScope.launch {
             val history = buildHistory(conversationId)
-            dialogueRepository.addMessage(conversationId, "user", text)
+            dialogueRepository.addMessage(conversationId, MessageRole.User.wire, text)
             generateResponse(character, conversationId, history, text)
         }
     }
@@ -87,7 +88,7 @@ class DialogueViewModel(
             userMessage = userMessage,
         ).fold(
             onSuccess = { response ->
-                dialogueRepository.addMessage(conversationId, "assistant", response)
+                dialogueRepository.addMessage(conversationId, MessageRole.Assistant.wire, response)
                 _state.update { it.copy(isGenerating = false) }
             },
             onFailure = { e ->
@@ -108,8 +109,10 @@ class DialogueViewModel(
         _state.update { it.copy(isGenerating = true, error = null) }
 
         generationJob = viewModelScope.launch {
-            val history = buildHistory(conversationId)
-            generateResponse(character, conversationId, history, text)
+            val fullHistory = buildHistory(conversationId)
+            val historyBeforeRetry =
+                if (fullHistory.lastOrNull() == (MessageRole.User.wire to text)) fullHistory.dropLast(1) else fullHistory
+            generateResponse(character, conversationId, historyBeforeRetry, text)
         }
     }
 
@@ -209,7 +212,7 @@ class DialogueViewModel(
 
     private suspend fun buildHistory(conversationId: String): List<Pair<String, String>> {
         return dialogueRepository.getMessages(conversationId).first()
-            .filter { it.role == "user" || it.role == "assistant" }
+            .filter { it.role == MessageRole.User.wire || it.role == MessageRole.Assistant.wire }
             .map { it.role to it.text }
     }
 

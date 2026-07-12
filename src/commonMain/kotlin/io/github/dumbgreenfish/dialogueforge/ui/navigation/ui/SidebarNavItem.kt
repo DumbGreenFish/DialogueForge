@@ -18,7 +18,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberSidebarNavItemAnimation
+import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberNavItemAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
 
@@ -35,13 +36,19 @@ internal fun SidebarNavItem(
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val anim = rememberSidebarNavItemAnimation(isActive, interactionSource)
+    val anim = rememberNavItemAnimation(
+        isActive = isActive,
+        interactionSource = interactionSource,
+        pressScale = ForgeAnimation.PressScaleSubtle,
+    ) { active, _, colors ->
+        if (active) colors.onPrimaryContainer else colors.onSurface
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = ItemBottomGap)
-            .scale(anim.rowScale)
+            .scale(anim.scale)
             .clip(MaterialTheme.shapes.medium)
             .background(anim.backgroundColor)
             .navItemSelectable(isActive, onClick, interactionSource)
@@ -59,7 +66,7 @@ internal fun SidebarNavItem(
             text = stringResource(item.labelRes),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = if (isActive) FontWeight.W600 else FontWeight.W500,
-            color = anim.textColor,
+            color = anim.labelColor,
             modifier = Modifier.weight(1f),
         )
     }

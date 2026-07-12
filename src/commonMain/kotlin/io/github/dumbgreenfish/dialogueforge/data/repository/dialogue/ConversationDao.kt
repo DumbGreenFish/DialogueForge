@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Transaction
 
 @Dao
 interface ConversationDao {
@@ -17,6 +18,22 @@ interface ConversationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ConversationEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMessage(entity: MessageEntity)
+
     @Query("UPDATE conversations SET updated_at = :updatedAt WHERE id = :id")
     suspend fun touch(id: String, updatedAt: Long)
+
+    @Transaction
+    suspend fun getOrCreate(conversation: ConversationEntity, greeting: MessageEntity?): ConversationEntity {
+        val existing = getByCharacterId(conversation.characterId).firstOrNull()
+        if (existing != null) return existing
+
+        insert(conversation)
+        if (greeting != null) {
+            insertMessage(greeting)
+            touch(conversation.id, conversation.updatedAt)
+        }
+        return conversation
+    }
 }

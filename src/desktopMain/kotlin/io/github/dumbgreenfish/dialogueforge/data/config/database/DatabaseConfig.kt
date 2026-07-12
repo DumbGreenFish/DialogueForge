@@ -21,8 +21,12 @@ private fun appDataDir(): java.io.File {
 
 
 @Single
-class DesktopDatabaseConfig() : DatabaseConfig {
-    override fun mainDatabase() = Room.databaseBuilder<MainDatabase>(
-        name = appDataDir().resolve(MAIN_DB_NAME).absolutePath
-    ).setDriver(BundledSQLiteDriver()).setQueryCoroutineContext(Dispatchers.IO).fallbackToDestructiveMigration().build()
+class DesktopDatabaseConfig : DatabaseConfig {
+    private val db: MainDatabase by lazy {
+        Room.databaseBuilder<MainDatabase>(
+            name = appDataDir().resolve(MAIN_DB_NAME).absolutePath
+        ).setDriver(BundledSQLiteDriver()).setQueryCoroutineContext(Dispatchers.IO).fallbackToDestructiveMigration().build()
+    }
+
+    override fun mainDatabase(): MainDatabase = db
 }

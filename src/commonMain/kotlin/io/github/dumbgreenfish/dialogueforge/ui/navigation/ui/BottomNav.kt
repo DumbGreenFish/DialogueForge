@@ -27,10 +27,23 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberBottomNavItemAnimation
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberNavItemAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
+
+private val DividerHeight     = 1.dp
+private val BarHeight         = 80.dp
+private val BarPaddingTop     = 12.dp
+private val BarPaddingBottom  = 16.dp
+private val ItemPaddingH      = 12.dp
+private val ItemGap           = 4.dp
+private val PillWidth         = 64.dp
+private val PillHeight        = 32.dp
+private val IconSize          = 22.dp
+private val LabelFontSize     = 11.5.sp
+private val LabelLineHeight   = 14.sp
 
 @Composable
 fun ForgeBottomNav(
@@ -48,14 +61,14 @@ fun ForgeBottomNav(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.dp)
+                .height(DividerHeight)
                 .background(cs.outline)
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
-                .padding(top = 12.dp, bottom = 16.dp)
+                .height(BarHeight)
+                .padding(top = BarPaddingTop, bottom = BarPaddingBottom)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Top,
@@ -78,35 +91,41 @@ private fun NavItemColumn(
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val anim = rememberBottomNavItemAnimation(isActive, interactionSource)
+    val anim = rememberNavItemAnimation(
+        isActive = isActive,
+        interactionSource = interactionSource,
+        pressScale = ForgeAnimation.PressScaleEmphasized,
+    ) { active, stateAlpha, colors ->
+        if (active || stateAlpha > 0f) colors.onSurface else colors.onSurfaceVariant
+    }
 
     Column(
         modifier = Modifier
             .fillMaxHeight()
             .navItemSelectable(isActive, onClick, interactionSource)
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = ItemPaddingH),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(ItemGap, Alignment.Top),
     ) {
         Box(
             modifier = Modifier
-                .width(64.dp)
-                .height(32.dp)
-                .scale(anim.pillScale)
-                .background(color = anim.pillColor, shape = ForgeShape.pill),
+                .width(PillWidth)
+                .height(PillHeight)
+                .scale(anim.scale)
+                .background(color = anim.backgroundColor, shape = ForgeShape.pill),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = item.icon(isActive),
                 contentDescription = stringResource(item.labelRes),
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(IconSize),
                 tint = anim.iconColor,
             )
         }
         Text(
             text = stringResource(item.labelRes),
-            fontSize = 11.5.sp,
-            lineHeight = 14.sp,
+            fontSize = LabelFontSize,
+            lineHeight = LabelLineHeight,
             fontWeight = if (isActive) FontWeight.W600 else FontWeight.W500,
             color = anim.labelColor,
         )

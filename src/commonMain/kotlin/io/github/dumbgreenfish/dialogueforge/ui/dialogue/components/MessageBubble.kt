@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,25 +35,23 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
-import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
+import io.github.dumbgreenfish.dialogueforge.ui.common.formatMessageTime
+import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.CheckIndicator
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.MessageBubbleContent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.MessageBubbleFooter
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.SystemMessageChip
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.model.MessageBubbleActions
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.bubble.model.MessageBubbleUiState
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.koin.compose.koinInject
+import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 
 private val BubblePaddingT = 8.dp
 private val BubblePaddingB = 8.dp
@@ -65,33 +62,15 @@ private val RowPaddingV = 2.dp
 private const val SelectionTintAlpha = 0.12f
 private val IndicatorOuterGap = 8.dp
 private val IndicatorLeftPadding = 8.dp
-
-private fun formatTime(ms: Long): String {
-    val dt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
-    val h = dt.hour
-    val m = dt.minute
-    return "${h}:${m.toString().padStart(2, '0')}"
-}
+private val SelectionTintOverflow = 2.dp
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 internal fun MessageBubble(
     message: Message,
-    isSelected: Boolean = false,
-    inSelectionMode: Boolean = false,
-    onToggleSelection: ((String) -> Unit)? = null,
-    onEnterSelectionMode: ((String) -> Unit)? = null,
-    showActionRow: Boolean = false,
-    isEditing: Boolean = false,
-    onShowActionRow: ((String) -> Unit)? = null,
-    onCopy: ((String) -> Unit)? = null,
-    onEdit: ((String) -> Unit)? = null,
-    onDelete: ((String) -> Unit)? = null,
-    onSave: ((String) -> Unit)? = null,
-    onCancel: (() -> Unit)? = null,
-    onEditTextChange: ((TextFieldValue) -> Unit)? = null,
-    editTextValue: TextFieldValue = TextFieldValue(),
-    isGenerating: Boolean = false,
+    uiState: MessageBubbleUiState,
+    actions: MessageBubbleActions,
+    messageWidth: MessageWidth,
     modifier: Modifier = Modifier,
 ) {
     if (message.role == MessageRole.System) {
@@ -104,9 +83,6 @@ internal fun MessageBubble(
     val isUser = message.role == MessageRole.User
     val duration = ForgeAnimation.DurationStateTransition
 
-    val forgeSettings = koinInject<ForgeSettings>()
-    val messageWidth by forgeSettings.messageWidth.collectAsState()
-
     val bg = if (isUser) ForgeColors.copperDim else cs.surfaceVariant
     val fg = if (isUser) cs.onPrimaryContainer else cs.onSurface
     val shape = if (isUser) ForgeShape.bubbleUser else ForgeShape.bubbleAssistant
@@ -117,7 +93,7 @@ internal fun MessageBubble(
     else ForgeColors.onSurfaceFaint
 
     val tintAlpha by animateFloatAsState(
-        targetValue = if (isSelected) SelectionTintAlpha else 0f,
+        targetValue = if (uiState.isSelected) SelectionTintAlpha else 0f,
         animationSpec = tween(duration, easing = FastOutSlowInEasing),
         label = "tint",
     )
@@ -126,27 +102,26 @@ internal fun MessageBubble(
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     val clickModifier = when {
-        inSelectionMode -> Modifier
+        uiState.inSelectionMode -> Modifier
             .combinedClickable(
-                onClick = { onToggleSelection?.invoke(message.id) },
+                onClick = { actions.onToggleSelection(message.id) },
                 onLongClick = null,
             )
         isMobilePlatform -> Modifier
             .pointerInput(message.id) {
-                val enterSelection = onEnterSelectionMode?.let { fn -> { _: Offset -> fn(message.id) } }
                 detectTapGestures(
-                    onTap = { onShowActionRow?.invoke(message.id) },
-                    onLongPress = if (isGenerating) null else enterSelection,
+                    onTap = { actions.onShowActionRow(message.id) },
+                    onLongPress = if (uiState.isGenerating) null else { { actions.onEnterSelectionMode(message.id) } },
                 )
             }
         else -> Modifier
             .combinedClickable(
-                onClick = { onShowActionRow?.invoke(message.id) },
-                onDoubleClick = if (isGenerating) null else onEnterSelectionMode?.let { fn -> { fn(message.id) } },
+                onClick = { actions.onShowActionRow(message.id) },
+                onDoubleClick = if (uiState.isGenerating) null else { { actions.onEnterSelectionMode(message.id) } },
             )
     }
 
-    val actionRowVisible = (isHovered || showActionRow) && !inSelectionMode && !isGenerating
+    val actionRowVisible = (isHovered || uiState.showActionRow) && !uiState.inSelectionMode && !uiState.isGenerating
 
     BoxWithConstraints(
         modifier = modifier
@@ -170,7 +145,7 @@ internal fun MessageBubble(
                     .then(
                         if (tintAlpha > 0f) Modifier.drawWithContent {
                             drawContent()
-                            val extra = 2.dp.toPx()
+                            val extra = SelectionTintOverflow.toPx()
                             drawRect(
                                 topLeft = Offset(0f, -extra),
                                 size = Size(size.width, size.height + extra * 2),
@@ -183,7 +158,7 @@ internal fun MessageBubble(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AnimatedVisibility(
-                    visible = inSelectionMode,
+                    visible = uiState.inSelectionMode,
                     enter = expandHorizontally(tween(duration, easing = FastOutSlowInEasing)) +
                         fadeIn(tween(duration, easing = FastOutSlowInEasing)),
                     exit = shrinkHorizontally(tween(duration, easing = FastOutSlowInEasing)) +
@@ -191,7 +166,7 @@ internal fun MessageBubble(
                 ) {
                     Row {
                         Spacer(Modifier.size(IndicatorLeftPadding))
-                        CheckIndicator(isSelected = isSelected)
+                        CheckIndicator(isSelected = uiState.isSelected)
                         Spacer(Modifier.size(IndicatorOuterGap))
                     }
                 }
@@ -216,25 +191,25 @@ internal fun MessageBubble(
                     ) {
                         MessageBubbleContent(
                             text = message.text,
-                            isEditing = isEditing,
-                            isSelected = isSelected,
+                            isEditing = uiState.isEditing,
+                            isSelected = uiState.isSelected,
                             fg = fg,
                             bg = bg,
-                            editTextValue = editTextValue,
-                            onEditTextChange = onEditTextChange,
+                            editTextValue = uiState.editText,
+                            onEditTextChange = actions.onEditTextChange,
                         )
                         MessageBubbleFooter(
                             isUser = isUser,
-                            isEditing = isEditing,
+                            isEditing = uiState.isEditing,
                             actionRowVisible = actionRowVisible,
                             messageId = message.id,
-                            timestampText = formatTime(message.timestamp),
+                            timestampText = formatMessageTime(message.timestamp),
                             timestampColor = timestampColor,
-                            onSave = onSave,
-                            onCancel = onCancel,
-                            onCopy = onCopy,
-                            onEdit = onEdit,
-                            onDelete = onDelete,
+                            onSave = actions.onSave,
+                            onCancel = actions.onCancel,
+                            onCopy = actions.onCopy,
+                            onEdit = actions.onEdit,
+                            onDelete = actions.onDelete,
                         )
                     }
                 }

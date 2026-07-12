@@ -12,6 +12,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
+import kotlin.coroutines.cancellation.CancellationException
 
 @Single
 class LlmService(
@@ -29,7 +30,7 @@ class LlmService(
         systemPrompt: String,
         history: List<Pair<String, String>>,
         userMessage: String,
-    ): Result<String> = runCatching {
+    ): Result<String> = try {
         val endpoint = settings.getEndpoint()
         val model = settings.getModel()
         val temperature = settings.getTemperature()
@@ -48,16 +49,20 @@ class LlmService(
             model = model,
             messages = messages,
             temperature = temperature,
-            max_tokens = maxTokens,
+            maxTokens = maxTokens,
         )
-
         val response: ChatCompletionResponse = client.post(endpoint) {
             contentType(ContentType.Application.Json)
             header("Authorization", "Bearer ${settings.getApiKey()}")
             setBody(request)
         }.body()
 
-        response.choices.firstOrNull()?.message?.content
+        val content = response.choices.firstOrNull()?.message?.content
             ?: throw IllegalStateException("No response from model")
+        Result.success(content)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }

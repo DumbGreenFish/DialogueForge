@@ -24,13 +24,18 @@ import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 
+private val BorderWidth      = 1.dp
+private val ToggleButtonW    = 44.dp
+private val ToggleButtonH    = 38.dp
+private val ToggleIconSize   = 20.dp
+
 @Composable
 internal fun ViewToggle(mode: CharactersViewMode, onToggle: (CharactersViewMode) -> Unit) {
     val cs = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .clip(ForgeShape.pill)
-            .border(1.dp, cs.outlineVariant, ForgeShape.pill)
+            .border(BorderWidth, cs.outlineVariant, ForgeShape.pill)
             .background(Color.Transparent, ForgeShape.pill),
     ) {
         ToggleButton(
@@ -53,7 +58,7 @@ private fun ToggleButton(icon: ImageVector, iconActive: ImageVector, active: Boo
     val cs = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
-            .size(width = 44.dp, height = 38.dp)
+            .size(width = ToggleButtonW, height = ToggleButtonH)
             .background(if (active) cs.primaryContainer else Color.Transparent)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -62,7 +67,7 @@ private fun ToggleButton(icon: ImageVector, iconActive: ImageVector, active: Boo
             imageVector = if (active) iconActive else icon,
             contentDescription = null,
             tint = if (active) ForgeColors.spark else cs.onSurfaceVariant,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(ToggleIconSize),
         )
     }
 }

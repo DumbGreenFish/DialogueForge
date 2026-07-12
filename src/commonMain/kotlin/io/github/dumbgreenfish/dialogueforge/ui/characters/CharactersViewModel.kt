@@ -26,9 +26,11 @@ class CharactersViewModel(
     val state: StateFlow<CharactersState> = _state.asStateFlow()
 
     init {
-        _state.update { it.copy(viewMode = forgeSettings.defaultViewMode.value) }
+        forgeSettings.defaultViewMode
+            .onEach { mode -> _state.update { it.copy(viewMode = mode) } }
+            .launchIn(viewModelScope)
         repository.characters
-            .onEach { entities -> _state.value = _state.value.copy(characters = entities.map { it.toCharacter() }) }
+            .onEach { entities -> _state.update { s -> s.copy(characters = entities.map { it.toCharacter() }) } }
             .launchIn(viewModelScope)
     }
 
@@ -44,6 +46,7 @@ class CharactersViewModel(
             is CharactersIntent.ExcludeTagRemoved  -> updateFilter { it.copy(excludeTags = it.excludeTags - intent.tag) }
             is CharactersIntent.FiltersReset       -> updateFilter { CharacterFilter() }
             is CharactersIntent.DeleteCharacter -> viewModelScope.launch { repository.delete(intent.id) }
+            is CharactersIntent.DismissError -> _state.update { it.copy(error = null) }
         }
     }
 
@@ -54,7 +57,7 @@ class CharactersViewModel(
     private suspend fun importFile(intent: CharactersIntent.ImportFile) {
         when (val result = TavernCardParser.parse(intent.bytes, intent.filename)) {
             is ParseResult.Success -> repository.import(result.data)
-            is ParseResult.Failure -> Unit // TODO: surface error via state
+            is ParseResult.Failure -> _state.update { it.copy(error = result.message) }
         }
     }
 }

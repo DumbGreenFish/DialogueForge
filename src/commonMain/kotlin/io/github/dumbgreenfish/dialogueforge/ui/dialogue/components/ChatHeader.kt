@@ -3,8 +3,6 @@ package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -33,13 +31,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import org.jetbrains.compose.resources.stringResource
 
-private val HeightCompact = 64.dp
-private val HeightWide = 56.dp
-private val PaddingHCompact = 4.dp
-private val PaddingHWide = 12.dp
-private val GapCompact = 0.dp
-private val GapWide = 4.dp
-private val ActionBtnTarget = 36.dp
 private val AvatarSizeCompact = 36.dp
 private val AvatarSizeWide = 32.dp
 private val AvatarFontCompact = 16.sp
@@ -58,25 +49,13 @@ internal fun ChatHeader(
 ) {
     val cs = MaterialTheme.colorScheme
     val compact = windowClass != WindowClass.Wide
-
-    val height = if (compact) HeightCompact else HeightWide
-    val paddingH = if (compact) PaddingHCompact else PaddingHWide
-    val gap = if (compact) GapCompact else GapWide
     val avatarSize = if (compact) AvatarSizeCompact else AvatarSizeWide
     val avatarFont = if (compact) AvatarFontCompact else AvatarFontWide
-    val titleStyle = if (compact) MaterialTheme.typography.titleMedium
-    else MaterialTheme.typography.titleSmall
+    val titleStyle = dialogueHeaderTitleStyle()
     val subtitleStyle = if (compact) MaterialTheme.typography.labelMedium
     else MaterialTheme.typography.labelSmall
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-            .padding(horizontal = paddingH),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(gap),
-    ) {
+    DialogueHeaderRow(modifier = modifier) {
         IconButton(onClick = onBack) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
@@ -129,7 +108,7 @@ internal fun ChatHeader(
         IconButton(
             onClick = {},
             enabled = false,
-            modifier = Modifier.requiredSize(ActionBtnTarget)
+            modifier = Modifier.requiredSize(DialogueHeaderDimens.ActionBtnTarget)
         ) {
             Icon(Icons.Filled.History, contentDescription = null, tint = cs.onSurfaceVariant)
         }
@@ -137,7 +116,7 @@ internal fun ChatHeader(
         IconButton(
             onClick = {},
             enabled = false,
-            modifier = Modifier.requiredSize(ActionBtnTarget)
+            modifier = Modifier.requiredSize(DialogueHeaderDimens.ActionBtnTarget)
         ) {
             Icon(Icons.Filled.Add, contentDescription = null, tint = cs.onSurfaceVariant)
         }
@@ -145,7 +124,7 @@ internal fun ChatHeader(
         IconButton(
             onClick = {},
             enabled = false,
-            modifier = Modifier.requiredSize(ActionBtnTarget)
+            modifier = Modifier.requiredSize(DialogueHeaderDimens.ActionBtnTarget)
         ) {
             Icon(Icons.Filled.MoreVert, contentDescription = null, tint = cs.onSurfaceVariant)
         }

@@ -14,20 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 private val SeparatorPaddingV = 4.dp
 private val SeparatorPaddingH = 12.dp
 private val SeparatorMarginT = 12.dp
 private val SeparatorMarginB = 8.dp
-
-internal fun formatDateLabel(ms: Long): String {
-    val dt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
-    val m = dt.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
-    return "${dt.dayOfMonth} $m ${dt.year}"
-}
 
 @Composable
 internal fun DateSeparator(

@@ -9,63 +9,99 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 
+/**
+ * Single source of truth for user settings: holds the canonical [SettingsState],
+ * exposes per-field projections for app-wide readers, and persists each change
+ * (one key at a time) through [SettingsRepository].
+ */
 @Single
 class ForgeSettings(
     private val settings: SettingsRepository,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    private val _densityScale = MutableStateFlow(SettingsRepository.DEFAULT_DENSITY_SCALE)
-    val densityScale: StateFlow<Float> = _densityScale.asStateFlow()
+    private val _state = MutableStateFlow(SettingsState())
+    val state: StateFlow<SettingsState> = _state.asStateFlow()
 
-    private val _fontScale = MutableStateFlow(SettingsRepository.DEFAULT_FONT_SCALE)
-    val fontScale: StateFlow<Float> = _fontScale.asStateFlow()
-
-    private val _animationSpeed = MutableStateFlow(AnimationSpeed.Normal)
-    val animationSpeed: StateFlow<AnimationSpeed> = _animationSpeed.asStateFlow()
-
-    private val _defaultViewMode = MutableStateFlow(CharactersViewMode.List)
-    val defaultViewMode: StateFlow<CharactersViewMode> = _defaultViewMode.asStateFlow()
-
-    private val _messageWidth = MutableStateFlow(MessageWidth.Normal)
-    val messageWidth: StateFlow<MessageWidth> = _messageWidth.asStateFlow()
-
-    private val _composerMaxHeightDp = MutableStateFlow(SettingsRepository.DEFAULT_COMPOSER_MAX_HEIGHT)
-    val composerMaxHeightDp: StateFlow<Int> = _composerMaxHeightDp.asStateFlow()
-
-    private val _sidebarWidthDp = MutableStateFlow(SettingsRepository.DEFAULT_SIDEBAR_WIDTH)
-    val sidebarWidthDp: StateFlow<Int> = _sidebarWidthDp.asStateFlow()
+    val densityScale: StateFlow<Float> = project { it.densityScale }
+    val fontScale: StateFlow<Float> = project { it.fontScale }
+    val animationSpeed: StateFlow<AnimationSpeed> = project { it.animationSpeed }
+    val defaultViewMode: StateFlow<CharactersViewMode> = project { it.defaultViewMode }
+    val messageWidth: StateFlow<MessageWidth> = project { it.messageWidth }
+    val composerMaxHeightDp: StateFlow<Int> = project { it.composerMaxHeightDp }
+    val sidebarWidthDp: StateFlow<Int> = project { it.sidebarWidthDp }
 
     init {
         scope.launch { loadAll() }
     }
 
-    private suspend fun loadAll() {
-        _densityScale.value = settings.getDensityScale()
-        _fontScale.value = settings.getFontScale()
-        _animationSpeed.value = safeEnum(settings.getAnimationSpeed(), AnimationSpeed.Normal)
-        _defaultViewMode.value = safeEnum(settings.getDefaultViewMode(), CharactersViewMode.List)
-        _messageWidth.value = safeEnum(settings.getMessageWidth(), MessageWidth.Normal)
-        _composerMaxHeightDp.value = settings.getComposerMaxHeight()
-        _sidebarWidthDp.value = settings.getSidebarWidth()
-        ForgeAnimation.setSpeedMultiplier(_animationSpeed.value.durationMultiplier)
+    fun setDensityScale(value: Float) = update({ it.copy(densityScale = value) }) { settings.setDensityScale(value) }
+
+    fun setFontScale(value: Float) = update({ it.copy(fontScale = value) }) { settings.setFontScale(value) }
+
+    fun setAnimationSpeed(value: AnimationSpeed) {
+        ForgeAnimation.setSpeedMultiplier(value.durationMultiplier)
+        update({ it.copy(animationSpeed = value) }) { settings.setAnimationSpeed(value.name) }
     }
 
-    fun applyState(state: SettingsState) {
-        _densityScale.value = state.densityScale
-        _fontScale.value = state.fontScale
-        _animationSpeed.value = state.animationSpeed
-        _defaultViewMode.value = state.defaultViewMode
-        _messageWidth.value = state.messageWidth
-        _composerMaxHeightDp.value = state.composerMaxHeightDp
-        _sidebarWidthDp.value = state.sidebarWidthDp
-        ForgeAnimation.setSpeedMultiplier(state.animationSpeed.durationMultiplier)
+    fun setDefaultViewMode(value: CharactersViewMode) =
+        update({ it.copy(defaultViewMode = value) }) { settings.setDefaultViewMode(value.name) }
+
+    fun setMessageWidth(value: MessageWidth) =
+        update({ it.copy(messageWidth = value) }) { settings.setMessageWidth(value.name) }
+
+    fun setComposerMaxHeight(value: Int) =
+        update({ it.copy(composerMaxHeightDp = value) }) { settings.setComposerMaxHeight(value) }
+
+    fun setSidebarWidth(value: Int) =
+        update({ it.copy(sidebarWidthDp = value) }) { settings.setSidebarWidth(value) }
+
+    fun reset() {
+        val defaults = SettingsState(isLoaded = true)
+        _state.value = defaults
+        ForgeAnimation.setSpeedMultiplier(defaults.animationSpeed.durationMultiplier)
+        scope.launch {
+            settings.setDensityScale(defaults.densityScale)
+            settings.setFontScale(defaults.fontScale)
+            settings.setAnimationSpeed(defaults.animationSpeed.name)
+            settings.setDefaultViewMode(defaults.defaultViewMode.name)
+            settings.setMessageWidth(defaults.messageWidth.name)
+            settings.setComposerMaxHeight(defaults.composerMaxHeightDp)
+            settings.setSidebarWidth(defaults.sidebarWidthDp)
+        }
     }
+
+    private suspend fun loadAll() {
+        val loaded = SettingsState(
+            densityScale = settings.getDensityScale(),
+            fontScale = settings.getFontScale(),
+            animationSpeed = safeEnum(settings.getAnimationSpeed(), AnimationSpeed.Normal),
+            defaultViewMode = safeEnum(settings.getDefaultViewMode(), CharactersViewMode.List),
+            messageWidth = safeEnum(settings.getMessageWidth(), MessageWidth.Normal),
+            composerMaxHeightDp = settings.getComposerMaxHeight(),
+            sidebarWidthDp = settings.getSidebarWidth(),
+            isLoaded = true,
+        )
+        _state.value = loaded
+        ForgeAnimation.setSpeedMultiplier(loaded.animationSpeed.durationMultiplier)
+    }
+
+    private fun update(transform: (SettingsState) -> SettingsState, persist: suspend () -> Unit) {
+        _state.update(transform)
+        scope.launch { persist() }
+    }
+
+    private fun <T> project(selector: (SettingsState) -> T): StateFlow<T> =
+        _state.map(selector).stateIn(scope, SharingStarted.Eagerly, selector(_state.value))
 
     private inline fun <reified T : Enum<T>> safeEnum(name: String, default: T): T =
         try { enumValueOf<T>(name) } catch (_: IllegalArgumentException) { default }

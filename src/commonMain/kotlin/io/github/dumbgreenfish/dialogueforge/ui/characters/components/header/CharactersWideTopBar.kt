@@ -1,12 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters.components.header
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,17 +83,7 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
     Column(Modifier.fillMaxWidth()) {
         AnimatedContent(
             targetState = searchExpanded,
-            transitionSpec = {
-                if (targetState) {
-                    (fadeIn() + slideInHorizontally { it / 4 }).togetherWith(
-                        fadeOut() + slideOutHorizontally { -it / 4 }
-                    ).using(SizeTransform(clip = false))
-                } else {
-                    (fadeIn() + slideInHorizontally { -it / 4 }).togetherWith(
-                        fadeOut() + slideOutHorizontally { it / 4 }
-                    ).using(SizeTransform(clip = false))
-                }
-            },
+            transitionSpec = { searchBarTransition() },
         ) { expanded ->
             Row(
                 modifier = Modifier
@@ -169,7 +153,8 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                         )
                     }
                     Spacer(Modifier.width(GapItems))
-                    IconButton(onClick = {}) {
+                    // TODO: not implemented
+                    IconButton(onClick = {}, enabled = false) {
                         Icon(
                             imageVector = Icons.Outlined.Add,
                             contentDescription = null,

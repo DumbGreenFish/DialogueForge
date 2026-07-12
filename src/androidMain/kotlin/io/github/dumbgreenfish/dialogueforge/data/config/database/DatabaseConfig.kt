@@ -12,13 +12,15 @@ import org.koin.core.annotation.Single
 
 @Single
 class AndroidDatabaseConfig(val app: Application) : DatabaseConfig {
-    override fun mainDatabase() : MainDatabase {
+    private val db: MainDatabase by lazy {
         val dbFile = app.getDatabasePath(MAIN_DB_NAME)
         dbFile.parentFile?.mkdirs()
-        return Room.databaseBuilder<MainDatabase>(name = dbFile.absolutePath)
+        Room.databaseBuilder<MainDatabase>(name = dbFile.absolutePath)
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .fallbackToDestructiveMigration()
             .build()
     }
+
+    override fun mainDatabase(): MainDatabase = db
 }

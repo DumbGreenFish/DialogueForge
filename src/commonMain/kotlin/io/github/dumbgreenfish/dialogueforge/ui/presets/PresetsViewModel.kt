@@ -11,26 +11,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-data class PresetsState(
-    val endpoint: String = SettingsRepository.DEFAULT_ENDPOINT,
-    val apiKey: String = "",
-    val model: String = SettingsRepository.DEFAULT_MODEL,
-    val temperature: Float = SettingsRepository.DEFAULT_TEMPERATURE,
-    val maxTokens: Int = SettingsRepository.DEFAULT_MAX_TOKENS,
-    val isSaved: Boolean = false,
-    val isLoaded: Boolean = false,
-)
-
-sealed class PresetsIntent {
-    data class UpdateEndpoint(val value: String) : PresetsIntent()
-    data class UpdateApiKey(val value: String) : PresetsIntent()
-    data class UpdateModel(val value: String) : PresetsIntent()
-    data class UpdateTemperature(val value: Float) : PresetsIntent()
-    data class UpdateMaxTokens(val value: Int) : PresetsIntent()
-    data object Load : PresetsIntent()
-    data object Save : PresetsIntent()
-}
-
 @KoinViewModel
 class PresetsViewModel(
     private val settings: SettingsRepository,

@@ -21,6 +21,9 @@ interface CharacterDao {
     @Query("DELETE FROM characters WHERE id = :id")
     suspend fun delete(id: String)
 
+    @Query("UPDATE characters SET pinned = NOT pinned WHERE id = :id")
+    suspend fun togglePin(id: String)
+
     @Query("SELECT * FROM characters WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): CharacterEntity?
 }

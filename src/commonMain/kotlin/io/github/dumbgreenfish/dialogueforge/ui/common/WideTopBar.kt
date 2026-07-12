@@ -24,6 +24,7 @@ import org.jetbrains.compose.resources.stringResource
 
 internal val WideTopBarHeight   = 64.dp
 internal val WideTopBarPaddingH = 24.dp
+private val MenuIconGap          = 8.dp
 
 @Composable
 fun WideTopBar(selectedTab: NavTab, onMenuClick: (() -> Unit)? = null) {
@@ -45,7 +46,7 @@ fun WideTopBar(selectedTab: NavTab, onMenuClick: (() -> Unit)? = null) {
                         tint = cs.onSurfaceVariant,
                     )
                 }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(MenuIconGap))
             }
             Text(
                 text = stringResource(item.labelRes),

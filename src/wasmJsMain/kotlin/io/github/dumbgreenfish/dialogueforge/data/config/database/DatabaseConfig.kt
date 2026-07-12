@@ -12,12 +12,16 @@ import org.w3c.dom.Worker
 private external fun createModuleWorker(url: String): Worker
 
 @Single
-class WasmDatabaseConfig() : DatabaseConfig {
+class WasmDatabaseConfig : DatabaseConfig {
 
-    override fun mainDatabase() : MainDatabase = Room.databaseBuilder<MainDatabase>(name = MAIN_DB_NAME)
+    private val db: MainDatabase by lazy {
+        Room.databaseBuilder<MainDatabase>(name = MAIN_DB_NAME)
             .setDriver(WebWorkerSQLiteDriver(createModuleWorker(SQLITE_WORKER_SCRIPT)))
             .fallbackToDestructiveMigration()
             .build()
+    }
+
+    override fun mainDatabase(): MainDatabase = db
 
     companion object {
         private const val SQLITE_WORKER_SCRIPT = "sqlite-worker.js"
