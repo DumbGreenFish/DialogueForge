@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold
 
 import androidx.compose.ui.unit.dp
 

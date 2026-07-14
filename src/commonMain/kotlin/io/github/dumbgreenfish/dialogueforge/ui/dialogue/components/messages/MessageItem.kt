@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -123,6 +126,8 @@ private val SelectionRowPaddingH = 12.dp
 private val SelectionCheckboxPaddingTop = 8.dp
 private val AssistantTextAlignmentCorrection = 1.dp
 
+private val MessageActionsPaddingTop = 12.dp
+
 @Composable
 internal fun MessageItem(
     state: MessageItemState,
@@ -198,8 +203,7 @@ internal fun MessageItem(
             }
 
             if (!isSelectionMode) {
-                val isActionsExpanded =
-                    (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
+                val isActionsExpanded = (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
                 MessageActions(
                     message = state.message,
                     isGreeting = isGreeting,
@@ -208,6 +212,7 @@ internal fun MessageItem(
                     interactionSource = interactionSource,
                     onActionRowEvent = callbacks.onActionRowEvent,
                     onVariantSelectorEvent = callbacks.onVariantSelectorEvent,
+                    modifier = Modifier.padding(top = MessageActionsPaddingTop)
                 )
             }
         }
@@ -274,6 +279,7 @@ private fun MessageActions(
     interactionSource: MutableInteractionSource,
     onActionRowEvent: (ActionRowEvent) -> Unit,
     onVariantSelectorEvent: (VariantSelectorEvent) -> Unit,
+    modifier: Modifier,
 ) {
     val assistantTextIndent = if (message.role == MessageRole.Assistant) {
         (if (isGreeting) GreetingAvatarSize else RegularAvatarSize) + AssistantHeaderGap + AssistantTextAlignmentCorrection
@@ -290,6 +296,7 @@ private fun MessageActions(
             onActionRowEvent = onActionRowEvent,
             startPadding = if (position is MessagePosition.LastAssistant) 0.dp else assistantTextIndent,
             interactionSource = interactionSource,
+            modifier = modifier
         )
     }
 

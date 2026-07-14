@@ -1,9 +1,7 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -24,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,10 +59,9 @@ internal fun ActionRow(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isHovered by interactionSource.collectIsHoveredAsState()
-    val targetAlpha = if (visible || isHovered) 1f else 0f
     val alpha by animateFloatAsState(
-        targetValue = targetAlpha,
-        animationSpec = androidx.compose.animation.core.tween(ForgeAnimation.DurationHover),
+        targetValue = if (visible || isHovered) 1f else 0f,
+        animationSpec = tween(ForgeAnimation.DurationHover),
     )
 
     val actionRowItems: List<@Composable () -> Unit> = listOfNotNull(
@@ -108,18 +106,16 @@ internal fun ActionRow(
         },
     )
 
-    AnimatedVisibility(
-        visible = visible || isHovered,
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .height(ActionRowHeight),
-        enter = fadeIn(),
-        exit = fadeOut(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = startPadding),
+                .padding(start = startPadding)
+                .graphicsLayer(alpha = alpha),
             horizontalArrangement = if (role == MessageRole.User) Arrangement.End else Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -128,14 +124,6 @@ internal fun ActionRow(
                 Spacer(Modifier.width(DistanceBetweenActionItems))
             }
         }
-    }
-
-    if (alpha == 0f && !isHovered) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(ActionRowHeight),
-        )
     }
 }
 

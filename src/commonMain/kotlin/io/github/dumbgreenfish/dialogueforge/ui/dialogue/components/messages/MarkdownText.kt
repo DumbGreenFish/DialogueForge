@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

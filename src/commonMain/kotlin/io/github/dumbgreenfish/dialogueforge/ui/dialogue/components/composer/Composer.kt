@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,6 +49,7 @@ import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_hint
 import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueLayout
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 

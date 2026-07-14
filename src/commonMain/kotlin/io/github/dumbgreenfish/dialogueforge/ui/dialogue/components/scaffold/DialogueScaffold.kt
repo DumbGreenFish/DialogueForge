@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +27,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
 import io.github.dumbgreenfish.dialogueforge.ui.common.formatDateLabel
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueLayout
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth

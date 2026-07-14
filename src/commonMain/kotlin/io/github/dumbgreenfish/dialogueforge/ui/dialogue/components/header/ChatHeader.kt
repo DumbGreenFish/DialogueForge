@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
+package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
