@@ -39,6 +39,11 @@ class ForgeSettings(
     val messageWidth: StateFlow<MessageWidth> = project { it.messageWidth }
     val composerMaxHeightDp: StateFlow<Int> = project { it.composerMaxHeightDp }
     val sidebarWidthDp: StateFlow<Int> = project { it.sidebarWidthDp }
+    val chatBackgroundBytes: StateFlow<ByteArray?> = project { it.chatBackgroundBytes }
+    val chatBackgroundOpacity: StateFlow<Float> = project { it.chatBackgroundOpacity }
+    val chatPanelOpacity: StateFlow<Float> = project { it.chatPanelOpacity }
+    val chatBackgroundDim: StateFlow<Float> = project { it.chatBackgroundDim }
+    val hasCompletedFirstLaunch: StateFlow<Boolean> = project { it.hasCompletedFirstLaunch }
 
     init {
         scope.launch { loadAll() }
@@ -65,6 +70,27 @@ class ForgeSettings(
     fun setSidebarWidth(value: Int) =
         update({ it.copy(sidebarWidthDp = value) }) { settings.setSidebarWidth(value) }
 
+    fun setChatBackground(bytes: ByteArray?, opacity: Float) =
+        update({ it.copy(chatBackgroundBytes = bytes, chatBackgroundOpacity = opacity) }) {
+            settings.setChatBackgroundBytes(bytes)
+            settings.setChatBackgroundOpacity(opacity)
+        }
+
+    fun setChatBackgroundOpacity(value: Float) =
+        update({ it.copy(chatBackgroundOpacity = value) }) { settings.setChatBackgroundOpacity(value) }
+
+    fun setChatPanelOpacity(value: Float) =
+        update({ it.copy(chatPanelOpacity = value) }) { settings.setChatPanelOpacity(value) }
+
+    fun setChatBackgroundDim(value: Float) =
+        update({ it.copy(chatBackgroundDim = value) }) { settings.setChatBackgroundDim(value) }
+
+    fun removeChatBackground() =
+        update({ it.copy(chatBackgroundBytes = null) }) { settings.setChatBackgroundBytes(null) }
+
+    fun setHasCompletedFirstLaunch() =
+        update({ it.copy(hasCompletedFirstLaunch = true) }) { settings.setHasCompletedFirstLaunch(true) }
+
     fun reset() {
         val defaults = SettingsState(isLoaded = true)
         _state.value = defaults
@@ -77,6 +103,8 @@ class ForgeSettings(
             settings.setMessageWidth(defaults.messageWidth.name)
             settings.setComposerMaxHeight(defaults.composerMaxHeightDp)
             settings.setSidebarWidth(defaults.sidebarWidthDp)
+            settings.setChatPanelOpacity(defaults.chatPanelOpacity)
+            settings.setChatBackgroundDim(defaults.chatBackgroundDim)
         }
     }
 
@@ -89,6 +117,11 @@ class ForgeSettings(
             messageWidth = safeEnum(settings.getMessageWidth(), MessageWidth.Normal),
             composerMaxHeightDp = settings.getComposerMaxHeight(),
             sidebarWidthDp = settings.getSidebarWidth(),
+            chatBackgroundBytes = settings.getChatBackgroundBytes(),
+            chatBackgroundOpacity = settings.getChatBackgroundOpacity(),
+            chatPanelOpacity = settings.getChatPanelOpacity(),
+            chatBackgroundDim = settings.getChatBackgroundDim(),
+            hasCompletedFirstLaunch = settings.getHasCompletedFirstLaunch(),
             isLoaded = true,
         )
         _state.value = loaded

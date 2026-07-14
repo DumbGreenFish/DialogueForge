@@ -52,6 +52,7 @@
     <string name="dialogue_generating">%1$s печатает…</string>
     <string name="dialogue_error_dismiss">Закрыть</string>
     <string name="dialogue_error_retry">Повторить</string>
+    <string name="dialogue_error_api_key_not_set">API ключ не указан. Настройте в Пресетах.</string>
     <string name="dialogue_delete_title">Удалить сообщение?</string>
     <string name="dialogue_delete_message">Сообщение будет удалено безвозвратно.</string>
     <string name="dialogue_delete_confirm">Удалить</string>
@@ -83,4 +84,12 @@
     <string name="settings_section_navigation">Навигация</string>
     <string name="settings_sidebar_width">Ширина панели</string>
     <string name="settings_reset">Сбросить настройки</string>
+    <string name="settings_chat_background">Фон чата</string>
+    <string name="settings_chat_background_pick">Выбрать изображение</string>
+    <string name="settings_chat_background_remove">Удалить</string>
+    <string name="settings_chat_background_opacity">Прозрачность фона</string>
+    <string name="settings_chat_panel_opacity">Прозрачность панелей</string>
+    <string name="settings_chat_background_dim">Затемнение фона</string>
+    <string name="dialogue_edit_save">Сохранить</string>
+    <string name="dialogue_edit_cancel">Отмена</string>
 </resources>

@@ -18,6 +18,12 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override fun getMessages(conversationId: String): Flow<List<MessageEntity>> =
         db.messageDao().getByConversation(conversationId)
 
+    override suspend fun getMessagesPage(conversationId: String, limit: Int, offset: Int): List<MessageEntity> =
+        db.messageDao().getByConversationPaged(conversationId, limit, offset)
+
+    override suspend fun getMessageCount(conversationId: String): Int =
+        db.messageDao().countByConversation(conversationId)
+
     override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity {
         val now = Clock.System.now().toEpochMilliseconds()
         val conversation = ConversationEntity(
@@ -60,4 +66,29 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override suspend fun updateMessage(id: String, text: String) {
         db.messageDao().updateText(id, text)
     }
+
+    override suspend fun getVariants(messageId: String): List<MessageVariantEntity> =
+        db.messageDao().getVariants(messageId)
+
+    override suspend fun addVariant(messageId: String, text: String): MessageVariantEntity {
+        val existing = db.messageDao().getVariants(messageId)
+        val ordinal = existing.maxOfOrNull { it.ordinal }?.plus(1) ?: 0
+        val variant = MessageVariantEntity(
+            id = Uuid.random().toString(),
+            messageId = messageId,
+            ordinal = ordinal,
+            text = text,
+        )
+        db.messageDao().insertVariantAndActivate(messageId, variant)
+        return variant
+    }
+
+    override suspend fun setActiveVariant(messageId: String, ordinal: Int): MessageEntity? {
+        val variant = db.messageDao().getVariants(messageId).find { it.ordinal == ordinal } ?: return null
+        db.messageDao().updateActiveVariant(messageId, ordinal, variant.text)
+        return db.messageDao().getById(messageId)
+    }
+
+    override suspend fun countVariantsByMessageIds(messageIds: List<String>): List<MessageVariantCount> =
+        db.messageDao().countVariantsByMessageIds(messageIds)
 }

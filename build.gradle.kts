@@ -105,6 +105,9 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.cloudy)
+                implementation(libs.markdown.renderer.m3)
+                implementation(libs.lucide.icons)
             }
         }
 

@@ -12,6 +12,11 @@ sealed class SettingsIntent {
     data class UpdateMessageWidth(val value: MessageWidth) : SettingsIntent()
     data class UpdateComposerMaxHeight(val valueDp: Int) : SettingsIntent()
     data class UpdateSidebarWidth(val valueDp: Int) : SettingsIntent()
+    data class UpdateChatBackgroundOpacity(val value: Float) : SettingsIntent()
+    data class UpdateChatPanelOpacity(val value: Float) : SettingsIntent()
+    data class UpdateChatBackgroundDim(val value: Float) : SettingsIntent()
+    data class SetChatBackground(val bytes: ByteArray) : SettingsIntent()
+    data object RemoveChatBackground : SettingsIntent()
     data object Load : SettingsIntent()
     data object Reset : SettingsIntent()
 }

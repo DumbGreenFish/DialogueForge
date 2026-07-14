@@ -5,6 +5,8 @@ data class Message(
     val role: MessageRole,
     val text: String,
     val timestamp: Long,
+    val variantIndex: Int = 0,
+    val variantCount: Int = 1,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

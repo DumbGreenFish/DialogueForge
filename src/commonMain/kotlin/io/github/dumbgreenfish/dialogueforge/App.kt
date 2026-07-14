@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -20,6 +21,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.PredictiveBackHandler
 import androidx.compose.ui.graphics.graphicsLayer
+import io.github.dumbgreenfish.dialogueforge.data.model.DefaultCharacterData
+import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
@@ -49,8 +52,21 @@ fun App() {
     KoinApplication(configuration = koinConfiguration {}) {
         DialogueForgeTheme {
             val forgeSettings = koinInject<ForgeSettings>()
+            val characterRepo = koinInject<CharacterRepository>()
             val densityScale by forgeSettings.densityScale.collectAsState()
             val fontScale by forgeSettings.fontScale.collectAsState()
+            val hasCompletedFirstLaunch by forgeSettings.hasCompletedFirstLaunch.collectAsState()
+
+            LaunchedEffect(Unit) {
+                if (!hasCompletedFirstLaunch) {
+                    val defaultData = DefaultCharacterData.create()
+                    if (defaultData != null) {
+                        characterRepo.import(defaultData)
+                        forgeSettings.setHasCompletedFirstLaunch()
+                    }
+                }
+            }
+
             WithReferenceDensity(densityScale, fontScale) {
                 val controller = koinInject<NavController>()
                 val activeTab by controller.activeTab.collectAsState()

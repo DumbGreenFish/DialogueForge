@@ -12,6 +12,7 @@ data class MessageEntity(
     val text: String,
     val timestamp: Long,
     @ColumnInfo(name = "order_in_conversation") val orderInConversation: Int,
+    @ColumnInfo(name = "active_variant") val activeVariant: Int = 0,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,16 +1,16 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,22 +18,19 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -46,6 +43,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
@@ -54,22 +52,18 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-private val Radius = 20.dp
-private val OuterPaddingT = 8.dp
-private val OuterPaddingB = 12.dp
-private val OuterPaddingH = 12.dp
-private val InnerPaddingT = 12.dp
-private val InnerPaddingB = 8.dp
-private val InnerPaddingH = 16.dp
-private val FieldMinHeight = 20.dp
-private val FieldPaddingT = 4.dp
-private val FieldPaddingH = 8.dp
-private val FieldBottomGap = 8.dp
-private val BottomRowGap = 4.dp
-private val AttachBtnSize = 32.dp
-private val PresetChipHeight = 32.dp
-private val PresetChipPadH = 12.dp
-private val PresetChipGap = 8.dp
+private val InputRadius = 16.dp
+private val OuterPaddingH = 16.dp
+private val OuterPaddingT = 12.dp
+private val OuterPaddingB = 8.dp
+private val FieldPaddingH = 14.dp
+private val FieldPaddingV = 10.dp
+private val RowGap = 8.dp
+private val FieldMinHeight = 40.dp
+private val IconBtnSize = 32.dp
+private val IconBtnRadius = 8.dp
+private val SendIconSize = 16.dp
+private val FieldFontSize = 14.sp
 
 @Composable
 internal fun Composer(
@@ -78,48 +72,63 @@ internal fun Composer(
     onSend: () -> Unit,
     isGenerating: Boolean = false,
     onStop: () -> Unit = {},
+    onAttach: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
     val forgeSettings = koinInject<ForgeSettings>()
     val composerMaxHeightDp by forgeSettings.composerMaxHeightDp.collectAsState()
+    val isFocused = remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                top = OuterPaddingT,
-                bottom = OuterPaddingB,
-                start = OuterPaddingH,
-                end = OuterPaddingH,
-            ),
-        shape = RoundedCornerShape(Radius),
-        color = cs.surfaceVariant,
-        border = BorderStroke(1.dp, cs.outlineVariant),
+    val fieldBgIdle = cs.onSurface.copy(alpha = 0.05f)
+    val fieldBorderIdle = cs.onSurface.copy(alpha = 0.07f)
+    val fieldBorderFocus = cs.onSurface.copy(alpha = 0.12f)
+    val borderColor = if (isFocused.value) fieldBorderFocus else fieldBorderIdle
+
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(
-                top = InnerPaddingT,
-                bottom = InnerPaddingB,
-                start = InnerPaddingH,
-                end = InnerPaddingH,
-            ),
-            verticalArrangement = Arrangement.spacedBy(FieldBottomGap),
+            modifier = Modifier
+                .widthIn(max = DialogueLayout.ContentMaxWidth)
+                .fillMaxWidth()
+                .padding(
+                    top = OuterPaddingT,
+                    bottom = OuterPaddingB,
+                    start = OuterPaddingH,
+                    end = OuterPaddingH,
+                ),
         ) {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(InputRadius))
+                .background(fieldBgIdle)
+                .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(InputRadius))
+                .padding(horizontal = FieldPaddingH, vertical = FieldPaddingV),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(RowGap),
+        ) {
+            PlusButton(onClick = onAttach)
+
             BasicTextField(
                 value = textFieldValue,
-                onValueChange = onInputChange,
+                onValueChange = {
+                    isFocused.value = true
+                    onInputChange(it)
+                },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = cs.onSurface,
+                    fontSize = FieldFontSize,
                 ),
                 cursorBrush = SolidColor(ForgeColors.spark),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                singleLine = false,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .heightIn(min = FieldMinHeight, max = composerMaxHeightDp.dp)
-                    .padding(top = FieldPaddingT, start = FieldPaddingH, end = FieldPaddingH)
                     .onPreviewKeyEvent { keyEvent ->
-                        if (!isMobilePlatform && keyEvent.type == KeyEventType.KeyDown) {
+                        if (keyEvent.type == KeyEventType.KeyDown && !isMobilePlatform) {
                             val shouldNewline = (keyEvent.key == Key.J && keyEvent.isCtrlPressed)
                                 || (keyEvent.key == Key.Enter && keyEvent.isShiftPressed)
                             when {
@@ -127,10 +136,12 @@ internal fun Composer(
                                     val v = textFieldValue
                                     val pos = v.selection.start
                                     val newText = v.text.substring(0, pos) + "\n" + v.text.substring(pos)
-                                    onInputChange(v.copy(
-                                        text = newText,
-                                        selection = TextRange(pos + 1, pos + 1),
-                                    ))
+                                    onInputChange(
+                                        v.copy(
+                                            text = newText,
+                                            selection = TextRange(pos + 1, pos + 1),
+                                        )
+                                    )
                                     true
                                 }
                                 keyEvent.key == Key.Enter -> {
@@ -148,95 +159,80 @@ internal fun Composer(
                         if (textFieldValue.text.isEmpty()) {
                             Text(
                                 text = stringResource(Res.string.dialogue_input_hint),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = ForgeColors.onSurfaceFaint,
+                                fontSize = FieldFontSize,
+                                color = cs.onSurfaceVariant,
                             )
                         }
                         innerTextField()
                     }
                 },
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(BottomRowGap),
-            ) {
-                // TODO: not implemented
-                Surface(
-                    modifier = Modifier.requiredSize(AttachBtnSize),
-                    shape = CircleShape,
-                    color = cs.surface,
-                    border = BorderStroke(1.dp, cs.outline),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = cs.onSurfaceVariant,
-                        )
-                    }
-                }
-                Spacer(Modifier.weight(1f))
-                // TODO: not implemented
-                Surface(
-                    shape = RoundedCornerShape(PresetChipHeight / 2),
-                    color = cs.surface,
-                    border = BorderStroke(1.dp, cs.outlineVariant),
-                    modifier = Modifier.height(PresetChipHeight),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = PresetChipPadH),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(PresetChipGap),
-                    ) {
-                        Icon(
-                            Icons.Filled.Tune,
-                            contentDescription = null,
-                            modifier = Modifier.size(13.dp),
-                            tint = ForgeColors.spark,
-                        )
-                    }
-                }
-                if (isGenerating) {
-                    FilledIconButton(
-                        onClick = onStop,
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = cs.error,
-                            contentColor = cs.onError,
-                        ),
-                    ) {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
-                } else if (textFieldValue.text.isNotBlank()) {
-                    FilledIconButton(
-                        onClick = onSend,
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = cs.primary,
-                            contentColor = cs.onPrimary,
-                        ),
-                    ) {
-                        Icon(
-                            Icons.Filled.ArrowUpward,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
-                } else {
-                    IconButton(onClick = {}, enabled = false) {
-                        Icon(
-                            Icons.Filled.Mic,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = cs.primary,
-                        )
-                    }
-                }
+
+            if (isGenerating) {
+                StopButton(onStop)
+            } else if (textFieldValue.text.isNotBlank()) {
+                SendButton(onSend)
             }
         }
+        }
+    }
+}
+
+@Composable
+private fun PlusButton(onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Box(
+        modifier = Modifier
+            .size(IconBtnSize)
+            .clip(RoundedCornerShape(IconBtnRadius))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.Filled.Add,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = cs.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun SendButton(onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Box(
+        modifier = Modifier
+            .size(IconBtnSize)
+            .clip(CircleShape)
+            .background(cs.secondary.copy(alpha = 0.2f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            modifier = Modifier.size(SendIconSize),
+            tint = cs.secondary,
+        )
+    }
+}
+
+@Composable
+private fun StopButton(onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Box(
+        modifier = Modifier
+            .size(IconBtnSize)
+            .clip(CircleShape)
+            .background(cs.errorContainer)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            Icons.Filled.Close,
+            contentDescription = null,
+            modifier = Modifier.size(SendIconSize),
+            tint = cs.onErrorContainer,
+        )
     }
 }
