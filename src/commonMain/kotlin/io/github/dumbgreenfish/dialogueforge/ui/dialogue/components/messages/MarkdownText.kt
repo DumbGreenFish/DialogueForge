@@ -9,6 +9,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.rememberMarkdownState
 
 private val AssistantTextSize = 14.5.sp
 private val AssistantLineHeight = 25.35.sp
@@ -24,9 +25,13 @@ internal fun MarkdownText(
         fontSize = AssistantTextSize,
         lineHeight = AssistantLineHeight,
     )
+    val markdownState = rememberMarkdownState(
+        content = text,
+        immediate = true,
+    )
 
     Markdown(
-        content = text,
+        markdownState = markdownState,
         modifier = modifier,
         typography = markdownTypography(
             text = baseStyle,

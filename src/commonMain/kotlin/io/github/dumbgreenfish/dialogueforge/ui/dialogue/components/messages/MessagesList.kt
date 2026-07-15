@@ -73,7 +73,10 @@ internal fun MessagesList(
 
     val shouldLoadOlder by remember {
         derivedStateOf {
-            listState.firstVisibleItemIndex <= LoadMoreThreshold &&
+            val layoutInfo = listState.layoutInfo
+            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisibleIndex >= layoutInfo.totalItemsCount - 1 - LoadMoreThreshold &&
+                    layoutInfo.totalItemsCount > 0 &&
                     data.hasMoreOlderMessages &&
                     !data.isLoadingOlder
         }
@@ -81,12 +84,6 @@ internal fun MessagesList(
 
     LaunchedEffect(shouldLoadOlder) {
         if (shouldLoadOlder) data.onLoadOlder()
-    }
-
-    LaunchedEffect(data.messages.size) {
-        if (data.messages.isNotEmpty() && listState.firstVisibleItemIndex <= LoadMoreThreshold) {
-            listState.animateScrollToItem(0)
-        }
     }
 
     LazyColumn(

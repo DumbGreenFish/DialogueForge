@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.ClipboardManager
@@ -19,7 +17,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
-import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
@@ -67,6 +64,9 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
         bgFlow.value = bgBytes?.let { withContext(Dispatchers.Default) { it.toImageBitmapOrNull() } }
     }
 
+    val character = state.character
+    if (character == null || state.conversationId == null) return
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -78,15 +78,6 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
             opacity = bgOpacity,
             dim = bgDim,
         )
-
-        if (state.isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = ForgeColors.spark)
-            }
-            return@Box
-        }
-
-        val character = state.character ?: return@Box
 
         val bg = MaterialTheme.colorScheme.background
         DialogueScaffold(

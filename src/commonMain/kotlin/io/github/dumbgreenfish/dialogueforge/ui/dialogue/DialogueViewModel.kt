@@ -43,7 +43,6 @@ class DialogueViewModel(
     fun handle(intent: DialogueIntent) {
         when (intent) {
             is DialogueIntent.LoadCharacter -> loadCharacter(intent.id)
-            is DialogueIntent.LoadConversation -> loadConversation()
             is DialogueIntent.Back -> {}
             is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.value) }
             is DialogueIntent.Send -> onSend()
@@ -67,28 +66,12 @@ class DialogueViewModel(
     }
 
     private fun loadCharacter(id: String) {
-        if (_state.value.character?.id == id && _state.value.isLoading) return
+        if (_state.value.isLoading) return
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val entity = characterRepository.getById(id)
-            val character = entity?.toCharacter()
+            val character = checkNotNull(entity?.toCharacter()) { "Character not found: $id" }
             val modelName = settingsRepository.getModel()
-            _state.update {
-                it.copy(
-                    character = character,
-                    isLoading = false,
-                    modelName = modelName,
-                )
-            }
-            if (character != null) {
-                handle(DialogueIntent.LoadConversation)
-            }
-        }
-    }
-
-    private fun loadConversation() {
-        val character = _state.value.character ?: return
-        viewModelScope.launch {
             val conversation = dialogueRepository.getOrCreateConversation(
                 characterId = character.id,
                 greeting = character.firstMessage,
@@ -98,6 +81,9 @@ class DialogueViewModel(
             val messages = page.withVariantCounts(dialogueRepository)
             _state.update {
                 it.copy(
+                    character = character,
+                    isLoading = false,
+                    modelName = modelName,
                     conversationId = conversation.id,
                     messages = messages,
                     hasMoreOlderMessages = page.size < totalMessageCount,
