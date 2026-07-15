@@ -20,8 +20,8 @@ kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.11.0"
 compose-material-icons = "1.7.3"
 ktor = "3.5.1"
-cloudy = "0.7.1"
-markdown-renderer = "0.43.0"
+cloudy = "0.6.1"
+markdown-renderer = "0.41.0"
 lucide-icons = "2.2.1"
 
 # It's required to keep this version

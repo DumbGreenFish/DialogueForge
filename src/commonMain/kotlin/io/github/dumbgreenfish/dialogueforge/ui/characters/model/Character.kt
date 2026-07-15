@@ -3,7 +3,6 @@ package io.github.dumbgreenfish.dialogueforge.ui.characters.model
 data class Character(
     val id: String,
     val name: String,
-    val letter: String,
     val tagline: String,
     val description: String = "",
     val tags: List<Tag>,
@@ -11,10 +10,10 @@ data class Character(
     val lastUsed: String,
     val pinned: Boolean,
     val source: String,
-    val avatarBytes: ByteArray? = null,
     val firstMessage: String = "",
     val personality: String = "",
     val scenario: String = "",
+    val updatedAt: Long = 0,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

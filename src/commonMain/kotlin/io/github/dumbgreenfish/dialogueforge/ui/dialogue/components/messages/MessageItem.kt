@@ -49,6 +49,8 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_edit_c
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_edit_save
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberImageProvider
+import io.github.dumbgreenfish.dialogueforge.ui.common.ImageProvider
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
@@ -100,13 +102,13 @@ data class MessageItemCallbacks(
 )
 
 private val UserTextSize = 14.sp
-private val AssistantTextSize = 14.5.sp
+private val AssistantTextSize = 12.sp
 private val UserLineHeight = 23.8.sp
 private val AssistantLineHeight = 25.35.sp
-private val AssistantNameSize = 11.sp
+private val AssistantNameSize = 16.sp
 private val AssistantNameGreetingSize = 16.sp
-private val GreetingAvatarSize = 48.dp
-private val RegularAvatarSize = 28.dp
+private val GreetingAvatarSize = 64.dp
+private val RegularAvatarSize = 48.dp
 private val GreetingHeaderGap = 16.dp
 private val RegularHeaderGap = 10.dp
 
@@ -368,8 +370,7 @@ private fun MessageContent(
         MessageRole.Assistant -> AssistantMessage(
             text = message.text,
             name = character.name,
-            letter = character.letter,
-            avatarBytes = character.avatarBytes,
+            imageProvider = rememberImageProvider(character.id),
             isGreeting = displayStyle is MessageDisplayStyle.Greeting,
         )
         MessageRole.System -> Unit
@@ -410,24 +411,20 @@ private fun UserMessage(
 private fun AssistantMessage(
     text: String,
     name: String,
-    letter: String,
-    avatarBytes: ByteArray?,
+    imageProvider: ImageProvider,
     isGreeting: Boolean,
 ) {
     val avatarSize = if (isGreeting) GreetingAvatarSize else RegularAvatarSize
     val nameSize = if (isGreeting) AssistantNameGreetingSize else AssistantNameSize
     val headerGap = if (isGreeting) GreetingHeaderGap else RegularHeaderGap
-    val avatarFontSize = if (isGreeting) 12.sp else 10.sp
     val textIndent = avatarSize + AssistantHeaderGap + AssistantTextAlignmentCorrection
 
     Column(modifier = Modifier.fillMaxWidth()) {
         AssistantHeader(
             name = name,
-            letter = letter,
-            avatarBytes = avatarBytes,
+            imageProvider = imageProvider,
             avatarSize = avatarSize,
             nameSize = nameSize,
-            avatarFontSize = avatarFontSize,
             modifier = Modifier.padding(bottom = headerGap),
         )
         MarkdownText(

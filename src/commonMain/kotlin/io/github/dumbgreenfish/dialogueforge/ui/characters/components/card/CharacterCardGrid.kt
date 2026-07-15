@@ -23,6 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
+import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.character_menu_more
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextMenu
@@ -43,7 +46,9 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.Conte
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Tag
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberImageProvider
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 private const val NAME_MAX_LINES    = 1
 private const val TAGLINE_MAX_LINES = 2
@@ -58,6 +63,7 @@ private val GradientOverlayPadH      = 8.dp
 private val GradientOverlayPadTop    = 16.dp
 private val GradientOverlayPadBottom = 8.dp
 private val TagRowGap                = 4.dp
+private val PreloadDialogueSizes     = listOf(28.dp, 48.dp, 64.dp)
 
 @Composable
 internal fun CharacterCardGrid(
@@ -101,7 +107,16 @@ private fun GridSquare(
         )
         val visibleTags = char.tags.take(maxVisible)
         val extraCount = char.tags.size - maxVisible
-        CharacterAvatar(letter = char.letter, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar, fontSize = 56.sp, avatarBytes = char.avatarBytes)
+
+        val imageCache = koinInject<ImageCache>()
+        val density = LocalDensity.current.density
+        val gridDim = remember(maxWidth, density) { (maxWidth.value * density * 1.5f).toInt() }
+        LaunchedEffect(char.id) {
+            val dialogueDims = PreloadDialogueSizes.map { (it.value * density * 1.5f).toInt() }
+            imageCache.preload(char.id, dialogueDims + gridDim)
+        }
+
+        CharacterAvatar(imageProvider = rememberImageProvider(char.id), targetSizeDp = maxWidth, modifier = Modifier.fillMaxSize(), shape = ForgeShape.avatar)
         GradientOverlay(bg.copy(alpha = 0f), bg.copy(alpha = GRADIENT_ALPHA)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(TagRowGap), verticalArrangement = Arrangement.spacedBy(TagRowGap)) {
                 CardTagChips(visibleTags, extraCount)

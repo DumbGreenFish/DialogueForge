@@ -84,7 +84,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_g
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_list
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
-import io.github.dumbgreenfish.dialogueforge.ui.common.toImageBitmapOrNull
+import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.AnimationSpeed
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 import kotlinx.coroutines.Dispatchers

@@ -11,16 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
-import io.github.dumbgreenfish.dialogueforge.ui.common.toImageBitmapOrNull
+import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.ChatHeader
@@ -55,12 +55,16 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     val bgDim by forgeSettings.chatBackgroundDim.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
+    val imageCache = koinInject<ImageCache>()
+
     LaunchedEffect(characterId) {
         viewModel.handle(DialogueIntent.LoadCharacter(characterId))
     }
 
-    val bgBitmap by produceState<ImageBitmap?>(initialValue = null, bgBytes) {
-        value = bgBytes?.let { withContext(Dispatchers.Default) { it.toImageBitmapOrNull() } }
+    val bgFlow = imageCache.observeBackground("chatBg")
+    val bgBitmap by bgFlow.collectAsState()
+    LaunchedEffect(bgBytes) {
+        bgFlow.value = bgBytes?.let { withContext(Dispatchers.Default) { it.toImageBitmapOrNull() } }
     }
 
     Box(

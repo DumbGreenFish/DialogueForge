@@ -21,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.PredictiveBackHandler
 import androidx.compose.ui.graphics.graphicsLayer
+import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
 import io.github.dumbgreenfish.dialogueforge.data.model.DefaultCharacterData
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
@@ -33,7 +34,9 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavScreen
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinApplication
@@ -53,9 +56,16 @@ fun App() {
         DialogueForgeTheme {
             val forgeSettings = koinInject<ForgeSettings>()
             val characterRepo = koinInject<CharacterRepository>()
+            val dbConfig = koinInject<DatabaseConfig>()
             val densityScale by forgeSettings.densityScale.collectAsState()
             val fontScale by forgeSettings.fontScale.collectAsState()
             val hasCompletedFirstLaunch by forgeSettings.hasCompletedFirstLaunch.collectAsState()
+
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.Default) {
+                    dbConfig.mainDatabase()
+                }
+            }
 
             LaunchedEffect(Unit) {
                 if (!hasCompletedFirstLaunch) {

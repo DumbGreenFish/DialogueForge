@@ -9,4 +9,7 @@ interface CharacterRepository {
     suspend fun import(data: TavernCardData)
     suspend fun delete(id: String)
     suspend fun togglePin(id: String)
+    suspend fun getMainImageThumbnail(id: String): ByteArray?
+    suspend fun getFullMainImage(id: String): ByteArray?
+    suspend fun getSizedThumbnail(id: String, maxDimension: Int): ByteArray?
 }

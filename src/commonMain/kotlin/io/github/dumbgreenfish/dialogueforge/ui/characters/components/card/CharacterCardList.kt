@@ -17,26 +17,33 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalDensity
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
+import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.character_menu_more
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextMenu
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.ContextAction
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberImageProvider
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 private const val VISIBLE_TAGS_MAX  = 3
 private const val TAGLINE_MAX_LINES = 2
 private val MoreButtonSize = 36.dp
 private val MoreIconSize   = 20.dp
+private val PreloadDialogueSizes = listOf(28.dp, 48.dp, 64.dp)
 
 @Composable
 internal fun CharacterCardList(
@@ -51,7 +58,14 @@ internal fun CharacterCardList(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CharacterAvatar(letter = char.letter, modifier = Modifier.size(60.dp), shape = ForgeShape.avatar, fontSize = 25.sp, avatarBytes = char.avatarBytes)
+            val imageCache = koinInject<ImageCache>()
+            val density = LocalDensity.current.density
+            val listDim = remember { (60f * density * 1.5f).toInt() }
+            LaunchedEffect(char.id) {
+                val dialogueDims = PreloadDialogueSizes.map { (it.value * density * 1.5f).toInt() }
+                imageCache.preload(char.id, dialogueDims + listDim)
+            }
+            CharacterAvatar(imageProvider = rememberImageProvider(char.id), targetSizeDp = 60.dp, modifier = Modifier.size(60.dp), shape = ForgeShape.avatar)
             ListContent(
                 char          = char,
                 isCompact     = isCompact,

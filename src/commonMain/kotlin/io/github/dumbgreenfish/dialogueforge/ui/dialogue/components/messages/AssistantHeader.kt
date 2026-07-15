@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
+import io.github.dumbgreenfish.dialogueforge.ui.common.ImageProvider
 
 private val AvatarBorderWidth = 1.dp
 internal val AssistantHeaderGap = 10.dp
@@ -24,11 +25,9 @@ internal val AssistantHeaderGap = 10.dp
 @Composable
 internal fun AssistantHeader(
     name: String,
-    letter: String,
-    avatarBytes: ByteArray?,
+    imageProvider: ImageProvider,
     avatarSize: Dp,
     nameSize: TextUnit,
-    avatarFontSize: TextUnit,
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -49,11 +48,10 @@ internal fun AssistantHeader(
                 ),
         ) {
             CharacterAvatar(
-                letter = letter,
+                imageProvider = imageProvider,
+                targetSizeDp = avatarSize,
                 modifier = Modifier.size(avatarSize),
                 shape = CircleShape,
-                fontSize = avatarFontSize,
-                avatarBytes = avatarBytes,
             )
         }
         Text(

@@ -32,13 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.CharacterAvatar
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberImageProvider
 
 private val HeaderHeight = 48.dp
 private val HeaderPaddingH = 16.dp
 private val HeaderGap = 12.dp
 private val ActionBtnTarget = 36.dp
 private val AvatarSize = 28.dp
-private val AvatarFontSize = 11.sp
 private val NameFontSize = 13.sp
 private val AvatarBorderWidth = 1.dp
 private val ModelSelectorGap = 4.dp
@@ -100,11 +100,10 @@ private fun RowScope.AvatarWithName(char: Character) {
                 ),
         ) {
             CharacterAvatar(
-                letter = char.letter,
+                imageProvider = rememberImageProvider(char.id),
+                targetSizeDp = AvatarSize,
                 modifier = Modifier.size(AvatarSize),
                 shape = CircleShape,
-                fontSize = AvatarFontSize,
-                avatarBytes = char.avatarBytes,
             )
         }
         Text(
