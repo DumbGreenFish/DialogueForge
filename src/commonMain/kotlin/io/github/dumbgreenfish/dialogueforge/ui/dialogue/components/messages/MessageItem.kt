@@ -216,7 +216,6 @@ internal fun MessageItem(
                 MessageActions(
                     message = state.message,
                     isGreeting = isGreeting,
-                    position = state.position,
                     isActionsExpanded = isActionsExpanded,
                     interactionSource = interactionSource,
                     onActionRowEvent = callbacks.onActionRowEvent,
@@ -281,7 +280,6 @@ private fun rememberHoverModifier(
 private fun MessageActions(
     message: Message,
     isGreeting: Boolean,
-    position: MessagePosition,
     isActionsExpanded: Boolean,
     interactionSource: MutableInteractionSource,
     onActionRowEvent: (ActionRowEvent) -> Unit,
@@ -297,7 +295,7 @@ private fun MessageActions(
         role = message.role,
         visible = isActionsExpanded,
         onActionRowEvent = onActionRowEvent,
-        startPadding = if (position is MessagePosition.LastAssistant) 0.dp else assistantTextIndent,
+        startPadding = assistantTextIndent,
         interactionSource = interactionSource,
         modifier = modifier
     )

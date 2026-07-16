@@ -45,8 +45,11 @@ interface SettingsRepository {
     suspend fun getChatBackgroundOpacity(): Float
     suspend fun setChatBackgroundOpacity(value: Float)
 
-    suspend fun getChatPanelOpacity(): Float
-    suspend fun setChatPanelOpacity(value: Float)
+    suspend fun getChatHeaderOpacity(): Float
+    suspend fun setChatHeaderOpacity(value: Float)
+
+    suspend fun getChatComposerOpacity(): Float
+    suspend fun setChatComposerOpacity(value: Float)
 
     suspend fun getChatBackgroundDim(): Float
     suspend fun setChatBackgroundDim(value: Float)
@@ -69,7 +72,8 @@ interface SettingsRepository {
         const val DEFAULT_SIDEBAR_WIDTH = 240
 
         const val DEFAULT_CHAT_BACKGROUND_OPACITY = 0.15f
-        const val DEFAULT_CHAT_PANEL_OPACITY = 0.85f
+        const val DEFAULT_CHAT_HEADER_OPACITY = 0.3f
+        const val DEFAULT_CHAT_COMPOSER_OPACITY = 0.3f
         const val DEFAULT_CHAT_BACKGROUND_DIM = 0f
     }
 }

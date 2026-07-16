@@ -66,7 +66,8 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_b
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_opacity
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_pick
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_remove
-import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_panel_opacity
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_header_opacity
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_composer_opacity
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_composer_max_height
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_default_view_mode
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_density_scale
@@ -235,13 +236,23 @@ fun SettingsView(modifier: Modifier = Modifier) {
             )
             SettingsDivider()
             ExpandableSliderSetting(
-                headline = stringResource(Res.string.settings_chat_panel_opacity),
-                value = state.chatPanelOpacity,
-                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatPanelOpacity(it)) },
+                headline = stringResource(Res.string.settings_chat_header_opacity),
+                value = state.chatHeaderOpacity,
+                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatHeaderOpacity(it)) },
                 valueRange = PanelOpacityMin..PanelOpacityMax,
                 valueSuffix = "",
-                isExpanded = expandedId == "panel_opacity",
-                onToggle = { toggle("panel_opacity") },
+                isExpanded = expandedId == "header_opacity",
+                onToggle = { toggle("header_opacity") },
+            )
+            SettingsDivider()
+            ExpandableSliderSetting(
+                headline = stringResource(Res.string.settings_chat_composer_opacity),
+                value = state.chatComposerOpacity,
+                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatComposerOpacity(it)) },
+                valueRange = PanelOpacityMin..PanelOpacityMax,
+                valueSuffix = "",
+                isExpanded = expandedId == "composer_opacity",
+                onToggle = { toggle("composer_opacity") },
             )
             SettingsDivider()
             ExpandableSliderSetting(

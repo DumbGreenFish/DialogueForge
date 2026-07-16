@@ -25,7 +25,8 @@ class SettingsViewModel(
             is SettingsIntent.SetChatBackground -> forgeSettings.setChatBackground(intent.bytes, forgeSettings.state.value.chatBackgroundOpacity)
             is SettingsIntent.RemoveChatBackground -> forgeSettings.removeChatBackground()
             is SettingsIntent.UpdateChatBackgroundOpacity -> forgeSettings.setChatBackgroundOpacity(intent.value)
-            is SettingsIntent.UpdateChatPanelOpacity -> forgeSettings.setChatPanelOpacity(intent.value)
+            is SettingsIntent.UpdateChatHeaderOpacity -> forgeSettings.setChatHeaderOpacity(intent.value)
+            is SettingsIntent.UpdateChatComposerOpacity -> forgeSettings.setChatComposerOpacity(intent.value)
             is SettingsIntent.UpdateChatBackgroundDim -> forgeSettings.setChatBackgroundDim(intent.value)
         }
     }

@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,8 +48,8 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_tota
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
-import io.github.dumbgreenfish.dialogueforge.ui.common.WideTopBarHeight
-import io.github.dumbgreenfish.dialogueforge.ui.common.WideTopBarPaddingH
+import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBarHeight
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
@@ -85,127 +84,132 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
             targetState = searchExpanded,
             transitionSpec = { searchBarTransition() },
         ) { expanded ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(WideTopBarHeight)
-                    .padding(horizontal = WideTopBarPaddingH),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (expanded) {
-                    SearchField(
-                        value = state.query,
-                        onChange = { viewModel.handle(CharactersIntent.SearchChanged(it)) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester),
-                    )
-                    Spacer(Modifier.width(GapItems))
-                    IconButton(onClick = {
-                        searchExpanded = false
-                        viewModel.handle(CharactersIntent.SearchChanged(""))
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
+            BaseTopBar(
+                isCompact = false,
+                backgroundColor = cs.background,
+                leading = {
+                    if (expanded) {
+                        IconButton(onClick = {
+                            searchExpanded = false
+                            viewModel.handle(CharactersIntent.SearchChanged(""))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.ArrowBack,
+                                contentDescription = null,
+                                tint = cs.onSurfaceVariant,
+                            )
+                        }
+                    } else {
+                        if (onMenuClick != null) {
+                            IconButton(onClick = onMenuClick) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = null,
+                                    tint = cs.onSurfaceVariant,
+                                )
+                            }
+                            Spacer(Modifier.width(GapItems))
+                        }
+                    }
+                },
+                title = {
+                    if (expanded) {
+                        SearchField(
+                            value = state.query,
+                            onChange = { viewModel.handle(CharactersIntent.SearchChanged(it)) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(item.labelRes),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = cs.onSurface,
+                        )
+                        Spacer(Modifier.width(TitleSeparatorPad))
+                        Text(
+                            text = "|",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = cs.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.width(TitleSeparatorPad))
+                        Text(
+                            text = stringResource(Res.string.characters_total, state.displayed.size),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.W500),
+                            color = cs.onSurfaceVariant,
                         )
                     }
-                } else {
-                    if (onMenuClick != null) {
-                        IconButton(onClick = onMenuClick) {
+                },
+                trailing = {
+                    if (!expanded) {
+                        ViewToggle(
+                            mode = state.viewMode,
+                            onToggle = { viewModel.handle(CharactersIntent.ViewModeChanged(it)) },
+                        )
+                        Spacer(Modifier.width(ViewTogglePad))
+                        IconButton(onClick = launchPicker) {
                             Icon(
-                                imageVector = Icons.Filled.Menu,
+                                imageVector = Icons.Filled.Download,
                                 contentDescription = null,
                                 tint = cs.onSurfaceVariant,
                             )
                         }
                         Spacer(Modifier.width(GapItems))
-                    }
-                    Text(
-                        text = stringResource(item.labelRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = cs.onSurface,
-                    )
-                    Spacer(Modifier.width(TitleSeparatorPad))
-                    Text(
-                        text = "|",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = cs.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.width(TitleSeparatorPad))
-                    Text(
-                        text = stringResource(Res.string.characters_total, state.displayed.size),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.W500),
-                        color = cs.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.weight(1f))
-                    ViewToggle(
-                        mode = state.viewMode,
-                        onToggle = { viewModel.handle(CharactersIntent.ViewModeChanged(it)) },
-                    )
-                    Spacer(Modifier.width(ViewTogglePad))
-                    IconButton(onClick = launchPicker) {
-                        Icon(
-                            imageVector = Icons.Filled.Download,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(GapItems))
-                    // TODO: not implemented
-                    IconButton(onClick = {}, enabled = false) {
-                        Icon(
-                            imageVector = Icons.Outlined.Add,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(GapItems))
-                    Box {
-                        IconButton(onClick = { filterOpen = !filterOpen }) {
+                        // TODO: not implemented
+                        IconButton(onClick = {}, enabled = false) {
                             Icon(
-                                imageVector = if (state.filter.activeCount > 0) Icons.Filled.Tune else Icons.Outlined.Tune,
+                                imageVector = Icons.Outlined.Add,
                                 contentDescription = null,
-                                tint = if (state.filter.activeCount > 0) ForgeColors.spark else cs.onSurfaceVariant,
+                                tint = cs.onSurfaceVariant,
                             )
                         }
-                        if (filterOpen) {
-                            val density = LocalDensity.current
-                            Popup(
-                                alignment = Alignment.TopEnd,
-                                offset = IntOffset(0, with(density) { (WideTopBarHeight + FilterPopupGap).roundToPx() }),
-                                onDismissRequest = { filterOpen = false },
-                                properties = PopupProperties(focusable = true),
-                            ) {
-                                Surface(
-                                    shape = MaterialTheme.shapes.large,
-                                    color = cs.surfaceVariant,
-                                    border = BorderStroke(FilterPopupBorder, cs.outline),
-                                    shadowElevation = FilterPopupShadow,
-                                    modifier = Modifier
-                                        .width(FilterPopupWidth)
-                                        .heightIn(max = FilterPopupMaxHeight),
+                        Spacer(Modifier.width(GapItems))
+                        Box {
+                            IconButton(onClick = { filterOpen = !filterOpen }) {
+                                Icon(
+                                    imageVector = if (state.filter.activeCount > 0) Icons.Filled.Tune else Icons.Outlined.Tune,
+                                    contentDescription = null,
+                                    tint = if (state.filter.activeCount > 0) ForgeColors.spark else cs.onSurfaceVariant,
+                                )
+                            }
+                            if (filterOpen) {
+                                val density = LocalDensity.current
+                                Popup(
+                                    alignment = Alignment.TopEnd,
+                                    offset = IntOffset(0, with(density) { (BaseTopBarHeight + FilterPopupGap).roundToPx() }),
+                                    onDismissRequest = { filterOpen = false },
+                                    properties = PopupProperties(focusable = true),
                                 ) {
-                                    FilterPanel(
-                                        filter = state.filter,
-                                        availableTags = state.availableTags,
-                                        onIntent = viewModel::handle,
-                                    )
+                                    Surface(
+                                        shape = MaterialTheme.shapes.large,
+                                        color = cs.surfaceVariant,
+                                        border = BorderStroke(FilterPopupBorder, cs.outline),
+                                        shadowElevation = FilterPopupShadow,
+                                        modifier = Modifier
+                                            .width(FilterPopupWidth)
+                                            .heightIn(max = FilterPopupMaxHeight),
+                                    ) {
+                                        FilterPanel(
+                                            filter = state.filter,
+                                            availableTags = state.availableTags,
+                                            onIntent = viewModel::handle,
+                                        )
+                                    }
                                 }
                             }
                         }
+                        Spacer(Modifier.width(GapItems))
+                        IconButton(onClick = { searchExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = null,
+                                tint = cs.onSurfaceVariant,
+                            )
+                        }
                     }
-                    Spacer(Modifier.width(GapItems))
-                    IconButton(onClick = { searchExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Search,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
+                },
+            )
         }
         HorizontalDivider(color = cs.outline)
     }

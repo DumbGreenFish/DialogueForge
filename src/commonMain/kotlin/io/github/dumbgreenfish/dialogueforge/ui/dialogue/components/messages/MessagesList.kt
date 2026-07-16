@@ -65,8 +65,9 @@ internal fun MessagesList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
 ) {
-    val items = remember(data.messages) { buildItems(data.messages) }
     val hasUserMessages = data.messages.any { it.role == MessageRole.User }
+    val isOnlyGreeting = !hasUserMessages && data.messages.size == 1
+    val items = remember(data.messages, isOnlyGreeting) { buildItems(data.messages, isOnlyGreeting) }
     val firstAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
     val lastAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
 
@@ -164,7 +165,8 @@ private fun calculateBoxModifier(): Modifier = if (windowClass == WindowClass.Co
         .padding(horizontal = DialogueLayout.ContentPaddingH)
 }
 
-private fun buildItems(messages: List<Message>): List<ChatItem> {
+private fun buildItems(messages: List<Message>, isOnlyGreeting: Boolean): List<ChatItem> {
+    if (isOnlyGreeting) return messages.map { ChatItem(dateLabel = null, message = it) }
     val result = mutableListOf<ChatItem>()
     for ((index, msg) in messages.withIndex()) {
         result.add(ChatItem(dateLabel = null, message = msg))

@@ -41,7 +41,8 @@ class ForgeSettings(
     val sidebarWidthDp: StateFlow<Int> = project { it.sidebarWidthDp }
     val chatBackgroundBytes: StateFlow<ByteArray?> = project { it.chatBackgroundBytes }
     val chatBackgroundOpacity: StateFlow<Float> = project { it.chatBackgroundOpacity }
-    val chatPanelOpacity: StateFlow<Float> = project { it.chatPanelOpacity }
+    val chatHeaderOpacity: StateFlow<Float> = project { it.chatHeaderOpacity }
+    val chatComposerOpacity: StateFlow<Float> = project { it.chatComposerOpacity }
     val chatBackgroundDim: StateFlow<Float> = project { it.chatBackgroundDim }
     val hasCompletedFirstLaunch: StateFlow<Boolean> = project { it.hasCompletedFirstLaunch }
 
@@ -79,8 +80,11 @@ class ForgeSettings(
     fun setChatBackgroundOpacity(value: Float) =
         update({ it.copy(chatBackgroundOpacity = value) }) { settings.setChatBackgroundOpacity(value) }
 
-    fun setChatPanelOpacity(value: Float) =
-        update({ it.copy(chatPanelOpacity = value) }) { settings.setChatPanelOpacity(value) }
+    fun setChatHeaderOpacity(value: Float) =
+        update({ it.copy(chatHeaderOpacity = value) }) { settings.setChatHeaderOpacity(value) }
+
+    fun setChatComposerOpacity(value: Float) =
+        update({ it.copy(chatComposerOpacity = value) }) { settings.setChatComposerOpacity(value) }
 
     fun setChatBackgroundDim(value: Float) =
         update({ it.copy(chatBackgroundDim = value) }) { settings.setChatBackgroundDim(value) }
@@ -103,7 +107,8 @@ class ForgeSettings(
             settings.setMessageWidth(defaults.messageWidth.name)
             settings.setComposerMaxHeight(defaults.composerMaxHeightDp)
             settings.setSidebarWidth(defaults.sidebarWidthDp)
-            settings.setChatPanelOpacity(defaults.chatPanelOpacity)
+            settings.setChatHeaderOpacity(defaults.chatHeaderOpacity)
+            settings.setChatComposerOpacity(defaults.chatComposerOpacity)
             settings.setChatBackgroundDim(defaults.chatBackgroundDim)
         }
     }
@@ -119,7 +124,8 @@ class ForgeSettings(
             sidebarWidthDp = settings.getSidebarWidth(),
             chatBackgroundBytes = settings.getChatBackgroundBytes(),
             chatBackgroundOpacity = settings.getChatBackgroundOpacity(),
-            chatPanelOpacity = settings.getChatPanelOpacity(),
+            chatHeaderOpacity = settings.getChatHeaderOpacity(),
+            chatComposerOpacity = settings.getChatComposerOpacity(),
             chatBackgroundDim = settings.getChatBackgroundDim(),
             hasCompletedFirstLaunch = settings.getHasCompletedFirstLaunch(),
             isLoaded = true,

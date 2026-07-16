@@ -80,7 +80,8 @@
     <string name="settings_chat_background_pick">Choose image</string>
     <string name="settings_chat_background_remove">Remove</string>
     <string name="settings_chat_background_opacity">Background opacity</string>
-    <string name="settings_chat_panel_opacity">Panel opacity</string>
+    <string name="settings_chat_header_opacity">Header opacity</string>
+    <string name="settings_chat_composer_opacity">Composer opacity</string>
     <string name="settings_chat_background_dim">Background dim</string>
     <string name="dialogue_edit_save">Save</string>
     <string name="dialogue_edit_cancel">Cancel</string>

@@ -97,11 +97,17 @@ class SettingsRepositoryImpl(dbConfig: DatabaseConfig) : SettingsRepository {
 
     override suspend fun setChatBackgroundOpacity(value: Float) = set("chat_bg_opacity", value.toString())
 
-    override suspend fun getChatPanelOpacity(): Float =
-        get("chat_panel_opacity")?.toFloatOrNull()
-            ?: SettingsRepository.DEFAULT_CHAT_PANEL_OPACITY
+    override suspend fun getChatHeaderOpacity(): Float =
+        get("chat_header_opacity")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_HEADER_OPACITY
 
-    override suspend fun setChatPanelOpacity(value: Float) = set("chat_panel_opacity", value.toString())
+    override suspend fun setChatHeaderOpacity(value: Float) = set("chat_header_opacity", value.toString())
+
+    override suspend fun getChatComposerOpacity(): Float =
+        get("chat_composer_opacity")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_COMPOSER_OPACITY
+
+    override suspend fun setChatComposerOpacity(value: Float) = set("chat_composer_opacity", value.toString())
 
     override suspend fun getChatBackgroundDim(): Float =
         get("chat_bg_dim")?.toFloatOrNull()

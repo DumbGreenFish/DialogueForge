@@ -20,8 +20,8 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSetti
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.ChatHeader
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.SelectionHeader
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueSelectionTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.ActionRowEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.EditFieldEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessageItemContext
@@ -46,7 +46,8 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     val messageWidth by forgeSettings.messageWidth.collectAsState()
     val bgBytes by forgeSettings.chatBackgroundBytes.collectAsState()
     val bgOpacity by forgeSettings.chatBackgroundOpacity.collectAsState()
-    val panelOpacity by forgeSettings.chatPanelOpacity.collectAsState()
+    val chatHeaderOpacity by forgeSettings.chatHeaderOpacity.collectAsState()
+    val chatComposerOpacity by forgeSettings.chatComposerOpacity.collectAsState()
     val bgDim by forgeSettings.chatBackgroundDim.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
@@ -79,16 +80,17 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
 
         val bg = MaterialTheme.colorScheme.background
         DialogueScaffold(
-            headerBackground = bg.copy(alpha = panelOpacity),
-            composerBackground = bg.copy(alpha = panelOpacity),
+            headerBackground = bg.copy(alpha = chatHeaderOpacity),
+            composerBackground = bg.copy(alpha = chatComposerOpacity),
             header = {
                 AnimatedContent(
                     targetState = state.selectedMessageIds.isNotEmpty(),
                     label = "dialogue_header",
                 ) { inSelectionMode ->
                     if (inSelectionMode) {
-                        SelectionHeader(
+                        DialogueSelectionTopBar(
                             selectedCount = state.selectedMessageIds.size,
+                            backgroundOpacity = chatHeaderOpacity,
                             onClearSelection = { viewModel.handle(DialogueIntent.ClearSelection) },
                             onCopySelected = {
                                 val texts = state.messages
@@ -102,9 +104,8 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                             onDeleteSelected = { viewModel.handle(DialogueIntent.DeleteSelected) },
                         )
                     } else {
-                        ChatHeader(
-                            character = character,
-                            modelName = state.modelName,
+                        DialogueTopBar(
+                            backgroundOpacity = chatHeaderOpacity,
                             onBack = onBack,
                             onHistory = { /* TODO: open conversation history */ },
                             onAdd = { /* TODO: create new conversation */ },

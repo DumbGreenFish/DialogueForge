@@ -88,7 +88,8 @@
     <string name="settings_chat_background_pick">Выбрать изображение</string>
     <string name="settings_chat_background_remove">Удалить</string>
     <string name="settings_chat_background_opacity">Прозрачность фона</string>
-    <string name="settings_chat_panel_opacity">Прозрачность панелей</string>
+    <string name="settings_chat_header_opacity">Прозрачность шапки</string>
+    <string name="settings_chat_composer_opacity">Прозрачность композера</string>
     <string name="settings_chat_background_dim">Затемнение фона</string>
     <string name="dialogue_edit_save">Сохранить</string>
     <string name="dialogue_edit_cancel">Отмена</string>
