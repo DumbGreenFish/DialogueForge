@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Copy
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pencil
-import com.composables.icons.lucide.RefreshCw
 import com.composables.icons.lucide.SquareCheck
 import com.composables.icons.lucide.Trash2
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
@@ -39,7 +38,6 @@ sealed interface ActionRowEvent {
     data object Copy : ActionRowEvent
     data object Edit : ActionRowEvent
     data object Delete : ActionRowEvent
-    data object Refresh : ActionRowEvent
     data object Select : ActionRowEvent
 }
 
@@ -52,7 +50,6 @@ private val DistanceBetweenActionItems = 8.dp
 internal fun ActionRow(
     role: MessageRole,
     visible: Boolean,
-    showRefresh: Boolean,
     onActionRowEvent: (ActionRowEvent) -> Unit,
     modifier: Modifier = Modifier,
     startPadding: Dp = 0.dp,
@@ -92,17 +89,6 @@ internal fun ActionRow(
                 contentDescription = null,
                 onClick = { onActionRowEvent(ActionRowEvent.Delete) },
             )
-        },
-        if (showRefresh) {
-            @Composable {
-                ActionIcon(
-                    imageVector = Lucide.RefreshCw,
-                    contentDescription = null,
-                    onClick = { onActionRowEvent(ActionRowEvent.Refresh) },
-                )
-            }
-        } else {
-            null
         },
     )
 

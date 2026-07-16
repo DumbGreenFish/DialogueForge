@@ -2,10 +2,7 @@ package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -28,9 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +34,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -48,13 +41,14 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_edit_cancel
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_edit_save
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.common.ImageProvider
+import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
 import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberImageProvider
-import io.github.dumbgreenfish.dialogueforge.ui.common.ImageProvider
+import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 
 sealed interface EditFieldEvent {
@@ -97,10 +91,11 @@ data class MessageItemState(
 data class MessageItemCallbacks(
     val onActionRowEvent: (ActionRowEvent) -> Unit,
     val onEditFieldEvent: (EditFieldEvent) -> Unit,
-    val onVariantSelectorEvent: (VariantSelectorEvent) -> Unit,
     val onMessageItemEvent: (MessageItemEvent) -> Unit,
 )
 
+// Tweakable layout constants for the chat message item.
+// These control avatar size, name size, gaps, and action-row spacing.
 private val UserTextSize = 14.sp
 private val AssistantTextSize = 12.sp
 private val UserLineHeight = 23.8.sp
@@ -109,8 +104,9 @@ private val AssistantNameSize = 16.sp
 private val AssistantNameGreetingSize = 16.sp
 private val GreetingAvatarSize = 64.dp
 private val RegularAvatarSize = 48.dp
-private val GreetingHeaderGap = 16.dp
-private val RegularHeaderGap = 10.dp
+private val GreetingHeaderGap = 4.dp        // gap between assistant name and message text in greeting mode
+private val RegularHeaderGap = 4.dp         // gap between assistant name and message text in normal mode
+// AssistantHeaderGap lives in AssistantHeader.kt and controls the gap between avatar and name.
 
 private val MessageVerticalGap = 32.dp
 private val GreetingVerticalGap = 40.dp
@@ -122,13 +118,20 @@ private val EditFieldMinHeight = 40.dp
 private val EditFieldFontSize = 14.sp
 private val EditButtonsGap = 8.dp
 
-private val SwipeThreshold = 48.dp
 private val SelectionTintAlpha = 0.08f
 private val SelectionRowPaddingH = 12.dp
 private val SelectionCheckboxPaddingTop = 8.dp
 private val AssistantTextAlignmentCorrection = 1.dp
 
 private val MessageActionsPaddingTop = 12.dp
+
+// Horizontal inset that visually aligns message content with the circular part
+// of the assistant avatar. The source image has invisible padding inside its
+// clipping box, so text and action bar need the same visual offset.
+private val AvatarVisualInset = 6.dp
+
+private fun contentInsetFor(avatarSize: Dp): Dp =
+    AvatarVisualInset * (avatarSize / RegularAvatarSize)
 
 @Composable
 internal fun MessageItem(
@@ -142,6 +145,7 @@ internal fun MessageItem(
     val isGreeting = state.displayStyle is MessageDisplayStyle.Greeting
     val isSelectionMode = interaction is MessageInteractionState.Selecting
     val isSelected = (interaction as? MessageInteractionState.Selecting)?.isSelected ?: false
+    val isCompact = windowClass == WindowClass.Compact
 
     val tapModifier = rememberTapModifier(
         isSelectionMode = isSelectionMode,
@@ -149,14 +153,6 @@ internal fun MessageItem(
         onToggleActions = { callbacks.onMessageItemEvent(MessageItemEvent.ToggleActions) },
     )
     val hoverModifier = rememberHoverModifier(isSelectionMode, interactionSource)
-    val swipeModifier = if (state.position is MessagePosition.LastAssistant && isMobilePlatform && !isSelectionMode) {
-        rememberSwipeModifier(
-            enabled = interaction !is MessageInteractionState.Generating,
-            onVariantSelectorEvent = callbacks.onVariantSelectorEvent,
-        )
-    } else {
-        Modifier
-    }
 
     Row(
         modifier = modifier
@@ -169,16 +165,27 @@ internal fun MessageItem(
             SelectionCheckbox(isSelected = isSelected)
         }
 
+        val contentHorizontalInset = when {
+            isCompact && state.message.role == MessageRole.Assistant -> {
+                contentInsetFor(if (isGreeting) GreetingAvatarSize else RegularAvatarSize)
+            }
+            isCompact && state.message.role == MessageRole.User -> AvatarVisualInset
+            else -> 0.dp
+        }
+
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(bottom = if (isGreeting) GreetingVerticalGap else MessageVerticalGap)
+                .padding(
+                    start = if (state.message.role == MessageRole.Assistant) contentHorizontalInset else 0.dp,
+                    end = if (state.message.role == MessageRole.User) contentHorizontalInset else 0.dp,
+                    bottom = if (isGreeting) GreetingVerticalGap else MessageVerticalGap,
+                )
                 .then(hoverModifier),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(swipeModifier)
                     .then(tapModifier),
                 contentAlignment = if (state.message.role == MessageRole.User) Alignment.TopEnd else Alignment.TopStart,
             ) {
@@ -213,7 +220,6 @@ internal fun MessageItem(
                     isActionsExpanded = isActionsExpanded,
                     interactionSource = interactionSource,
                     onActionRowEvent = callbacks.onActionRowEvent,
-                    onVariantSelectorEvent = callbacks.onVariantSelectorEvent,
                     modifier = Modifier.padding(top = MessageActionsPaddingTop)
                 )
             }
@@ -268,9 +274,8 @@ private fun rememberHoverModifier(
 }
 
 /**
- * Decides between the "last assistant message" action row (with variant selector)
- * and the plain action row for everything else, so MessageItem doesn't carry
- * that branching + indent math inline.
+ * Wraps the action row for a message, applying the correct start indent
+ * based on avatar size on wide screens.
  */
 @Composable
 private fun MessageActions(
@@ -280,79 +285,22 @@ private fun MessageActions(
     isActionsExpanded: Boolean,
     interactionSource: MutableInteractionSource,
     onActionRowEvent: (ActionRowEvent) -> Unit,
-    onVariantSelectorEvent: (VariantSelectorEvent) -> Unit,
     modifier: Modifier,
 ) {
-    val assistantTextIndent = if (message.role == MessageRole.Assistant) {
+    val assistantTextIndent = if (message.role == MessageRole.Assistant && windowClass != WindowClass.Compact) {
         (if (isGreeting) GreetingAvatarSize else RegularAvatarSize) + AssistantHeaderGap + AssistantTextAlignmentCorrection
     } else {
         0.dp
     }
 
-    @Composable
-    fun SpecificActionRaw() {
-        ActionRow(
-            role = message.role,
-            visible = isActionsExpanded,
-            showRefresh = position is MessagePosition.LastAssistant,
-            onActionRowEvent = onActionRowEvent,
-            startPadding = if (position is MessagePosition.LastAssistant) 0.dp else assistantTextIndent,
-            interactionSource = interactionSource,
-            modifier = modifier
-        )
-    }
-
-    if (position is MessagePosition.LastAssistant) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = assistantTextIndent),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SpecificActionRaw()
-            VariantSelector(
-                variantIndex = message.variantIndex,
-                variantCount = message.variantCount,
-                onVariantSelectorEvent = onVariantSelectorEvent,
-                enabled = message.variantCount > 1,
-            )
-        }
-    } else {
-        SpecificActionRaw()
-    }
-}
-
-@Composable
-private fun rememberSwipeModifier(
-    enabled: Boolean,
-    onVariantSelectorEvent: (VariantSelectorEvent) -> Unit,
-): Modifier {
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    val draggableState = rememberDraggableState { delta ->
-        offsetX += delta
-    }
-    return Modifier
-        .offset { IntOffset(offsetX.roundToInt(), 0) }
-        .draggable(
-            state = draggableState,
-            orientation = Orientation.Horizontal,
-            enabled = enabled,
-            onDragStopped = { velocity ->
-                val threshold = SwipeThreshold.value
-                when {
-                    offsetX > threshold || velocity > 1000f -> {
-                        onVariantSelectorEvent(VariantSelectorEvent.OnNextClick)
-                        offsetX = 0f
-                    }
-                    offsetX < -threshold || velocity < -1000f -> {
-                        onVariantSelectorEvent(VariantSelectorEvent.OnPrevClick)
-                        offsetX = 0f
-                    }
-                    else -> offsetX = 0f
-                }
-            },
-        )
+    ActionRow(
+        role = message.role,
+        visible = isActionsExpanded,
+        onActionRowEvent = onActionRowEvent,
+        startPadding = if (position is MessagePosition.LastAssistant) 0.dp else assistantTextIndent,
+        interactionSource = interactionSource,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -417,22 +365,43 @@ private fun AssistantMessage(
     val avatarSize = if (isGreeting) GreetingAvatarSize else RegularAvatarSize
     val nameSize = if (isGreeting) AssistantNameGreetingSize else AssistantNameSize
     val headerGap = if (isGreeting) GreetingHeaderGap else RegularHeaderGap
-    val textIndent = avatarSize + AssistantHeaderGap + AssistantTextAlignmentCorrection
+    val isCompactLayout = windowClass == WindowClass.Compact
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        AssistantHeader(
-            name = name,
-            imageProvider = imageProvider,
-            avatarSize = avatarSize,
-            nameSize = nameSize,
-            modifier = Modifier.padding(bottom = headerGap),
-        )
-        MarkdownText(
-            text = text,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = textIndent),
-        )
+    if (isCompactLayout) {
+        // Mobile: avatar + name share one row; text flows below at full width.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            AssistantHeader(
+                name = name,
+                imageProvider = imageProvider,
+                avatarSize = avatarSize,
+                nameSize = nameSize,
+                modifier = Modifier.padding(bottom = headerGap),
+            )
+            MarkdownText(
+                text = text,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    } else {
+        // Desktop / tablet: avatar sits in a left column; name and text sit in a right column.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
+            verticalAlignment = Alignment.Top,
+        ) {
+            AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize)
+            Column(modifier = Modifier.weight(1f)) {
+                AssistantName(
+                    name = name,
+                    nameSize = nameSize,
+                    modifier = Modifier.padding(bottom = headerGap),
+                )
+                MarkdownText(
+                    text = text,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
     }
 }
 

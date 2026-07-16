@@ -55,7 +55,6 @@ data class MessageItemContext(
     val selectedMessageIds: Set<String>,
     val onActionRowEvent: (String, ActionRowEvent) -> Unit,
     val onEditFieldEvent: (String, EditFieldEvent) -> Unit,
-    val onVariantSelectorEvent: (String, VariantSelectorEvent) -> Unit,
     val onMessageItemEvent: (String, MessageItemEvent) -> Unit,
 )
 
@@ -134,12 +133,6 @@ internal fun MessagesList(
                             callbacks = MessageItemCallbacks(
                                 onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
                                 onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
-                                onVariantSelectorEvent = { event ->
-                                    itemContext.onVariantSelectorEvent(
-                                        message.id,
-                                        event
-                                    )
-                                },
                                 onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
                             ),
                         )

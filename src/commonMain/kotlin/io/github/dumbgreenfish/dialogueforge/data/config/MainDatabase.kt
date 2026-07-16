@@ -11,7 +11,6 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.Conversati
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ConversationEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageDao
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageEntity
-import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageVariantEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingDao
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingEntity
 
@@ -19,8 +18,8 @@ internal const val MAIN_DB_NAME = "characters.db"
 internal const val MAIN_DB_DIR  = "db"
 
 @Database(
-    entities = [CharacterEntity::class, ConversationEntity::class, MessageEntity::class, MessageVariantEntity::class, SettingEntity::class],
-    version = 6,
+    entities = [CharacterEntity::class, ConversationEntity::class, MessageEntity::class, SettingEntity::class],
+    version = 7,
     exportSchema = false,
 )
 @ColumnTypeConverters(StringListConverter::class)

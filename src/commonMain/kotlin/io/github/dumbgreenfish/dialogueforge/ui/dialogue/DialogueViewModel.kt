@@ -5,13 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
-import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
 import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
-import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
-import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_api_key_not_set
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
-import org.jetbrains.compose.resources.getString
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
@@ -24,7 +20,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-private const val DEFAULT_ERROR = "Unknown error"
 private const val PAGE_SIZE = 50
 
 @KoinViewModel
@@ -46,9 +41,7 @@ class DialogueViewModel(
             is DialogueIntent.Back -> {}
             is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.value) }
             is DialogueIntent.Send -> onSend()
-            is DialogueIntent.DismissSnackbar -> _state.update { it.copy(snackbarError = null) }
             is DialogueIntent.StopGeneration -> stopGeneration()
-            is DialogueIntent.Regenerate -> regenerate()
             is DialogueIntent.DeleteMessage -> deleteMessage(intent.messageId)
             is DialogueIntent.LoadOlderMessages -> loadOlderMessages()
             is DialogueIntent.ToggleActions -> toggleActions(intent.messageId)
@@ -56,9 +49,6 @@ class DialogueViewModel(
             is DialogueIntent.UpdateEditText -> _state.update { it.copy(editingText = intent.value) }
             is DialogueIntent.SaveEdit -> saveEdit()
             is DialogueIntent.CancelEdit -> _state.update { it.copy(editingMessageId = null, editingText = TextFieldValue()) }
-            is DialogueIntent.RegenerateMessage -> regenerateMessage(intent.messageId)
-            is DialogueIntent.NextVariant -> nextVariant(intent.messageId)
-            is DialogueIntent.PrevVariant -> prevVariant(intent.messageId)
             is DialogueIntent.ToggleSelection -> toggleSelection(intent.messageId)
             is DialogueIntent.ClearSelection -> _state.update { it.copy(selectedMessageIds = emptySet()) }
             is DialogueIntent.DeleteSelected -> deleteSelected()
@@ -78,7 +68,7 @@ class DialogueViewModel(
             )
             totalMessageCount = dialogueRepository.getMessageCount(conversation.id)
             val page = dialogueRepository.getMessagesPage(conversation.id, PAGE_SIZE, 0)
-            val messages = page.withVariantCounts(dialogueRepository)
+            val messages = page.map { it.toMessage() }
             _state.update {
                 it.copy(
                     character = character,
@@ -99,7 +89,7 @@ class DialogueViewModel(
         viewModelScope.launch {
             val offset = _state.value.messages.size
             val page = dialogueRepository.getMessagesPage(conversationId, PAGE_SIZE, offset)
-            val mapped = page.withVariantCounts(dialogueRepository)
+            val mapped = page.map { it.toMessage() }
             _state.update { current ->
                 val merged = current.messages + mapped
                 current.copy(
@@ -120,8 +110,6 @@ class DialogueViewModel(
             it.copy(
                 inputText = TextFieldValue(),
                 isGenerating = true,
-                snackbarError = null,
-                lastSentText = text,
             )
         }
 
@@ -141,12 +129,7 @@ class DialogueViewModel(
     ) {
         val apiKey = settingsRepository.getApiKey()
         if (apiKey.isNullOrBlank()) {
-            _state.update {
-                it.copy(
-                    isGenerating = false,
-                    snackbarError = getString(Res.string.dialogue_error_api_key_not_set),
-                )
-            }
+            _state.update { it.copy(isGenerating = false) }
             return
         }
 
@@ -170,13 +153,8 @@ class DialogueViewModel(
                 }
                 totalMessageCount += 1
             },
-            onFailure = { e ->
-                _state.update {
-                    it.copy(
-                        isGenerating = false,
-                        snackbarError = e.message ?: DEFAULT_ERROR,
-                    )
-                }
+            onFailure = {
+                _state.update { it.copy(isGenerating = false) }
             },
         )
     }
@@ -184,34 +162,6 @@ class DialogueViewModel(
     private fun stopGeneration() {
         generationJob?.cancel()
         _state.update { it.copy(isGenerating = false) }
-    }
-
-    private fun regenerate() {
-        val lastAssistant = _state.value.messages.firstOrNull { it.role == MessageRole.Assistant }
-        if (lastAssistant != null) {
-            regenerateMessage(lastAssistant.id)
-        } else {
-            val text = _state.value.lastSentText ?: return
-            val conversationId = _state.value.conversationId ?: return
-            val character = _state.value.character ?: return
-            _state.update { it.copy(isGenerating = true, snackbarError = null) }
-
-            generationJob = viewModelScope.launch {
-                val fullHistory = buildHistory()
-                val historyBeforeRetry =
-                    if (fullHistory.lastOrNull() == (MessageRole.User.wire to text)) fullHistory.dropLast(1) else fullHistory
-                generateResponse(character, conversationId, historyBeforeRetry, text)
-            }
-        }
-    }
-
-    private suspend fun List<MessageEntity>.withVariantCounts(repo: DialogueRepository): List<Message> {
-        if (isEmpty()) return emptyList()
-        val counts = repo.countVariantsByMessageIds(map { it.id }).associate { it.messageId to it.count }
-        return map { entity ->
-            val variantCount = counts[entity.id]?.let { it.coerceAtLeast(1) } ?: 1
-            entity.toMessage(variantCount)
-        }
     }
 
     private fun deleteMessage(messageId: String) {
@@ -288,102 +238,6 @@ class DialogueViewModel(
             .asReversed()
             .filter { it.role == MessageRole.User || it.role == MessageRole.Assistant }
             .map { it.role.wire to it.text }
-    }
-
-    private fun buildHistoryBefore(messageId: String): Pair<List<Pair<String, String>>, String?> {
-        val chronological = _state.value.messages.asReversed()
-        val index = chronological.indexOfFirst { it.id == messageId }
-        if (index <= 0) return emptyList<Pair<String, String>>() to null
-        val before = chronological.subList(0, index)
-            .filter { it.role == MessageRole.User || it.role == MessageRole.Assistant }
-        val userMessage = before.lastOrNull { it.role == MessageRole.User }?.text
-        val history = if (userMessage != null) {
-            before.dropLastWhile { it.role == MessageRole.User }
-        } else {
-            before
-        }
-        return history.map { it.role.wire to it.text } to userMessage
-    }
-
-    private fun regenerateMessage(messageId: String) {
-        if (_state.value.isGenerating) return
-        val character = _state.value.character ?: return
-        val conversationId = _state.value.conversationId ?: return
-        val message = _state.value.messages.find { it.id == messageId && it.role == MessageRole.Assistant } ?: return
-        _state.update { it.copy(isGenerating = true, snackbarError = null) }
-
-        generationJob = viewModelScope.launch {
-            val (history, userMessage) = buildHistoryBefore(messageId)
-            if (userMessage == null) {
-                _state.update { it.copy(isGenerating = false) }
-                return@launch
-            }
-            llmService.chat(
-                systemPrompt = buildSystemPrompt(character),
-                history = history,
-                userMessage = userMessage,
-            ).fold(
-                onSuccess = { response ->
-                    val variant = dialogueRepository.addVariant(messageId, response)
-                    val updated = dialogueRepository.setActiveVariant(messageId, variant.ordinal)
-                    updated?.let { entity ->
-                        _state.update { current ->
-                            current.copy(
-                                messages = current.messages.map { msg ->
-                                    if (msg.id == messageId) entity.toMessage(variant.ordinal + 1) else msg
-                                },
-                                isGenerating = false,
-                            )
-                        }
-                    } ?: _state.update { it.copy(isGenerating = false) }
-                },
-                onFailure = { e ->
-                    _state.update {
-                        it.copy(
-                            isGenerating = false,
-                            snackbarError = e.message ?: DEFAULT_ERROR,
-                        )
-                    }
-                },
-            )
-        }
-    }
-
-    private fun nextVariant(messageId: String) {
-        val message = _state.value.messages.find { it.id == messageId } ?: return
-        if (message.variantIndex >= message.variantCount - 1) {
-            regenerateMessage(messageId)
-        } else {
-            viewModelScope.launch {
-                val updated = dialogueRepository.setActiveVariant(messageId, message.variantIndex + 1)
-                updated?.let { entity ->
-                    _state.update { current ->
-                        current.copy(
-                            messages = current.messages.map { msg ->
-                                if (msg.id == messageId) msg.copy(text = entity.text, variantIndex = entity.activeVariant) else msg
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun prevVariant(messageId: String) {
-        val message = _state.value.messages.find { it.id == messageId } ?: return
-        if (message.variantIndex <= 0) return
-        viewModelScope.launch {
-            val updated = dialogueRepository.setActiveVariant(messageId, message.variantIndex - 1)
-            updated?.let { entity ->
-                _state.update { current ->
-                    current.copy(
-                        messages = current.messages.map { msg ->
-                            if (msg.id == messageId) msg.copy(text = entity.text, variantIndex = entity.activeVariant) else msg
-                        },
-                    )
-                }
-            }
-        }
     }
 
     private fun buildSystemPrompt(character: Character): String {

@@ -24,7 +24,6 @@ internal fun DialogueScaffold(
     modifier: Modifier = Modifier,
     headerBackground: Color = MaterialTheme.colorScheme.background,
     composerBackground: Color = MaterialTheme.colorScheme.background,
-    snackbar: @Composable (() -> Unit)? = null,
 ) {
     val borderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = PanelBorderAlpha)
 
@@ -49,8 +48,6 @@ internal fun DialogueScaffold(
         Box(modifier = Modifier.weight(1f)) {
             messages()
         }
-
-        snackbar?.invoke()
 
         Box(modifier = Modifier.fillMaxWidth()) {
             Box(

@@ -30,35 +30,53 @@ internal fun AssistantHeader(
     nameSize: TextUnit,
     modifier: Modifier = Modifier,
 ) {
-    val cs = MaterialTheme.colorScheme
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
     ) {
-        Box(
-            modifier = Modifier
-                .size(avatarSize)
-                .clip(CircleShape)
-                .border(
-                    width = AvatarBorderWidth,
-                    color = cs.secondary.copy(alpha = 0.2f),
-                    shape = CircleShape,
-                ),
-        ) {
-            CharacterAvatar(
-                imageProvider = imageProvider,
-                targetSizeDp = avatarSize,
-                modifier = Modifier.size(avatarSize),
+        AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize)
+        AssistantName(name = name, nameSize = nameSize)
+    }
+}
+
+@Composable
+internal fun AssistantAvatar(
+    imageProvider: ImageProvider,
+    avatarSize: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val cs = MaterialTheme.colorScheme
+    Box(
+        modifier = modifier
+            .size(avatarSize)
+            .clip(CircleShape)
+            .border(
+                width = AvatarBorderWidth,
+                color = cs.secondary.copy(alpha = 0.2f),
                 shape = CircleShape,
-            )
-        }
-        Text(
-            text = name,
-            fontSize = nameSize,
-            fontWeight = FontWeight.Medium,
-            color = cs.secondary,
+            ),
+    ) {
+        CharacterAvatar(
+            imageProvider = imageProvider,
+            targetSizeDp = avatarSize,
+            modifier = Modifier.size(avatarSize),
+            shape = CircleShape,
         )
     }
+}
+
+@Composable
+internal fun AssistantName(
+    name: String,
+    nameSize: TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        modifier = modifier,
+        text = name,
+        fontSize = nameSize,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.secondary,
+    )
 }

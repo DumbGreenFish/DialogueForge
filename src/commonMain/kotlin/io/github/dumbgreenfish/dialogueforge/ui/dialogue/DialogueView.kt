@@ -28,8 +28,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.Mes
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessageItemEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesList
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesListData
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.VariantSelectorEvent
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.ChatSnackbar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
@@ -146,25 +144,11 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         onEditFieldEvent = { messageId, event ->
                             onEditFieldEvent(messageId, event, viewModel)
                         },
-                        onVariantSelectorEvent = { messageId, event ->
-                            onVariantSelectorEvent(messageId, event, viewModel)
-                        },
                         onMessageItemEvent = { messageId, event ->
                             onMessageItemEvent(messageId, event, viewModel)
                         },
                     ),
                 )
-            },
-            snackbar = {
-                state.snackbarError?.let { error ->
-                    ChatSnackbar(
-                        message = error,
-                        onDismiss = { viewModel.handle(DialogueIntent.DismissSnackbar) },
-                        onRetry = if (state.lastSentText != null) {
-                            { viewModel.handle(DialogueIntent.Regenerate) }
-                        } else null,
-                    )
-                }
             },
         )
     }
@@ -182,7 +166,6 @@ private fun onActionRowEvent(
             ?.let { clipboardManager.setText(AnnotatedString(it)) }
         ActionRowEvent.Edit -> viewModel.handle(DialogueIntent.StartEdit(messageId))
         ActionRowEvent.Delete -> viewModel.handle(DialogueIntent.DeleteMessage(messageId))
-        ActionRowEvent.Refresh -> viewModel.handle(DialogueIntent.RegenerateMessage(messageId))
         ActionRowEvent.Select -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
     }
 }
@@ -196,17 +179,6 @@ private fun onEditFieldEvent(
         is EditFieldEvent.TextChanged -> viewModel.handle(DialogueIntent.UpdateEditText(event.value))
         EditFieldEvent.Save -> viewModel.handle(DialogueIntent.SaveEdit)
         EditFieldEvent.Cancel -> viewModel.handle(DialogueIntent.CancelEdit)
-    }
-}
-
-private fun onVariantSelectorEvent(
-    messageId: String,
-    event: VariantSelectorEvent,
-    viewModel: DialogueViewModel,
-) {
-    when (event) {
-        VariantSelectorEvent.OnNextClick -> viewModel.handle(DialogueIntent.NextVariant(messageId))
-        VariantSelectorEvent.OnPrevClick -> viewModel.handle(DialogueIntent.PrevVariant(messageId))
     }
 }
 
