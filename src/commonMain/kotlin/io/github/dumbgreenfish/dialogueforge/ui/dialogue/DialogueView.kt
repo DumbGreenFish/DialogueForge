@@ -1,5 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -11,14 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueSelectionTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.ActionRowEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.EditFieldEvent
@@ -34,11 +34,13 @@ import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
 fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val viewModel = koinViewModel<DialogueViewModel>()
+    val clipboardManager = LocalClipboardManager.current
+    val viewModel = koinViewModel<DialogueViewModel> { parametersOf(clipboardManager) }
     val state by viewModel.state.collectAsState()
     val forgeSettings = koinInject<ForgeSettings>()
     val messageWidth by forgeSettings.messageWidth.collectAsState()
@@ -47,7 +49,6 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     val chatHeaderOpacity by forgeSettings.chatHeaderOpacity.collectAsState()
     val chatComposerOpacity by forgeSettings.chatComposerOpacity.collectAsState()
     val bgDim by forgeSettings.chatBackgroundDim.collectAsState()
-    val clipboardManager = LocalClipboardManager.current
 
     val imageCache = koinInject<ImageCache>()
 
@@ -81,12 +82,27 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
             headerBackground = bg.copy(alpha = chatHeaderOpacity),
             composerBackground = bg.copy(alpha = chatComposerOpacity),
             header = {
-                DialogueTopBar(
-                    backgroundOpacity = chatHeaderOpacity,
-                    onBack = onBack,
-                    onHistory = { /* TODO: open conversation history */ },
-                    onAdd = { /* TODO: create new conversation */ },
-                )
+                AnimatedContent(
+                    targetState = state.selectedMessageIds.isNotEmpty(),
+                    label = "dialogue_header",
+                ) { inSelectionMode ->
+                    if (inSelectionMode) {
+                        DialogueSelectionTopBar(
+                            selectedCount = state.selectedMessageIds.size,
+                            backgroundOpacity = chatHeaderOpacity,
+                            onClearSelection = { viewModel.handle(DialogueIntent.ClearSelection) },
+                            onCopySelected = { viewModel.handle(DialogueIntent.CopySelected) },
+                            onDeleteSelected = { viewModel.handle(DialogueIntent.DeleteSelected) },
+                        )
+                    } else {
+                        DialogueTopBar(
+                            backgroundOpacity = chatHeaderOpacity,
+                            onBack = onBack,
+                            onHistory = { /* TODO: open conversation history */ },
+                            onAdd = { /* TODO: create new conversation */ },
+                        )
+                    }
+                }
             },
             composer = {
                 Composer(
@@ -113,8 +129,9 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         expandedActionsMessageId = state.expandedActionsMessageId,
                         editingMessageId = state.editingMessageId,
                         editingText = state.editingText,
+                        selectedMessageIds = state.selectedMessageIds,
                         onActionRowEvent = { messageId, event ->
-                            onActionRowEvent(messageId, event, state.messages, clipboardManager, viewModel)
+                            onActionRowEvent(messageId, event, viewModel)
                         },
                         onEditFieldEvent = { messageId, event ->
                             onEditFieldEvent(messageId, event, viewModel)
@@ -132,15 +149,13 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
 private fun onActionRowEvent(
     messageId: String,
     event: ActionRowEvent,
-    messages: List<Message>,
-    clipboardManager: ClipboardManager,
     viewModel: DialogueViewModel,
 ) {
     when (event) {
-        ActionRowEvent.Copy -> messages.find { it.id == messageId }?.text
-            ?.let { clipboardManager.setText(AnnotatedString(it)) }
+        ActionRowEvent.Copy -> viewModel.handle(DialogueIntent.CopyMessage(messageId))
         ActionRowEvent.Edit -> viewModel.handle(DialogueIntent.StartEdit(messageId))
         ActionRowEvent.Delete -> viewModel.handle(DialogueIntent.DeleteMessage(messageId))
+        ActionRowEvent.Select -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
     }
 }
 
@@ -163,5 +178,6 @@ private fun onMessageItemEvent(
 ) {
     when (event) {
         MessageItemEvent.ToggleActions -> viewModel.handle(DialogueIntent.ToggleActions(messageId))
+        MessageItemEvent.ToggleSelection -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
     }
 }

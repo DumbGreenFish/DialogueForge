@@ -52,6 +52,7 @@ data class MessageItemContext(
     val expandedActionsMessageId: String?,
     val editingMessageId: String?,
     val editingText: TextFieldValue,
+    val selectedMessageIds: Set<String>,
     val onActionRowEvent: (String, ActionRowEvent) -> Unit,
     val onEditFieldEvent: (String, EditFieldEvent) -> Unit,
     val onMessageItemEvent: (String, MessageItemEvent) -> Unit,
@@ -114,6 +115,9 @@ internal fun MessagesList(
                         )
 
                         itemContext.isGenerating -> MessageInteractionState.Generating
+                        itemContext.selectedMessageIds.isNotEmpty() -> MessageInteractionState.Selecting(
+                            message.id in itemContext.selectedMessageIds
+                        )
                         else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
                     }
                     Box(modifier = calculateBoxModifier()) {

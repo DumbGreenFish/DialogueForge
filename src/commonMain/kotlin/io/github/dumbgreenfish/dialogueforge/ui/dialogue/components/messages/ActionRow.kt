@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Copy
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pencil
+import com.composables.icons.lucide.SquareCheck
 import com.composables.icons.lucide.Trash2
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
@@ -37,6 +38,7 @@ sealed interface ActionRowEvent {
     data object Copy : ActionRowEvent
     data object Edit : ActionRowEvent
     data object Delete : ActionRowEvent
+    data object Select : ActionRowEvent
 }
 
 private val ActionRowHeight = 28.dp
@@ -60,6 +62,13 @@ internal fun ActionRow(
     )
 
     val actionRowItems: List<@Composable () -> Unit> = listOfNotNull(
+        @Composable {
+            ActionIcon(
+                imageVector = Lucide.SquareCheck,
+                contentDescription = null,
+                onClick = { onActionRowEvent(ActionRowEvent.Select) },
+            )
+        },
         @Composable {
             ActionIcon(
                 imageVector = Lucide.Copy,

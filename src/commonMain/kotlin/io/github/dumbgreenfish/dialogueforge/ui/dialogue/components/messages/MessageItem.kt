@@ -1,19 +1,27 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,13 +37,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_edit_cancel
@@ -59,6 +69,7 @@ sealed interface EditFieldEvent {
 
 sealed interface MessageItemEvent {
     data object ToggleActions : MessageItemEvent
+    data object ToggleSelection : MessageItemEvent
 }
 
 sealed interface MessageDisplayStyle {
@@ -70,6 +81,7 @@ sealed interface MessageInteractionState {
     data class Browsing(val isActionsExpanded: Boolean = false) : MessageInteractionState
     data class Editing(val text: TextFieldValue) : MessageInteractionState
     data object Generating : MessageInteractionState
+    data class Selecting(val isSelected: Boolean) : MessageInteractionState
 }
 
 data class MessageItemState(
@@ -87,7 +99,6 @@ data class MessageItemCallbacks(
 )
 
 // Tweakable layout constants for the chat message item.
-// These control avatar size, name size, gaps, and action-row spacing.
 private val UserTextSize = 14.sp
 private val AssistantTextSize = 12.sp
 private val UserLineHeight = 23.8.sp
@@ -96,9 +107,8 @@ private val AssistantNameSize = 16.sp
 private val AssistantNameGreetingSize = 16.sp
 private val GreetingAvatarSize = 64.dp
 private val RegularAvatarSize = 48.dp
-private val GreetingHeaderGap = 4.dp        // gap between assistant name and message text in greeting mode
-private val RegularHeaderGap = 4.dp         // gap between assistant name and message text in normal mode
-// AssistantHeaderGap lives in AssistantHeader.kt and controls the gap between avatar and name.
+private val GreetingHeaderGap = 4.dp
+private val RegularHeaderGap = 4.dp
 
 private val MessageVerticalGap = 32.dp
 private val GreetingVerticalGap = 40.dp
@@ -110,17 +120,19 @@ private val EditFieldMinHeight = 40.dp
 private val EditFieldFontSize = 14.sp
 private val EditButtonsGap = 8.dp
 
-private val AssistantTextAlignmentCorrection = 1.dp
+private val SelectionTintAlpha = 0.08f
+private val SelectionRowPaddingH = 12.dp
+private val SelectionRowPaddingTop = 8.dp
+private val CheckboxSlotWidth = 32.dp
+private val CheckboxSlotPaddingStart = 8.dp
 
 private val MessageActionsPaddingTop = 12.dp
 
-// Horizontal inset that visually aligns message content with the circular part
-// of the assistant avatar. The source image has invisible padding inside its
-// clipping box, so text and action bar need the same visual offset.
-private val AvatarVisualInset = 6.dp
+private val AssistantTextAlignmentCorrection = 1.dp
 
-private fun contentInsetFor(avatarSize: Dp): Dp =
-    AvatarVisualInset * (avatarSize / RegularAvatarSize)
+// Horizontal inset that visually aligns message content with the circular part
+// of the assistant avatar.
+private val AvatarVisualInset = 6.dp
 
 @Composable
 internal fun MessageItem(
@@ -132,20 +144,39 @@ internal fun MessageItem(
     val interaction = state.interactionState
 
     val isGreeting = state.displayStyle is MessageDisplayStyle.Greeting
+    val isSelectionMode = interaction is MessageInteractionState.Selecting
+    val isSelected = (interaction as? MessageInteractionState.Selecting)?.isSelected ?: false
     val isCompact = windowClass == WindowClass.Compact
 
+    val tintAlpha by animateFloatAsState(
+        targetValue = if (isSelected) SelectionTintAlpha else 0f,
+        animationSpec = tween(ForgeAnimation.DurationStateTransition),
+        label = "selectionTint",
+    )
+    val backgroundColor = ForgeColors.spark.copy(alpha = tintAlpha)
+
     val tapModifier = rememberTapModifier(
+        isSelectionMode = isSelectionMode,
+        onToggleSelection = { callbacks.onMessageItemEvent(MessageItemEvent.ToggleSelection) },
         onToggleActions = { callbacks.onMessageItemEvent(MessageItemEvent.ToggleActions) },
     )
-    val hoverModifier = rememberHoverModifier(interactionSource)
+    val hoverModifier = rememberHoverModifier(isSelectionMode, interactionSource)
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .background(backgroundColor)
+            .padding(
+                start = SelectionRowPaddingH,
+                end = SelectionRowPaddingH,
+                top = SelectionRowPaddingTop,
+            ),
         verticalAlignment = Alignment.Top,
     ) {
         val contentHorizontalInset = when {
             isCompact && state.message.role == MessageRole.Assistant -> {
-                contentInsetFor(if (isGreeting) GreetingAvatarSize else RegularAvatarSize)
+                avatarVisualInsetFor(if (isGreeting) GreetingAvatarSize else RegularAvatarSize)
             }
             isCompact && state.message.role == MessageRole.User -> AvatarVisualInset
             else -> 0.dp
@@ -154,17 +185,17 @@ internal fun MessageItem(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .then(tapModifier)
+                .then(hoverModifier)
                 .padding(
                     start = if (state.message.role == MessageRole.Assistant) contentHorizontalInset else 0.dp,
                     end = if (state.message.role == MessageRole.User) contentHorizontalInset else 0.dp,
                     bottom = if (isGreeting) GreetingVerticalGap else MessageVerticalGap,
-                )
-                .then(hoverModifier),
+                ),
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .then(tapModifier),
+                    .fillMaxWidth(),
                 contentAlignment = if (state.message.role == MessageRole.User) Alignment.TopEnd else Alignment.TopStart,
             ) {
                 when (interaction) {
@@ -177,7 +208,8 @@ internal fun MessageItem(
                         )
                     }
                     is MessageInteractionState.Browsing,
-                    is MessageInteractionState.Generating -> {
+                    is MessageInteractionState.Generating,
+                    is MessageInteractionState.Selecting -> {
                         MessageContent(
                             message = state.message,
                             displayStyle = state.displayStyle,
@@ -188,49 +220,85 @@ internal fun MessageItem(
                 }
             }
 
-            val isActionsExpanded = (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
-            MessageActions(
-                message = state.message,
-                isGreeting = isGreeting,
-                isActionsExpanded = isActionsExpanded,
-                interactionSource = interactionSource,
-                onActionRowEvent = callbacks.onActionRowEvent,
-                modifier = Modifier.padding(top = MessageActionsPaddingTop)
+            if (!isSelectionMode) {
+                val isActionsExpanded = (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
+                MessageActions(
+                    message = state.message,
+                    isGreeting = isGreeting,
+                    isActionsExpanded = isActionsExpanded,
+                    interactionSource = interactionSource,
+                    onActionRowEvent = callbacks.onActionRowEvent,
+                    modifier = Modifier.padding(top = MessageActionsPaddingTop)
+                )
+            }
+        }
+
+        if (!isCompact) {
+            SelectionCheckboxSlot(
+                isSelectionMode = isSelectionMode,
+                isSelected = isSelected,
             )
         }
     }
 }
 
-/**
- * Tap handling for normal-mode taps on mobile to toggle the action row.
- */
 @Composable
-private fun rememberTapModifier(
-    onToggleActions: () -> Unit,
-): Modifier {
-    if (!isMobilePlatform) return Modifier
-    return Modifier.pointerInput(Unit) {
-        detectTapGestures {
-            onToggleActions()
+private fun SelectionCheckboxSlot(
+    isSelectionMode: Boolean,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .width(CheckboxSlotWidth)
+            .padding(start = CheckboxSlotPaddingStart),
+        contentAlignment = Alignment.Center,
+    ) {
+        AnimatedVisibility(
+            visible = isSelectionMode,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            CheckIndicator(isSelected = isSelected)
         }
     }
 }
 
 @Composable
-private fun rememberHoverModifier(
-    interactionSource: MutableInteractionSource,
+private fun rememberTapModifier(
+    isSelectionMode: Boolean,
+    onToggleSelection: () -> Unit,
+    onToggleActions: () -> Unit,
 ): Modifier {
-    return if (!isMobilePlatform) {
-        Modifier.hoverable(interactionSource)
-    } else {
-        Modifier
+    return when {
+        isSelectionMode -> Modifier.clickable(
+            indication = null,
+            interactionSource = null,
+            onClick = onToggleSelection,
+        )
+        isMobilePlatform -> Modifier.clickable(
+            indication = null,
+            interactionSource = null,
+            onClick = onToggleActions,
+        )
+        else -> Modifier
     }
 }
 
-/**
- * Wraps the action row for a message, applying the correct start indent
- * based on avatar size on wide screens.
- */
+@Composable
+private fun rememberHoverModifier(
+    isSelectionMode: Boolean,
+    interactionSource: MutableInteractionSource,
+): Modifier {
+    if (isMobilePlatform) return Modifier
+    return if (isSelectionMode) {
+        Modifier.pointerHoverIcon(PointerIcon.Hand)
+    } else {
+        Modifier.hoverable(interactionSource)
+    }
+}
+
 @Composable
 private fun MessageActions(
     message: Message,
@@ -278,11 +346,6 @@ private fun MessageContent(
     }
 }
 
-/**
- * Shared bubble-width logic: was copy-pasted between UserMessage and EditField.
- * On mobile the bubble takes a fraction of the row width; on desktop it's
- * additionally capped by messageWidth.desktopMaxWidthDp.
- */
 @Composable
 private fun bubbleWidthModifier(messageWidth: MessageWidth): Modifier {
     val isCompact = isMobilePlatform
@@ -321,7 +384,6 @@ private fun AssistantMessage(
     val isCompactLayout = windowClass == WindowClass.Compact
 
     if (isCompactLayout) {
-        // Mobile: avatar + name share one row; text flows below at full width.
         Column(modifier = Modifier.fillMaxWidth()) {
             AssistantHeader(
                 name = name,
@@ -336,7 +398,6 @@ private fun AssistantMessage(
             )
         }
     } else {
-        // Desktop / tablet: avatar sits in a left column; name and text sit in a right column.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
@@ -407,3 +468,6 @@ private fun EditField(
         }
     }
 }
+
+private fun avatarVisualInsetFor(avatarSize: Dp): Dp =
+    AvatarVisualInset * (avatarSize / RegularAvatarSize)

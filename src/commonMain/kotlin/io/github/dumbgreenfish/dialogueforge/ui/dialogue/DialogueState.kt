@@ -18,4 +18,5 @@ data class DialogueState(
     val expandedActionsMessageId: String? = null,
     val editingMessageId: String? = null,
     val editingText: TextFieldValue = TextFieldValue(),
+    val selectedMessageIds: Set<String> = emptySet(),
 )

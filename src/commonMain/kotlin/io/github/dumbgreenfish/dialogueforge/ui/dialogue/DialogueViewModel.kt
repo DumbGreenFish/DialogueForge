@@ -1,5 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 
 private const val PAGE_SIZE = 50
@@ -28,6 +31,7 @@ class DialogueViewModel(
     private val dialogueRepository: DialogueRepository,
     private val llmService: LlmService,
     private val settingsRepository: SettingsRepository,
+    @InjectedParam private val clipboardManager: ClipboardManager,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DialogueState())
     val state: StateFlow<DialogueState> = _state.asStateFlow()
@@ -49,6 +53,11 @@ class DialogueViewModel(
             is DialogueIntent.UpdateEditText -> _state.update { it.copy(editingText = intent.value) }
             is DialogueIntent.SaveEdit -> saveEdit()
             is DialogueIntent.CancelEdit -> _state.update { it.copy(editingMessageId = null, editingText = TextFieldValue()) }
+            is DialogueIntent.CopyMessage -> copyMessage(intent.messageId)
+            is DialogueIntent.ToggleSelection -> toggleSelection(intent.messageId)
+            is DialogueIntent.ClearSelection -> _state.update { it.copy(selectedMessageIds = emptySet()) }
+            is DialogueIntent.DeleteSelected -> deleteSelected()
+            is DialogueIntent.CopySelected -> copySelected()
         }
     }
 
@@ -175,6 +184,47 @@ class DialogueViewModel(
         _state.update { current ->
             val next = if (current.expandedActionsMessageId == messageId) null else messageId
             current.copy(expandedActionsMessageId = next)
+        }
+    }
+
+    private fun toggleSelection(messageId: String) {
+        if (_state.value.isGenerating && _state.value.messages.firstOrNull { it.id == messageId }?.role == MessageRole.Assistant) return
+        _state.update { current ->
+            val selected = current.selectedMessageIds.toMutableSet()
+            if (messageId in selected) selected.remove(messageId) else selected.add(messageId)
+            current.copy(selectedMessageIds = selected)
+        }
+    }
+
+    private fun copyMessage(messageId: String) {
+        val text = _state.value.messages.find { it.id == messageId }?.text ?: return
+        clipboardManager.setText(AnnotatedString(text))
+    }
+
+    private fun copySelected() {
+        val selected = _state.value.selectedMessageIds
+        if (selected.isEmpty()) return
+        val texts = _state.value.messages
+            .asReversed()
+            .filter { it.id in selected }
+            .map { it.text }
+            .joinToString("\n\n")
+        clipboardManager.setText(AnnotatedString(texts))
+        _state.update { it.copy(selectedMessageIds = emptySet()) }
+    }
+
+    private fun deleteSelected() {
+        val selected = _state.value.selectedMessageIds.toList()
+        if (selected.isEmpty()) return
+        viewModelScope.launch {
+            selected.forEach { dialogueRepository.deleteMessage(it) }
+            _state.update { current ->
+                current.copy(
+                    messages = current.messages.filter { it.id !in selected },
+                    selectedMessageIds = emptySet(),
+                )
+            }
+            totalMessageCount -= selected.size
         }
     }
 
