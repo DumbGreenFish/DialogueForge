@@ -102,13 +102,9 @@ internal fun MessagesList(
                 item.dateLabel != null -> DateSeparator(label = item.dateLabel)
                 item.message != null -> {
                     val message = item.message
-                    val displayStyle = when {
-                        !hasUserMessages &&
-                                message.role == MessageRole.Assistant &&
-                                message.id == firstAssistantId -> MessageDisplayStyle.Greeting
-
-                        else -> MessageDisplayStyle.Regular
-                    }
+                    val isGreeting = !hasUserMessages &&
+                            message.role == MessageRole.Assistant &&
+                            message.id == firstAssistantId
                     val interactionState = when {
                         itemContext.editingMessageId == message.id -> MessageInteractionState.Editing(
                             itemContext.editingText
@@ -121,20 +117,40 @@ internal fun MessagesList(
                         else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
                     }
                     Box(modifier = calculateBoxModifier()) {
-                        MessageItem(
-                            state = MessageItemState(
+                        when (message.role) {
+                            MessageRole.User -> UserMessage(
                                 message = message,
-                                displayStyle = displayStyle,
                                 interactionState = interactionState,
-                                character = itemContext.character,
                                 messageWidth = itemContext.messageWidth,
-                            ),
-                            callbacks = MessageItemCallbacks(
                                 onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
                                 onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
                                 onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
-                            ),
-                        )
+                            )
+                            MessageRole.Assistant -> {
+                                if (isGreeting) {
+                                    GreetingAssistantMessage(
+                                        message = message,
+                                        interactionState = interactionState,
+                                        character = itemContext.character,
+                                        messageWidth = itemContext.messageWidth,
+                                        onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
+                                        onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
+                                        onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+                                    )
+                                } else {
+                                    RegularAssistantMessage(
+                                        message = message,
+                                        interactionState = interactionState,
+                                        character = itemContext.character,
+                                        messageWidth = itemContext.messageWidth,
+                                        onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
+                                        onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
+                                        onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+                                    )
+                                }
+                            }
+                            MessageRole.System -> Unit
+                        }
                     }
                 }
             }

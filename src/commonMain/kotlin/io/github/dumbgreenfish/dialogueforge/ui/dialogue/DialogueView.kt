@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -21,6 +24,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Com
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueSelectionTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.ActionRowEvent
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.DeleteMessageDialog
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.EditFieldEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessageItemContext
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessageItemEvent
@@ -61,6 +65,8 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     LaunchedEffect(bgBytes) {
         bgFlow.value = bgBytes?.let { withContext(Dispatchers.Default) { it.toImageBitmapOrNull() } }
     }
+
+    var deleteMessageTarget by remember { mutableStateOf<String?>(null) }
 
     val character = state.character
     if (character == null || state.conversationId == null) return
@@ -131,7 +137,10 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         editingText = state.editingText,
                         selectedMessageIds = state.selectedMessageIds,
                         onActionRowEvent = { messageId, event ->
-                            onActionRowEvent(messageId, event, viewModel)
+                            when (event) {
+                                ActionRowEvent.Delete -> deleteMessageTarget = messageId
+                                else -> onActionRowEvent(messageId, event, viewModel)
+                            }
                         },
                         onEditFieldEvent = { messageId, event ->
                             onEditFieldEvent(messageId, event, viewModel)
@@ -143,6 +152,16 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                 )
             },
         )
+
+        deleteMessageTarget?.let { messageId ->
+            DeleteMessageDialog(
+                onConfirm = {
+                    viewModel.handle(DialogueIntent.DeleteMessage(messageId))
+                    deleteMessageTarget = null
+                },
+                onDismiss = { deleteMessageTarget = null },
+            )
+        }
     }
 }
 
@@ -154,8 +173,8 @@ private fun onActionRowEvent(
     when (event) {
         ActionRowEvent.Copy -> viewModel.handle(DialogueIntent.CopyMessage(messageId))
         ActionRowEvent.Edit -> viewModel.handle(DialogueIntent.StartEdit(messageId))
-        ActionRowEvent.Delete -> viewModel.handle(DialogueIntent.DeleteMessage(messageId))
         ActionRowEvent.Select -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
+        ActionRowEvent.Delete -> viewModel.handle(DialogueIntent.DeleteMessage(messageId))
     }
 }
 

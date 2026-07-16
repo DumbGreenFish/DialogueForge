@@ -51,6 +51,10 @@
     <string name="dialogue_error_retry">Retry</string>
     <string name="dialogue_error_api_key_not_set">API key not set. Configure in Presets.</string>
     <string name="dialogue_stop">Stop</string>
+    <string name="dialogue_delete_title">Delete message?</string>
+    <string name="dialogue_delete_message">This message will be permanently deleted.</string>
+    <string name="dialogue_delete_confirm">Delete</string>
+    <string name="dialogue_delete_cancel">Cancel</string>
     <plurals name="dialogue_selection_count">
         <item quantity="one">%1$d selected</item>
         <item quantity="other">%1$d selected</item>
