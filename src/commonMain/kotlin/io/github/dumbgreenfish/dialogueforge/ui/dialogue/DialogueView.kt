@@ -1,6 +1,5 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -20,7 +19,6 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSetti
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueSelectionTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.header.DialogueTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.ActionRowEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.EditFieldEvent
@@ -83,35 +81,12 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
             headerBackground = bg.copy(alpha = chatHeaderOpacity),
             composerBackground = bg.copy(alpha = chatComposerOpacity),
             header = {
-                AnimatedContent(
-                    targetState = state.selectedMessageIds.isNotEmpty(),
-                    label = "dialogue_header",
-                ) { inSelectionMode ->
-                    if (inSelectionMode) {
-                        DialogueSelectionTopBar(
-                            selectedCount = state.selectedMessageIds.size,
-                            backgroundOpacity = chatHeaderOpacity,
-                            onClearSelection = { viewModel.handle(DialogueIntent.ClearSelection) },
-                            onCopySelected = {
-                                val texts = state.messages
-                                    .asReversed()
-                                    .filter { it.id in state.selectedMessageIds }
-                                    .map { it.text }
-                                    .joinToString("\n\n")
-                                clipboardManager.setText(AnnotatedString(texts))
-                                viewModel.handle(DialogueIntent.ClearSelection)
-                            },
-                            onDeleteSelected = { viewModel.handle(DialogueIntent.DeleteSelected) },
-                        )
-                    } else {
-                        DialogueTopBar(
-                            backgroundOpacity = chatHeaderOpacity,
-                            onBack = onBack,
-                            onHistory = { /* TODO: open conversation history */ },
-                            onAdd = { /* TODO: create new conversation */ },
-                        )
-                    }
-                }
+                DialogueTopBar(
+                    backgroundOpacity = chatHeaderOpacity,
+                    onBack = onBack,
+                    onHistory = { /* TODO: open conversation history */ },
+                    onAdd = { /* TODO: create new conversation */ },
+                )
             },
             composer = {
                 Composer(
@@ -138,7 +113,6 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         expandedActionsMessageId = state.expandedActionsMessageId,
                         editingMessageId = state.editingMessageId,
                         editingText = state.editingText,
-                        selectedMessageIds = state.selectedMessageIds,
                         onActionRowEvent = { messageId, event ->
                             onActionRowEvent(messageId, event, state.messages, clipboardManager, viewModel)
                         },
@@ -167,7 +141,6 @@ private fun onActionRowEvent(
             ?.let { clipboardManager.setText(AnnotatedString(it)) }
         ActionRowEvent.Edit -> viewModel.handle(DialogueIntent.StartEdit(messageId))
         ActionRowEvent.Delete -> viewModel.handle(DialogueIntent.DeleteMessage(messageId))
-        ActionRowEvent.Select -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
     }
 }
 
@@ -190,6 +163,5 @@ private fun onMessageItemEvent(
 ) {
     when (event) {
         MessageItemEvent.ToggleActions -> viewModel.handle(DialogueIntent.ToggleActions(messageId))
-        MessageItemEvent.ToggleSelection -> viewModel.handle(DialogueIntent.ToggleSelection(messageId))
     }
 }

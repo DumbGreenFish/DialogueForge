@@ -59,7 +59,6 @@ sealed interface EditFieldEvent {
 
 sealed interface MessageItemEvent {
     data object ToggleActions : MessageItemEvent
-    data object ToggleSelection : MessageItemEvent
 }
 
 sealed interface MessageDisplayStyle {
@@ -67,22 +66,15 @@ sealed interface MessageDisplayStyle {
     data object Greeting : MessageDisplayStyle
 }
 
-sealed interface MessagePosition {
-    data object Normal : MessagePosition
-    data object LastAssistant : MessagePosition
-}
-
 sealed interface MessageInteractionState {
     data class Browsing(val isActionsExpanded: Boolean = false) : MessageInteractionState
     data class Editing(val text: TextFieldValue) : MessageInteractionState
     data object Generating : MessageInteractionState
-    data class Selecting(val isSelected: Boolean) : MessageInteractionState
 }
 
 data class MessageItemState(
     val message: Message,
     val displayStyle: MessageDisplayStyle,
-    val position: MessagePosition,
     val interactionState: MessageInteractionState,
     val character: Character,
     val messageWidth: MessageWidth,
@@ -118,9 +110,6 @@ private val EditFieldMinHeight = 40.dp
 private val EditFieldFontSize = 14.sp
 private val EditButtonsGap = 8.dp
 
-private val SelectionTintAlpha = 0.08f
-private val SelectionRowPaddingH = 12.dp
-private val SelectionCheckboxPaddingTop = 8.dp
 private val AssistantTextAlignmentCorrection = 1.dp
 
 private val MessageActionsPaddingTop = 12.dp
@@ -143,28 +132,17 @@ internal fun MessageItem(
     val interaction = state.interactionState
 
     val isGreeting = state.displayStyle is MessageDisplayStyle.Greeting
-    val isSelectionMode = interaction is MessageInteractionState.Selecting
-    val isSelected = (interaction as? MessageInteractionState.Selecting)?.isSelected ?: false
     val isCompact = windowClass == WindowClass.Compact
 
     val tapModifier = rememberTapModifier(
-        isSelectionMode = isSelectionMode,
-        onToggleSelection = { callbacks.onMessageItemEvent(MessageItemEvent.ToggleSelection) },
         onToggleActions = { callbacks.onMessageItemEvent(MessageItemEvent.ToggleActions) },
     )
-    val hoverModifier = rememberHoverModifier(isSelectionMode, interactionSource)
+    val hoverModifier = rememberHoverModifier(interactionSource)
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(if (isSelected) ForgeColors.spark.copy(alpha = SelectionTintAlpha) else ForgeColors.spark.copy(alpha = 0f))
-            .padding(horizontal = SelectionRowPaddingH),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
     ) {
-        if (state.message.role == MessageRole.Assistant && isSelectionMode) {
-            SelectionCheckbox(isSelected = isSelected)
-        }
-
         val contentHorizontalInset = when {
             isCompact && state.message.role == MessageRole.Assistant -> {
                 contentInsetFor(if (isGreeting) GreetingAvatarSize else RegularAvatarSize)
@@ -199,8 +177,7 @@ internal fun MessageItem(
                         )
                     }
                     is MessageInteractionState.Browsing,
-                    is MessageInteractionState.Generating,
-                    is MessageInteractionState.Selecting -> {
+                    is MessageInteractionState.Generating -> {
                         MessageContent(
                             message = state.message,
                             displayStyle = state.displayStyle,
@@ -211,61 +188,39 @@ internal fun MessageItem(
                 }
             }
 
-            if (!isSelectionMode) {
-                val isActionsExpanded = (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
-                MessageActions(
-                    message = state.message,
-                    isGreeting = isGreeting,
-                    isActionsExpanded = isActionsExpanded,
-                    interactionSource = interactionSource,
-                    onActionRowEvent = callbacks.onActionRowEvent,
-                    modifier = Modifier.padding(top = MessageActionsPaddingTop)
-                )
-            }
-        }
-
-        if (state.message.role == MessageRole.User && isSelectionMode) {
-            SelectionCheckbox(isSelected = isSelected)
+            val isActionsExpanded = (interaction as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
+            MessageActions(
+                message = state.message,
+                isGreeting = isGreeting,
+                isActionsExpanded = isActionsExpanded,
+                interactionSource = interactionSource,
+                onActionRowEvent = callbacks.onActionRowEvent,
+                modifier = Modifier.padding(top = MessageActionsPaddingTop)
+            )
         }
     }
 }
 
 /**
- * Checkbox shown on the outer edge of a message row in selection mode.
- * Was duplicated for both User (trailing) and Assistant (leading) sides.
- */
-@Composable
-private fun SelectionCheckbox(isSelected: Boolean) {
-    Box(modifier = Modifier.padding(top = SelectionCheckboxPaddingTop)) {
-        CheckIndicator(isSelected = isSelected)
-    }
-}
-
-/**
- * Tap handling shared between selection-mode and normal-mode taps on mobile.
- * isSelectionMode is part of the pointerInput key so the gesture detector
- * restarts correctly when the mode toggles (matches the previous branching behavior).
+ * Tap handling for normal-mode taps on mobile to toggle the action row.
  */
 @Composable
 private fun rememberTapModifier(
-    isSelectionMode: Boolean,
-    onToggleSelection: () -> Unit,
     onToggleActions: () -> Unit,
 ): Modifier {
     if (!isMobilePlatform) return Modifier
-    return Modifier.pointerInput(isSelectionMode) {
+    return Modifier.pointerInput(Unit) {
         detectTapGestures {
-            if (isSelectionMode) onToggleSelection() else onToggleActions()
+            onToggleActions()
         }
     }
 }
 
 @Composable
 private fun rememberHoverModifier(
-    isSelectionMode: Boolean,
     interactionSource: MutableInteractionSource,
 ): Modifier {
-    return if (!isSelectionMode && !isMobilePlatform) {
+    return if (!isMobilePlatform) {
         Modifier.hoverable(interactionSource)
     } else {
         Modifier

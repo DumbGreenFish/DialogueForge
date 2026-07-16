@@ -49,9 +49,6 @@ class DialogueViewModel(
             is DialogueIntent.UpdateEditText -> _state.update { it.copy(editingText = intent.value) }
             is DialogueIntent.SaveEdit -> saveEdit()
             is DialogueIntent.CancelEdit -> _state.update { it.copy(editingMessageId = null, editingText = TextFieldValue()) }
-            is DialogueIntent.ToggleSelection -> toggleSelection(intent.messageId)
-            is DialogueIntent.ClearSelection -> _state.update { it.copy(selectedMessageIds = emptySet()) }
-            is DialogueIntent.DeleteSelected -> deleteSelected()
         }
     }
 
@@ -178,29 +175,6 @@ class DialogueViewModel(
         _state.update { current ->
             val next = if (current.expandedActionsMessageId == messageId) null else messageId
             current.copy(expandedActionsMessageId = next)
-        }
-    }
-
-    private fun toggleSelection(messageId: String) {
-        _state.update { current ->
-            val selected = current.selectedMessageIds.toMutableSet()
-            if (messageId in selected) selected.remove(messageId) else selected.add(messageId)
-            current.copy(selectedMessageIds = selected)
-        }
-    }
-
-    private fun deleteSelected() {
-        val selected = _state.value.selectedMessageIds.toList()
-        if (selected.isEmpty()) return
-        viewModelScope.launch {
-            selected.forEach { dialogueRepository.deleteMessage(it) }
-            _state.update { current ->
-                current.copy(
-                    messages = current.messages.filter { it.id !in selected },
-                    selectedMessageIds = emptySet(),
-                )
-            }
-            totalMessageCount -= selected.size
         }
     }
 

@@ -51,10 +51,6 @@
     <string name="dialogue_error_retry">Retry</string>
     <string name="dialogue_error_api_key_not_set">API key not set. Configure in Presets.</string>
     <string name="dialogue_stop">Stop</string>
-    <plurals name="dialogue_selection_count">
-        <item quantity="one">%1$d selected</item>
-        <item quantity="other">%1$d selected</item>
-    </plurals>
     <string name="settings_title">Settings</string>
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_density_scale">Interface scale</string>

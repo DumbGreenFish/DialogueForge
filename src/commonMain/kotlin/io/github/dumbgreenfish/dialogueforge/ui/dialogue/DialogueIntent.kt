@@ -15,7 +15,4 @@ sealed class DialogueIntent {
     data class UpdateEditText(val value: TextFieldValue) : DialogueIntent()
     data object SaveEdit : DialogueIntent()
     data object CancelEdit : DialogueIntent()
-    data class ToggleSelection(val messageId: String) : DialogueIntent()
-    data object ClearSelection : DialogueIntent()
-    data object DeleteSelected : DialogueIntent()
 }

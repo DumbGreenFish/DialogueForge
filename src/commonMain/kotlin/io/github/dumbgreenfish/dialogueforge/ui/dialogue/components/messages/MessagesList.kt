@@ -52,7 +52,6 @@ data class MessageItemContext(
     val expandedActionsMessageId: String?,
     val editingMessageId: String?,
     val editingText: TextFieldValue,
-    val selectedMessageIds: Set<String>,
     val onActionRowEvent: (String, ActionRowEvent) -> Unit,
     val onEditFieldEvent: (String, EditFieldEvent) -> Unit,
     val onMessageItemEvent: (String, MessageItemEvent) -> Unit,
@@ -69,7 +68,6 @@ internal fun MessagesList(
     val isOnlyGreeting = !hasUserMessages && data.messages.size == 1
     val items = remember(data.messages, isOnlyGreeting) { buildItems(data.messages, isOnlyGreeting) }
     val firstAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
-    val lastAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
 
     val shouldLoadOlder by remember {
         derivedStateOf {
@@ -110,15 +108,12 @@ internal fun MessagesList(
 
                         else -> MessageDisplayStyle.Regular
                     }
-                    val position =
-                        if (message.id == lastAssistantId) MessagePosition.LastAssistant else MessagePosition.Normal
                     val interactionState = when {
                         itemContext.editingMessageId == message.id -> MessageInteractionState.Editing(
                             itemContext.editingText
                         )
 
                         itemContext.isGenerating -> MessageInteractionState.Generating
-                        itemContext.selectedMessageIds.isNotEmpty() -> MessageInteractionState.Selecting(message.id in itemContext.selectedMessageIds)
                         else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
                     }
                     Box(modifier = calculateBoxModifier()) {
@@ -126,7 +121,6 @@ internal fun MessagesList(
                             state = MessageItemState(
                                 message = message,
                                 displayStyle = displayStyle,
-                                position = position,
                                 interactionState = interactionState,
                                 character = itemContext.character,
                                 messageWidth = itemContext.messageWidth,
