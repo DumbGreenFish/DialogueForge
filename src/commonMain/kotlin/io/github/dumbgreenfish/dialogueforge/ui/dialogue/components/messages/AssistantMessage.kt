@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,7 +113,6 @@ internal fun AssistantMessage(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
             .background(backgroundColor)
             .padding(
                 start = SelectionRowPaddingH,
@@ -172,6 +170,7 @@ internal fun AssistantMessage(
             SelectionCheckboxSlot(
                 isSelectionMode = isSelectionMode,
                 isSelected = isSelected,
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
     }

@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -23,7 +22,6 @@ internal fun SelectionCheckboxSlot(
 ) {
     Box(
         modifier = modifier
-            .fillMaxHeight()
             .width(CheckboxSlotWidth)
             .padding(start = CheckboxSlotPaddingStart),
         contentAlignment = Alignment.Center,

@@ -84,6 +84,7 @@ internal fun UserMessage(
             SelectionCheckboxSlot(
                 isSelectionMode = isSelectionMode,
                 isSelected = isSelected,
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
 
