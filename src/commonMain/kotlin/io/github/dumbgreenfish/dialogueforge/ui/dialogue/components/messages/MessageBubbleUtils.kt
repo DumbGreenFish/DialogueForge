@@ -21,6 +21,7 @@ internal val AvatarVisualInset = 6.dp
 internal val AssistantTextAlignmentCorrection = 1.dp
 internal val AssistantTextSize = 14.5.sp
 internal val AssistantLineHeight = 25.35.sp
+internal val MessageGap = 16.dp
 
 @Composable
 internal fun bubbleWidthModifier(messageWidth: MessageWidth): Modifier {

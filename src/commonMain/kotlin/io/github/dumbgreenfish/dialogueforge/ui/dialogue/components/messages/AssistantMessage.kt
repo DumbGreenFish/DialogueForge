@@ -43,9 +43,6 @@ private val GreetingNameSizeSp = 20f
 private val RegularNameSizeSp = 16f
 private val HeaderGap = 4.dp
 
-private val GreetingVerticalGap = 16.dp
-private val MessageVerticalGap = 16.dp
-
 private val SelectionTintAlpha = 0.08f
 private val SelectionRowPaddingH = 12.dp
 private val SelectionRowPaddingTop = 16.dp
@@ -83,11 +80,6 @@ internal fun AssistantMessage(
         targetValue = if (isGreeting) GreetingNameSizeSp else RegularNameSizeSp,
         animationSpec = tween(ForgeAnimation.DurationStateTransition),
         label = "nameSizeSp",
-    )
-    val verticalGap by animateDpAsState(
-        targetValue = if (isGreeting) GreetingVerticalGap else MessageVerticalGap,
-        animationSpec = tween(ForgeAnimation.DurationStateTransition),
-        label = "verticalGap",
     )
 
     val imageProvider = rememberImageProvider(character.id)
@@ -128,7 +120,7 @@ internal fun AssistantMessage(
                 .then(hoverModifier)
                 .padding(
                     start = if (isCompact) avatarVisualInsetFor(avatarSize) else 0.dp,
-                    bottom = verticalGap,
+                    bottom = MessageGap,
                 ),
         ) {
             Box(

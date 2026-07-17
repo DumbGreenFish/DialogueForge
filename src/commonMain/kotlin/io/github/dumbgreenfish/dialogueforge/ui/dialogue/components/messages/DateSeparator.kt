@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 
-private val SeparatorMarginV = 16.dp
 private val LineHeight = 1.dp
 private val TextPaddingH = 12.dp
 private val TextPaddingV = 4.dp
@@ -35,7 +34,7 @@ internal fun DateSeparator(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = SeparatorMarginV),
+            .padding(vertical = MessageGap),
         contentAlignment = Alignment.Center,
     ) {
         Row(

@@ -42,7 +42,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 
 private val ContentPaddingV = 24.dp
-private val SpacerBottomHeight = 16.dp
 private val LoadMoreThreshold = 2
 
 private data class ChatItem(val dateLabel: String?, val message: Message?)
@@ -90,7 +89,7 @@ internal fun MessagesList(
     val centeredSpacerHeight = if (isOnlyGreeting && isMeasured) {
         ((viewportHeightDp - greetingHeightDp) / 2 - ContentPaddingV).coerceAtLeast(0.dp)
     } else {
-        SpacerBottomHeight
+        MessageGap
     }
 
     val bottomSpacerHeight by animateDpAsState(

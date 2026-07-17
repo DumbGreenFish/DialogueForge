@@ -32,8 +32,6 @@ import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 private val UserTextSize = 14.sp
 private val UserLineHeight = 23.8.sp
 
-private val MessageVerticalGap = 8.dp
-
 private val SelectionTintAlpha = 0.08f
 private val SelectionRowPaddingH = 12.dp
 private val SelectionRowPaddingTop = 4.dp
@@ -95,7 +93,7 @@ internal fun UserMessage(
                 .then(hoverModifier)
                 .padding(
                     end = if (isCompact) AvatarVisualInset else 0.dp,
-                    bottom = MessageVerticalGap,
+                    bottom = MessageGap,
                 ),
         ) {
             Box(
