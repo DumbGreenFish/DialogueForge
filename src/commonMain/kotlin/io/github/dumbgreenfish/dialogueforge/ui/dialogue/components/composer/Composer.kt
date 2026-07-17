@@ -57,12 +57,12 @@ private val InputRadius = 16.dp
 private val OuterPaddingH = 16.dp
 private val OuterPaddingT = 12.dp
 private val OuterPaddingB = 8.dp
-private val FieldPaddingH = 14.dp
 private val FieldPaddingV = 10.dp
 private val RowGap = 8.dp
 private val FieldMinHeight = 40.dp
 private val IconBtnSize = 32.dp
 private val IconBtnRadius = 8.dp
+private val IconBtnPaddingB = 8.dp
 private val SendIconSize = 16.dp
 private val FieldFontSize = 14.sp
 
@@ -107,7 +107,7 @@ internal fun Composer(
                 .clip(RoundedCornerShape(InputRadius))
                 .background(fieldBgIdle)
                 .border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(InputRadius))
-                .padding(horizontal = FieldPaddingH, vertical = FieldPaddingV),
+                .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(RowGap),
         ) {
@@ -129,6 +129,7 @@ internal fun Composer(
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = FieldMinHeight, max = composerMaxHeightDp.dp)
+                    .padding(vertical = FieldPaddingV)
                     .onPreviewKeyEvent { keyEvent ->
                         if (keyEvent.type == KeyEventType.KeyDown && !isMobilePlatform) {
                             val shouldNewline = (keyEvent.key == Key.J && keyEvent.isCtrlPressed)
@@ -186,6 +187,7 @@ private fun PlusButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(IconBtnSize)
+            .padding(bottom = IconBtnPaddingB)
             .clip(RoundedCornerShape(IconBtnRadius))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -205,6 +207,7 @@ private fun SendButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(IconBtnSize)
+            .padding(bottom = IconBtnPaddingB)
             .clip(CircleShape)
             .background(cs.secondary.copy(alpha = 0.2f))
             .clickable(onClick = onClick),
@@ -225,6 +228,7 @@ private fun StopButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(IconBtnSize)
+            .padding(bottom = IconBtnPaddingB)
             .clip(CircleShape)
             .background(cs.errorContainer)
             .clickable(onClick = onClick),
