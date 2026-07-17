@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -29,13 +30,14 @@ internal fun AssistantHeader(
     avatarSize: Dp,
     nameSize: TextUnit,
     modifier: Modifier = Modifier,
+    targetSizeDp: Dp = avatarSize,
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
     ) {
-        AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize)
+        AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize, targetSizeDp = targetSizeDp)
         AssistantName(name = name, nameSize = nameSize)
     }
 }
@@ -45,6 +47,7 @@ internal fun AssistantAvatar(
     imageProvider: ImageProvider,
     avatarSize: Dp,
     modifier: Modifier = Modifier,
+    targetSizeDp: Dp = avatarSize,
 ) {
     val cs = MaterialTheme.colorScheme
     Box(
@@ -59,8 +62,8 @@ internal fun AssistantAvatar(
     ) {
         CharacterAvatar(
             imageProvider = imageProvider,
-            targetSizeDp = avatarSize,
-            modifier = Modifier.size(avatarSize),
+            targetSizeDp = targetSizeDp,
+            modifier = Modifier.fillMaxSize(),
             shape = CircleShape,
         )
     }

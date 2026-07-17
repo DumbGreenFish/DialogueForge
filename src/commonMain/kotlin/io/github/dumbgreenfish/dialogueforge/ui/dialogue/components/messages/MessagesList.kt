@@ -1,5 +1,8 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -17,11 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
@@ -65,10 +74,32 @@ internal fun MessagesList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
 ) {
+    val density = LocalDensity.current
+    var viewportHeightDp by remember { mutableStateOf(0.dp) }
+    var greetingHeightDp by remember { mutableStateOf(0.dp) }
+    var hasEverMeasured by remember { mutableStateOf(false) }
+
     val hasUserMessages = data.messages.any { it.role == MessageRole.User }
     val isOnlyGreeting = !hasUserMessages && data.messages.size == 1
     val items = remember(data.messages, isOnlyGreeting) { buildItems(data.messages, isOnlyGreeting) }
     val firstAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
+
+    val isMeasured = viewportHeightDp > 0.dp && greetingHeightDp > 0.dp
+    LaunchedEffect(isMeasured) { if (isMeasured) hasEverMeasured = true }
+
+    val centeredSpacerHeight = if (isOnlyGreeting && isMeasured) {
+        ((viewportHeightDp - greetingHeightDp) / 2 - ContentPaddingV).coerceAtLeast(0.dp)
+    } else {
+        SpacerBottomHeight
+    }
+
+    val bottomSpacerHeight by animateDpAsState(
+        targetValue = centeredSpacerHeight,
+        animationSpec = if (isOnlyGreeting && !hasEverMeasured) snap() else tween(ForgeAnimation.DurationStateTransition),
+        label = "bottomSpacer",
+    )
+
+    val contentAlpha = if (isOnlyGreeting && !isMeasured) 0f else 1f
 
     val shouldLoadOlder by remember {
         derivedStateOf {
@@ -85,14 +116,17 @@ internal fun MessagesList(
         if (shouldLoadOlder) data.onLoadOlder()
     }
 
+    Box(modifier = Modifier.fillMaxSize().graphicsLayer(alpha = contentAlpha)) {
     LazyColumn(
         state = listState,
         reverseLayout = true,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .onSizeChanged { viewportHeightDp = with(density) { it.height.toDp() } },
         horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(vertical = ContentPaddingV),
     ) {
-        item { Spacer(Modifier.height(SpacerBottomHeight)) }
+        item { Spacer(Modifier.height(bottomSpacerHeight)) }
 
         itemsIndexed(
             items = items,
@@ -102,7 +136,7 @@ internal fun MessagesList(
                 item.dateLabel != null -> DateSeparator(label = item.dateLabel)
                 item.message != null -> {
                     val message = item.message
-                    val isGreeting = !hasUserMessages &&
+                    val isGreeting = isOnlyGreeting &&
                             message.role == MessageRole.Assistant &&
                             message.id == firstAssistantId
                     val interactionState = when {
@@ -116,7 +150,13 @@ internal fun MessagesList(
                         )
                         else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
                     }
-                    Box(modifier = calculateBoxModifier()) {
+                    Box(modifier = calculateBoxModifier()
+                        .then(
+                            if (isGreeting && isOnlyGreeting) {
+                                Modifier.onSizeChanged { greetingHeightDp = with(density) { it.height.toDp() } }
+                            } else Modifier
+                        )
+                    ) {
                         when (message.role) {
                             MessageRole.User -> UserMessage(
                                 message = message,
@@ -126,29 +166,16 @@ internal fun MessagesList(
                                 onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
                                 onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
                             )
-                            MessageRole.Assistant -> {
-                                if (isGreeting) {
-                                    GreetingAssistantMessage(
-                                        message = message,
-                                        interactionState = interactionState,
-                                        character = itemContext.character,
-                                        messageWidth = itemContext.messageWidth,
-                                        onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
-                                        onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
-                                        onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
-                                    )
-                                } else {
-                                    RegularAssistantMessage(
-                                        message = message,
-                                        interactionState = interactionState,
-                                        character = itemContext.character,
-                                        messageWidth = itemContext.messageWidth,
-                                        onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
-                                        onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
-                                        onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
-                                    )
-                                }
-                            }
+                            MessageRole.Assistant -> AssistantMessage(
+                                message = message,
+                                interactionState = interactionState,
+                                character = itemContext.character,
+                                messageWidth = itemContext.messageWidth,
+                                isGreeting = isGreeting,
+                                onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
+                                onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
+                                onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+                            )
                             MessageRole.System -> Unit
                         }
                     }
@@ -166,6 +193,7 @@ internal fun MessagesList(
                 }
             }
         }
+    }
     }
 }
 
