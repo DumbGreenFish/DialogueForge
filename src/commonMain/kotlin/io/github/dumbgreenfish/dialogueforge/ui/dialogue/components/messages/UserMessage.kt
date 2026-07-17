@@ -9,17 +9,14 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -122,7 +119,7 @@ internal fun UserMessage(
                 val isActionsExpanded = (interactionState as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
                 ActionRow(
                     role = MessageRole.User,
-                    visible = isActionsExpanded,
+                    visible = isCompact || isActionsExpanded,
                     onActionRowEvent = onActionRowEvent,
                     interactionSource = interactionSource,
                     modifier = Modifier.padding(top = MessageActionsPaddingTop),
@@ -137,6 +134,7 @@ private fun UserMessageContent(
     text: String,
     messageWidth: MessageWidth,
 ) {
+    val cs = MaterialTheme.colorScheme
     val textMeasurer = rememberTextMeasurer()
     val style = MaterialTheme.typography.bodyLarge.copy(
         fontSize = UserTextSize,
@@ -151,14 +149,28 @@ private fun UserMessageContent(
             constraints = Constraints(maxWidth = constraints.maxWidth),
         ).lineCount
 
-        val align = if (lineCount <= 1) TextAlign.End else TextAlign.Start
+        val isSingleLine = lineCount <= 1
 
-        Text(
-            text = text,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = align,
-            color = MaterialTheme.colorScheme.secondary,
-            style = style,
-        )
+        if (isSingleLine) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                MarkdownText(
+                    text = text,
+                    color = cs.secondary,
+                    fontSize = UserTextSize,
+                    lineHeight = UserLineHeight,
+                )
+            }
+        } else {
+            MarkdownText(
+                text = text,
+                modifier = Modifier.fillMaxWidth(),
+                color = cs.secondary,
+                fontSize = UserTextSize,
+                lineHeight = UserLineHeight,
+            )
+        }
     }
 }

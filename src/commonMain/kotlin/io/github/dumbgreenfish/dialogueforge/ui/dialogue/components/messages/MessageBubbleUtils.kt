@@ -5,18 +5,22 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 
 private val RegularAvatarSize = 48.dp
 internal val AvatarVisualInset = 6.dp
 internal val AssistantTextAlignmentCorrection = 1.dp
+internal val AssistantTextSize = 14.5.sp
+internal val AssistantLineHeight = 25.35.sp
 
 @Composable
 internal fun bubbleWidthModifier(messageWidth: MessageWidth): Modifier {
@@ -28,6 +32,13 @@ internal fun bubbleWidthModifier(messageWidth: MessageWidth): Modifier {
 
 internal fun avatarVisualInsetFor(avatarSize: Dp): Dp =
     AvatarVisualInset * (avatarSize / RegularAvatarSize)
+
+@Composable
+internal fun userBubbleModifier(messageWidth: MessageWidth): Modifier {
+    val isCompact = isMobilePlatform
+    val maxConstraint = if (isCompact) Modifier else Modifier.widthIn(max = messageWidth.desktopMaxWidthDp.dp)
+    return maxConstraint.wrapContentWidth()
+}
 
 @Composable
 internal fun rememberTapModifier(

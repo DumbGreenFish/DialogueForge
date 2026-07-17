@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,7 +33,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 
 private val GreetingAvatarSize = 64.dp
-private val AssistantNameGreetingSize = 16.sp
+private val AssistantNameGreetingSize = 20.sp
 private val GreetingHeaderGap = 4.dp
 
 private val GreetingVerticalGap = 40.dp
@@ -41,6 +43,7 @@ private val SelectionRowPaddingH = 12.dp
 private val SelectionRowPaddingTop = 8.dp
 
 private val MessageActionsPaddingTop = 12.dp
+private val MessageContentPaddingTopCompact = 4.dp
 
 @Composable
 internal fun GreetingAssistantMessage(
@@ -118,7 +121,7 @@ internal fun GreetingAssistantMessage(
                 val isActionsExpanded = (interactionState as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
                 ActionRow(
                     role = MessageRole.Assistant,
-                    visible = isActionsExpanded,
+                    visible = isCompact || isActionsExpanded,
                     onActionRowEvent = onActionRowEvent,
                     startPadding = if (!isCompact) assistantActionIndent(GreetingAvatarSize) else 0.dp,
                     interactionSource = interactionSource,
@@ -151,9 +154,13 @@ private fun GreetingAssistantContent(
                 nameSize = AssistantNameGreetingSize,
                 modifier = Modifier.padding(bottom = GreetingHeaderGap),
             )
+            Spacer(Modifier.height(MessageContentPaddingTopCompact))
             MarkdownText(
                 text = text,
                 modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = AssistantTextSize,
+                lineHeight = AssistantLineHeight,
             )
         }
     } else {
@@ -172,6 +179,9 @@ private fun GreetingAssistantContent(
                 MarkdownText(
                     text = text,
                     modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AssistantTextSize,
+                    lineHeight = AssistantLineHeight,
                 )
             }
         }

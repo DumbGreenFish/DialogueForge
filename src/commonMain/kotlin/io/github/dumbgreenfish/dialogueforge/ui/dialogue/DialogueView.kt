@@ -32,6 +32,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.Mes
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesListData
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -111,6 +112,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                 }
             },
             composer = {
+                val hasLastUserMessage = state.messages.firstOrNull()?.role == MessageRole.User
                 Composer(
                     textFieldValue = state.inputText,
                     onInputChange = { viewModel.handle(DialogueIntent.UpdateInput(it)) },
@@ -118,6 +120,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                     isGenerating = state.isGenerating,
                     onStop = { viewModel.handle(DialogueIntent.StopGeneration) },
                     onAttach = { /* TODO: open file picker for attachment */ },
+                    hasLastUserMessage = hasLastUserMessage,
                 )
             },
             messages = {

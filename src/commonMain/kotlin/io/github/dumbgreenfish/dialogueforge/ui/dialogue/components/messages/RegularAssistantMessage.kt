@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,6 +44,8 @@ private val SelectionRowPaddingH = 12.dp
 private val SelectionRowPaddingTop = 8.dp
 
 private val MessageActionsPaddingTop = 12.dp
+private val MessageActionsPaddingTopCompact = 12.dp
+private val MessageContentPaddingTopCompact = 4.dp
 
 @Composable
 internal fun RegularAssistantMessage(
@@ -119,11 +123,15 @@ internal fun RegularAssistantMessage(
                 val isActionsExpanded = (interactionState as? MessageInteractionState.Browsing)?.isActionsExpanded ?: false
                 ActionRow(
                     role = MessageRole.Assistant,
-                    visible = isActionsExpanded,
+                    visible = isCompact || isActionsExpanded,
                     onActionRowEvent = onActionRowEvent,
                     startPadding = if (!isCompact) assistantActionIndent(RegularAvatarSize) else 0.dp,
                     interactionSource = interactionSource,
-                    modifier = Modifier.padding(top = MessageActionsPaddingTop),
+                    modifier = Modifier.padding(top = if (isCompact) {
+                        MessageActionsPaddingTopCompact
+                    } else {
+                        MessageActionsPaddingTop
+                    }),
                 )
             }
         }
@@ -152,9 +160,13 @@ private fun RegularAssistantContent(
                 nameSize = AssistantNameSize,
                 modifier = Modifier.padding(bottom = RegularHeaderGap),
             )
+            Spacer(Modifier.height(MessageContentPaddingTopCompact))
             MarkdownText(
                 text = text,
                 modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = AssistantTextSize,
+                lineHeight = AssistantLineHeight,
             )
         }
     } else {
@@ -173,6 +185,9 @@ private fun RegularAssistantContent(
                 MarkdownText(
                     text = text,
                     modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AssistantTextSize,
+                    lineHeight = AssistantLineHeight,
                 )
             }
         }

@@ -109,9 +109,21 @@ class DialogueViewModel(
 
     private fun onSend() {
         val text = _state.value.inputText.text.trim()
-        if (text.isEmpty()) return
         val conversationId = _state.value.conversationId ?: return
         val character = _state.value.character ?: return
+        val lastMessage = _state.value.messages.firstOrNull()
+
+        if (text.isEmpty()) {
+            if (lastMessage?.role != MessageRole.User) return
+            _state.update { it.copy(isGenerating = true) }
+            val lastUserText = lastMessage.text
+            generationJob = viewModelScope.launch {
+                val history = buildHistory()
+                generateResponse(character, conversationId, history, lastUserText)
+            }
+            return
+        }
+
         _state.update {
             it.copy(
                 inputText = TextFieldValue(),

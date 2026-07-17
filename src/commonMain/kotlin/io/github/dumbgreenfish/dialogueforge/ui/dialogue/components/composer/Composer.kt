@@ -74,6 +74,7 @@ internal fun Composer(
     isGenerating: Boolean = false,
     onStop: () -> Unit = {},
     onAttach: () -> Unit = {},
+    hasLastUserMessage: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -145,7 +146,7 @@ internal fun Composer(
                                     )
                                     true
                                 }
-                                keyEvent.key == Key.Enter -> {
+                                keyEvent.key == Key.Enter && (textFieldValue.text.isNotBlank() || hasLastUserMessage) -> {
                                     onSend()
                                     true
                                 }
@@ -171,7 +172,7 @@ internal fun Composer(
 
             if (isGenerating) {
                 StopButton(onStop)
-            } else if (textFieldValue.text.isNotBlank()) {
+            } else if (textFieldValue.text.isNotBlank() || hasLastUserMessage) {
                 SendButton(onSend)
             }
         }

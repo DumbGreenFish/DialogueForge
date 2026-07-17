@@ -32,6 +32,7 @@ import com.composables.icons.lucide.Pencil
 import com.composables.icons.lucide.SquareCheck
 import com.composables.icons.lucide.Trash2
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
+import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 
 sealed interface ActionRowEvent {
@@ -45,6 +46,7 @@ private val ActionRowHeight = 28.dp
 private val ActionIconSize = 16.dp
 private val ActionTouchTargetSize = 16.dp
 private val DistanceBetweenActionItems = 8.dp
+private val DistanceBetweenActionItemsCompact = 16.dp
 
 @Composable
 internal fun ActionRow(
@@ -105,9 +107,10 @@ internal fun ActionRow(
             horizontalArrangement = if (role == MessageRole.User) Arrangement.End else Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val actionGap = if (isMobilePlatform) DistanceBetweenActionItemsCompact else DistanceBetweenActionItems
             actionRowItems.forEach { item ->
                 item()
-                Spacer(Modifier.width(DistanceBetweenActionItems))
+                Spacer(Modifier.width(actionGap))
             }
         }
     }
