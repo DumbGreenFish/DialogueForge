@@ -20,4 +20,6 @@ sealed class DialogueIntent {
     data object ClearSelection : DialogueIntent()
     data object DeleteSelected : DialogueIntent()
     data object CopySelected : DialogueIntent()
+    data object RetrySend : DialogueIntent()
+    data object DismissChatError : DialogueIntent()
 }

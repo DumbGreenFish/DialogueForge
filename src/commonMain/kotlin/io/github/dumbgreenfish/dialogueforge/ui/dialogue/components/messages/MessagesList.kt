@@ -37,6 +37,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
 import io.github.dumbgreenfish.dialogueforge.ui.common.formatDateLabel
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueLayout
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
@@ -51,6 +52,9 @@ data class MessagesListData(
     val isLoadingOlder: Boolean,
     val hasMoreOlderMessages: Boolean,
     val onLoadOlder: () -> Unit,
+    val chatError: ChatError? = null,
+    val onRetryChatError: () -> Unit = {},
+    val onDismissChatError: () -> Unit = {},
 )
 
 data class MessageItemContext(
@@ -126,6 +130,18 @@ internal fun MessagesList(
         contentPadding = PaddingValues(vertical = ContentPaddingV),
     ) {
         item { Spacer(Modifier.height(bottomSpacerHeight)) }
+
+        if (data.chatError != null) {
+            item(key = "chat_error") {
+                Box(modifier = calculateBoxModifier()) {
+                    ChatErrorItem(
+                        error = data.chatError,
+                        onRetry = data.onRetryChatError,
+                        onDismiss = data.onDismissChatError,
+                    )
+                }
+            }
+        }
 
         itemsIndexed(
             items = items,

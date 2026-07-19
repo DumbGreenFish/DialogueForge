@@ -2,6 +2,7 @@ package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
 import androidx.compose.ui.text.input.TextFieldValue
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 
 data class DialogueState(
@@ -19,4 +20,5 @@ data class DialogueState(
     val editingMessageId: String? = null,
     val editingText: TextFieldValue = TextFieldValue(),
     val selectedMessageIds: Set<String> = emptySet(),
+    val chatError: ChatError? = null,
 )

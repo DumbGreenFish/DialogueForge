@@ -130,6 +130,9 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         isLoadingOlder = state.isLoadingOlder,
                         hasMoreOlderMessages = state.hasMoreOlderMessages,
                         onLoadOlder = { viewModel.handle(DialogueIntent.LoadOlderMessages) },
+                        chatError = state.chatError,
+                        onRetryChatError = { viewModel.handle(DialogueIntent.RetrySend) },
+                        onDismissChatError = { viewModel.handle(DialogueIntent.DismissChatError) },
                     ),
                     itemContext = MessageItemContext(
                         character = character,

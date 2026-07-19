@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -122,23 +123,25 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                                 .focusRequester(focusRequester),
                         )
                     } else {
-                        Text(
-                            text = stringResource(item.labelRes),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = cs.onSurface,
-                        )
-                        Spacer(Modifier.width(TitleSeparatorPad))
-                        Text(
-                            text = "|",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = cs.onSurfaceVariant,
-                        )
-                        Spacer(Modifier.width(TitleSeparatorPad))
-                        Text(
-                            text = stringResource(Res.string.characters_total, state.displayed.size),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.W500),
-                            color = cs.onSurfaceVariant,
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(item.labelRes),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = cs.onSurface,
+                            )
+                            Spacer(Modifier.width(TitleSeparatorPad))
+                            Text(
+                                text = "|",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = cs.onSurfaceVariant,
+                            )
+                            Spacer(Modifier.width(TitleSeparatorPad))
+                            Text(
+                                text = stringResource(Res.string.characters_total, state.displayed.size),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.W500),
+                                color = cs.onSurfaceVariant,
+                            )
+                        }
                     }
                 },
                 trailing = {

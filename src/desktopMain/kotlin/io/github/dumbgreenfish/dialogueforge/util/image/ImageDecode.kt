@@ -32,6 +32,7 @@ actual fun ByteArray.toImageBitmapOrNull(maxDimension: Int): ImageBitmap? = runC
 
 actual fun ByteArray.generateThumbnail(maxDimension: Int): ByteArray {
     val image = Image.makeFromEncoded(this)
+    if (maxOf(image.width, image.height) <= maxDimension) return this
     val ratio = minOf(1f, maxDimension.toFloat() / image.width, maxDimension.toFloat() / image.height)
     val newW = maxOf(1, (image.width * ratio).toInt())
     val newH = maxOf(1, (image.height * ratio).toInt())

@@ -35,7 +35,6 @@ class LlmService(
     suspend fun chat(
         systemPrompt: String,
         history: List<Pair<String, String>>,
-        userMessage: String,
     ): Result<String> = try {
         val endpoint = settings.getEndpoint()
         val model = settings.getModel()
@@ -49,7 +48,6 @@ class LlmService(
         for ((role, content) in history) {
             messages.add(ChatMessage(role, content))
         }
-        messages.add(ChatMessage("user", userMessage))
 
         val request = ChatCompletionRequest(
             model = model,

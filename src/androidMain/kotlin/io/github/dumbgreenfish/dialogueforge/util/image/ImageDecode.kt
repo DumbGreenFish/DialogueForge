@@ -47,19 +47,18 @@ actual fun ByteArray.generateThumbnail(maxDimension: Int): ByteArray {
         maxDimension.toFloat() / src.height,
         1f,
     )
-    val scaled = if (scale >= 1f) {
-        src
-    } else {
-        val dstW = maxOf(1, (src.width * scale).toInt())
-        val dstH = maxOf(1, (src.height * scale).toInt())
-        val srcPixels = IntArray(src.width * src.height)
-        src.getPixels(srcPixels, 0, src.width, 0, 0, src.width, src.height)
+    if (scale >= 1f) {
         src.recycle()
-        val dstPixels = LanczosDownscaler.downscale(src.width, src.height, srcPixels, dstW, dstH)
-        val dst = createBitmap(dstW, dstH)
-        dst.setPixels(dstPixels, 0, dstW, 0, 0, dstW, dstH)
-        dst
+        return this
     }
+    val dstW = maxOf(1, (src.width * scale).toInt())
+    val dstH = maxOf(1, (src.height * scale).toInt())
+    val srcPixels = IntArray(src.width * src.height)
+    src.getPixels(srcPixels, 0, src.width, 0, 0, src.width, src.height)
+    src.recycle()
+    val dstPixels = LanczosDownscaler.downscale(src.width, src.height, srcPixels, dstW, dstH)
+    val scaled = createBitmap(dstW, dstH)
+    scaled.setPixels(dstPixels, 0, dstW, 0, 0, dstW, dstH)
     return ByteArrayOutputStream().use { stream ->
         scaled.compress(Bitmap.CompressFormat.JPEG, 85, stream)
         stream.toByteArray()

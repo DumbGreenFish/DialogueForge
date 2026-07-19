@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -116,7 +117,6 @@ internal fun Composer(
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = {
-                    isFocused.value = true
                     onInputChange(it)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
@@ -127,6 +127,7 @@ internal fun Composer(
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 singleLine = false,
                 modifier = Modifier
+                    .onFocusChanged { isFocused.value = it.isFocused }
                     .weight(1f)
                     .heightIn(min = FieldMinHeight, max = composerMaxHeightDp.dp)
                     .padding(vertical = FieldPaddingV)

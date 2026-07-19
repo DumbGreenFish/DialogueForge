@@ -53,6 +53,9 @@
     <string name="dialogue_error_dismiss">Закрыть</string>
     <string name="dialogue_error_retry">Повторить</string>
     <string name="dialogue_error_api_key_not_set">API ключ не указан. Настройте в Пресетах.</string>
+    <string name="dialogue_error_server">Не удалось получить ответ</string>
+    <string name="dialogue_error_network">Сервер недоступен</string>
+    <string name="dialogue_error_unknown">Что-то пошло не так</string>
     <string name="dialogue_delete_title">Удалить сообщение?</string>
     <string name="dialogue_delete_message">Сообщение будет удалено безвозвратно.</string>
     <string name="dialogue_delete_confirm">Удалить</string>

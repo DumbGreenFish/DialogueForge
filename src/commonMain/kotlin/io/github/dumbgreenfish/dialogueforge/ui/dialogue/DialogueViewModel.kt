@@ -11,9 +11,14 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRe
 import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,6 +63,8 @@ class DialogueViewModel(
             is DialogueIntent.ClearSelection -> _state.update { it.copy(selectedMessageIds = emptySet()) }
             is DialogueIntent.DeleteSelected -> deleteSelected()
             is DialogueIntent.CopySelected -> copySelected()
+            is DialogueIntent.RetrySend -> retrySend()
+            is DialogueIntent.DismissChatError -> _state.update { it.copy(chatError = null) }
         }
     }
 
@@ -119,7 +126,7 @@ class DialogueViewModel(
             val lastUserText = lastMessage.text
             generationJob = viewModelScope.launch {
                 val history = buildHistory()
-                generateResponse(character, conversationId, history, lastUserText)
+                generateResponse(character, conversationId, history)
             }
             return
         }
@@ -128,14 +135,16 @@ class DialogueViewModel(
             it.copy(
                 inputText = TextFieldValue(),
                 isGenerating = true,
+                chatError = null,
             )
         }
 
         generationJob = viewModelScope.launch {
             val userMessage = dialogueRepository.addMessage(conversationId, MessageRole.User.wire, text).toMessage()
             _state.update { it.copy(messages = listOf(userMessage) + it.messages) }
+            totalMessageCount += 1
             val history = buildHistory()
-            generateResponse(character, conversationId, history, text)
+            generateResponse(character, conversationId, history)
         }
     }
 
@@ -143,11 +152,15 @@ class DialogueViewModel(
         character: Character,
         conversationId: String,
         history: List<Pair<String, String>>,
-        userMessage: String,
     ) {
         val apiKey = settingsRepository.getApiKey()
         if (apiKey.isNullOrBlank()) {
-            _state.update { it.copy(isGenerating = false) }
+            _state.update {
+                it.copy(
+                    isGenerating = false,
+                    chatError = ChatError(ChatErrorType.NoApiKey, ""),
+                )
+            }
             return
         }
 
@@ -155,7 +168,6 @@ class DialogueViewModel(
         llmService.chat(
             systemPrompt = systemPrompt,
             history = history,
-            userMessage = userMessage,
         ).fold(
             onSuccess = { response ->
                 val assistantMessage = dialogueRepository.addMessage(
@@ -171,15 +183,42 @@ class DialogueViewModel(
                 }
                 totalMessageCount += 1
             },
-            onFailure = {
-                _state.update { it.copy(isGenerating = false) }
+            onFailure = { throwable ->
+                val (type, details) = chatErrorFrom(throwable)
+                _state.update {
+                    it.copy(
+                        isGenerating = false,
+                        chatError = ChatError(type, details),
+                    )
+                }
             },
         )
+    }
+
+    private fun chatErrorFrom(e: Throwable): Pair<ChatErrorType, String> {
+        val message = e.message.orEmpty()
+        val type = when (e) {
+            is HttpRequestTimeoutException -> ChatErrorType.Network
+            is ClientRequestException,
+            is ServerResponseException -> ChatErrorType.Server
+            else -> ChatErrorType.Unknown
+        }
+        return type to message
     }
 
     private fun stopGeneration() {
         generationJob?.cancel()
         _state.update { it.copy(isGenerating = false) }
+    }
+
+    private fun retrySend() {
+        val conversationId = _state.value.conversationId ?: return
+        val character = _state.value.character ?: return
+        _state.update { it.copy(isGenerating = true, chatError = null) }
+        generationJob = viewModelScope.launch {
+            val history = buildHistory()
+            generateResponse(character, conversationId, history)
+        }
     }
 
     private fun deleteMessage(messageId: String) {

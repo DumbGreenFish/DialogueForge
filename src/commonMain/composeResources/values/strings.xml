@@ -50,6 +50,9 @@
     <string name="dialogue_error_dismiss">Dismiss</string>
     <string name="dialogue_error_retry">Retry</string>
     <string name="dialogue_error_api_key_not_set">API key not set. Configure in Presets.</string>
+    <string name="dialogue_error_server">Failed to get response</string>
+    <string name="dialogue_error_network">Server unreachable</string>
+    <string name="dialogue_error_unknown">Something went wrong</string>
     <string name="dialogue_stop">Stop</string>
     <string name="dialogue_delete_title">Delete message?</string>
     <string name="dialogue_delete_message">This message will be permanently deleted.</string>
