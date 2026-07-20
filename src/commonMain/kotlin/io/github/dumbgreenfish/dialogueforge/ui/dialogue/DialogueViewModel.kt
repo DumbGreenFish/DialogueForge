@@ -19,6 +19,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,8 +77,8 @@ class DialogueViewModel(
     private fun loadCharacter(id: String) {
         generationJob?.cancel()
         if (_state.value.isLoading) return
-        _state.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
+        _state.update { DialogueState(isLoading = true) }
+        viewModelScope.launch(Dispatchers.Default) {
             val entity = characterRepository.getById(id)
             val character = checkNotNull(entity?.toCharacter()) { "Character not found: $id" }
             val modelName = settingsRepository.getModel()

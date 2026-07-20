@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,7 +48,7 @@ import org.koin.core.parameter.parametersOf
 @OptIn(KoinExperimentalAPI::class)
 fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val clipboardManager = LocalClipboardManager.current
-    val viewModel = koinViewModel<DialogueViewModel> { parametersOf(clipboardManager) }
+    val viewModel = koinViewModel<DialogueViewModel>(key = characterId) { parametersOf(clipboardManager) }
     val state by viewModel.state.collectAsState()
     val forgeSettings = koinInject<ForgeSettings>()
     val messageWidth by forgeSettings.messageWidth.collectAsState()
@@ -71,7 +73,6 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     var deleteMessageTarget by remember { mutableStateOf<String?>(null) }
 
     val character = state.character
-    if (character == null || state.conversationId == null) return
 
     Box(
         modifier = modifier
@@ -126,39 +127,48 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                 )
             },
             messages = {
-                MessagesList(
-                    data = MessagesListData(
-                        messages = state.messages,
-                        isLoadingOlder = state.isLoadingOlder,
-                        hasMoreOlderMessages = state.hasMoreOlderMessages,
-                        onLoadOlder = { viewModel.handle(DialogueIntent.LoadOlderMessages) },
-                        chatError = state.chatError,
-                        onRetryChatError = { viewModel.handle(DialogueIntent.RetrySend) },
-                        onDismissChatError = { viewModel.handle(DialogueIntent.DismissChatError) },
-                    ),
-                    itemContext = MessageItemContext(
-                        character = character,
-                        isGenerating = state.isGenerating,
-                        messageWidth = messageWidth,
-                        expandedActionsMessageId = state.expandedActionsMessageId,
-                        editingMessageId = state.editingMessageId,
-                        editingText = state.editingText,
-                        selectedMessageIds = state.selectedMessageIds,
-                        greetingMessageId = state.greetingMessageId,
-                        onActionRowEvent = { messageId, event ->
-                            when (event) {
-                                ActionRowEvent.Delete -> deleteMessageTarget = messageId
-                                else -> onActionRowEvent(messageId, event, viewModel)
-                            }
-                        },
-                        onEditFieldEvent = { messageId, event ->
-                            onEditFieldEvent(messageId, event, viewModel)
-                        },
-                        onMessageItemEvent = { messageId, event ->
-                            onMessageItemEvent(messageId, event, viewModel)
-                        },
-                    ),
-                )
+                if (character != null) {
+                    MessagesList(
+                        data = MessagesListData(
+                            messages = state.messages,
+                            isLoadingOlder = state.isLoadingOlder,
+                            hasMoreOlderMessages = state.hasMoreOlderMessages,
+                            onLoadOlder = { viewModel.handle(DialogueIntent.LoadOlderMessages) },
+                            chatError = state.chatError,
+                            onRetryChatError = { viewModel.handle(DialogueIntent.RetrySend) },
+                            onDismissChatError = { viewModel.handle(DialogueIntent.DismissChatError) },
+                        ),
+                        itemContext = MessageItemContext(
+                            character = character,
+                            isGenerating = state.isGenerating,
+                            messageWidth = messageWidth,
+                            expandedActionsMessageId = state.expandedActionsMessageId,
+                            editingMessageId = state.editingMessageId,
+                            editingText = state.editingText,
+                            selectedMessageIds = state.selectedMessageIds,
+                            greetingMessageId = state.greetingMessageId,
+                            onActionRowEvent = { messageId, event ->
+                                when (event) {
+                                    ActionRowEvent.Delete -> deleteMessageTarget = messageId
+                                    else -> onActionRowEvent(messageId, event, viewModel)
+                                }
+                            },
+                            onEditFieldEvent = { messageId, event ->
+                                onEditFieldEvent(messageId, event, viewModel)
+                            },
+                            onMessageItemEvent = { messageId, event ->
+                                onMessageItemEvent(messageId, event, viewModel)
+                            },
+                        ),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             },
         )
 
