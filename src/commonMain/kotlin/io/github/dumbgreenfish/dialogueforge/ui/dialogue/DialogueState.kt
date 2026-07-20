@@ -21,4 +21,5 @@ data class DialogueState(
     val editingText: TextFieldValue = TextFieldValue(),
     val selectedMessageIds: Set<String> = emptySet(),
     val chatError: ChatError? = null,
+    val greetingMessageId: String? = null,
 )

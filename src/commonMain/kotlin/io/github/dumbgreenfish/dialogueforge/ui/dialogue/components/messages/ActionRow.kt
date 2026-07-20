@@ -56,6 +56,7 @@ internal fun ActionRow(
     modifier: Modifier = Modifier,
     startPadding: Dp = 0.dp,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    isDeleteButtonEnabled: Boolean = true,
 ) {
     val isHovered by interactionSource.collectIsHoveredAsState()
     val alpha by animateFloatAsState(
@@ -63,36 +64,38 @@ internal fun ActionRow(
         animationSpec = tween(ForgeAnimation.DurationHover),
     )
 
-    val actionRowItems: List<@Composable () -> Unit> = listOfNotNull(
-        @Composable {
+    val actionRowItems = buildList {
+        add(@Composable {
             ActionIcon(
                 imageVector = Lucide.SquareCheck,
                 contentDescription = null,
                 onClick = { onActionRowEvent(ActionRowEvent.Select) },
             )
-        },
-        @Composable {
+        })
+        add(@Composable {
             ActionIcon(
                 imageVector = Lucide.Copy,
                 contentDescription = null,
                 onClick = { onActionRowEvent(ActionRowEvent.Copy) },
             )
-        },
-        @Composable {
+        })
+        add(@Composable {
             ActionIcon(
                 imageVector = Lucide.Pencil,
                 contentDescription = null,
                 onClick = { onActionRowEvent(ActionRowEvent.Edit) },
             )
-        },
-        @Composable {
-            ActionIcon(
-                imageVector = Lucide.Trash2,
-                contentDescription = null,
-                onClick = { onActionRowEvent(ActionRowEvent.Delete) },
-            )
-        },
-    )
+        })
+        if (isDeleteButtonEnabled) {
+            add(@Composable {
+                ActionIcon(
+                    imageVector = Lucide.Trash2,
+                    contentDescription = null,
+                    onClick = { onActionRowEvent(ActionRowEvent.Delete) },
+                )
+            })
+        }
+    }
 
     Box(
         modifier = modifier

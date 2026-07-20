@@ -24,7 +24,7 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override suspend fun getMessageCount(conversationId: String): Int =
         db.messageDao().countByConversation(conversationId)
 
-    override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity {
+    override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationResult {
         val now = Clock.System.now().toEpochMilliseconds()
         val conversation = ConversationEntity(
             id = Uuid.random().toString(),
@@ -43,7 +43,13 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
                 orderInConversation = 0,
             )
         }
-        return db.conversationDao().getOrCreate(conversation, greetingMessage)
+        val created = db.conversationDao().getOrCreate(conversation, greetingMessage)
+        val greetingMessageId = if (created.id == conversation.id && greetingMessage != null) {
+            greetingMessage.id
+        } else {
+            db.messageDao().getFirstByConversation(created.id)?.id
+        }
+        return ConversationResult(conversation = created, greetingMessageId = greetingMessageId)
     }
 
     override suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity {

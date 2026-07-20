@@ -22,6 +22,9 @@ interface MessageDao {
     @Query("SELECT * FROM messages WHERE id = :id")
     suspend fun getById(id: String): MessageEntity?
 
+    @Query("SELECT * FROM messages WHERE conversation_id = :conversationId ORDER BY order_in_conversation ASC LIMIT 1")
+    suspend fun getFirstByConversation(conversationId: String): MessageEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: MessageEntity)
 

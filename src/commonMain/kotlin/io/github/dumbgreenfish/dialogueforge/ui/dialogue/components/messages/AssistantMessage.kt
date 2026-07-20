@@ -57,6 +57,7 @@ internal fun AssistantMessage(
     character: Character,
     messageWidth: MessageWidth,
     isGreeting: Boolean,
+    greetingMessageId: String?,
     onActionRowEvent: (ActionRowEvent) -> Unit,
     onEditFieldEvent: (EditFieldEvent) -> Unit,
     onMessageItemEvent: (MessageItemEvent) -> Unit,
@@ -154,6 +155,7 @@ internal fun AssistantMessage(
                     startPadding = if (!isCompact) assistantActionIndent(avatarSize) else 0.dp,
                     interactionSource = interactionSource,
                     modifier = Modifier.padding(top = MessageActionsPaddingTop),
+                    isDeleteButtonEnabled = message.id != greetingMessageId,
                 )
             }
         }

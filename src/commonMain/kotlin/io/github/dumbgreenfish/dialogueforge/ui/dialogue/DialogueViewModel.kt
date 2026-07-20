@@ -75,21 +75,24 @@ class DialogueViewModel(
             val entity = characterRepository.getById(id)
             val character = checkNotNull(entity?.toCharacter()) { "Character not found: $id" }
             val modelName = settingsRepository.getModel()
-            val conversation = dialogueRepository.getOrCreateConversation(
+            val conversationResult = dialogueRepository.getOrCreateConversation(
                 characterId = character.id,
                 greeting = character.firstMessage,
             )
-            totalMessageCount = dialogueRepository.getMessageCount(conversation.id)
-            val page = dialogueRepository.getMessagesPage(conversation.id, PAGE_SIZE, 0)
+            val conversationId = conversationResult.conversation.id
+            val greetingMessageId = conversationResult.greetingMessageId
+            totalMessageCount = dialogueRepository.getMessageCount(conversationId)
+            val page = dialogueRepository.getMessagesPage(conversationId, PAGE_SIZE, 0)
             val messages = page.map { it.toMessage() }
             _state.update {
                 it.copy(
                     character = character,
                     isLoading = false,
                     modelName = modelName,
-                    conversationId = conversation.id,
+                    conversationId = conversationId,
                     messages = messages,
                     hasMoreOlderMessages = page.size < totalMessageCount,
+                    greetingMessageId = greetingMessageId,
                 )
             }
         }

@@ -105,8 +105,10 @@ private fun GridSquare(
             chipPadH = TagHorzPadding,
             gap = TagRowGap,
         )
-        val visibleTags = char.tags.take(maxVisible)
-        val extraCount = char.tags.size - maxVisible
+        val hasOverflow = maxVisible < char.tags.size
+        val visibleCount = if (hasOverflow) maxOf(1, maxVisible - 1) else maxVisible
+        val visibleTags = char.tags.take(visibleCount)
+        val extraCount = char.tags.size - visibleCount
 
         val imageCache = koinInject<ImageCache>()
         val density = LocalDensity.current.density

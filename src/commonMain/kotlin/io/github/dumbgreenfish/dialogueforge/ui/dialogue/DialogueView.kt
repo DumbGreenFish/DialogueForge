@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -76,6 +77,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .navigationBarsPadding()
             .imePadding(),
     ) {
         ChatBackground(
@@ -142,6 +144,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                         editingMessageId = state.editingMessageId,
                         editingText = state.editingText,
                         selectedMessageIds = state.selectedMessageIds,
+                        greetingMessageId = state.greetingMessageId,
                         onActionRowEvent = { messageId, event ->
                             when (event) {
                                 ActionRowEvent.Delete -> deleteMessageTarget = messageId
