@@ -102,4 +102,5 @@
     <string name="settings_chat_background_dim">Затемнение фона</string>
     <string name="dialogue_edit_save">Сохранить</string>
     <string name="dialogue_edit_cancel">Отмена</string>
+    <string name="dialogue_character_image_close">Закрыть</string>
 </resources>

@@ -13,12 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.unit.IntSize
 import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
@@ -33,11 +36,13 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.Mes
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessageItemEvent
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesList
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesListData
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.popup.CharacterImagePopup
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueScaffold
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -71,12 +76,28 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     }
 
     var deleteMessageTarget by remember { mutableStateOf<String?>(null) }
+    var showCharacterPopup by remember { mutableStateOf(false) }
+
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var debouncedPopupDim by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(containerSize) {
+        delay(500)
+        debouncedPopupDim = maxOf(containerSize.width, containerSize.height)
+    }
+
+    LaunchedEffect(debouncedPopupDim) {
+        if (debouncedPopupDim > 0) {
+            imageCache.observePopup(characterId, debouncedPopupDim)
+        }
+    }
 
     val character = state.character
 
     Box(
         modifier = modifier
             .fillMaxSize()
+            .onSizeChanged { containerSize = it }
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding(),
@@ -159,6 +180,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                             onMessageItemEvent = { messageId, event ->
                                 onMessageItemEvent(messageId, event, viewModel)
                             },
+                            onAvatarClick = { showCharacterPopup = true },
                         ),
                     )
                 } else {
@@ -179,6 +201,15 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                     deleteMessageTarget = null
                 },
                 onDismiss = { deleteMessageTarget = null },
+            )
+        }
+
+        if (showCharacterPopup && character != null) {
+            CharacterImagePopup(
+                characterId = character.id,
+                characterName = character.name,
+                imageCache = imageCache,
+                onDismiss = { showCharacterPopup = false },
             )
         }
     }

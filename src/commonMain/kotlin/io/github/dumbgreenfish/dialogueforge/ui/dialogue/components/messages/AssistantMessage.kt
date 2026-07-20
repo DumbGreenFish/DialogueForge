@@ -61,6 +61,7 @@ internal fun AssistantMessage(
     onActionRowEvent: (ActionRowEvent) -> Unit,
     onEditFieldEvent: (EditFieldEvent) -> Unit,
     onMessageItemEvent: (MessageItemEvent) -> Unit,
+    onAvatarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val avatarSize by animateDpAsState(
@@ -142,6 +143,7 @@ internal fun AssistantMessage(
                         avatarSize = avatarSize,
                         requestedAvatarSize = requestedAvatarSize,
                         nameSizeSp = nameSizeSp,
+                        onAvatarClick = onAvatarClick,
                     )
                 }
             }
@@ -178,6 +180,7 @@ private fun AssistantContent(
     avatarSize: Dp,
     requestedAvatarSize: Dp,
     nameSizeSp: Float,
+    onAvatarClick: () -> Unit,
 ) {
     if (windowClass == WindowClass.Compact) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -188,6 +191,7 @@ private fun AssistantContent(
                 nameSize = nameSizeSp.sp,
                 modifier = Modifier.padding(bottom = HeaderGap),
                 targetSizeDp = requestedAvatarSize,
+                onAvatarClick = onAvatarClick,
             )
             Spacer(Modifier.height(MessageContentPaddingTopCompact))
             MarkdownText(
@@ -204,7 +208,7 @@ private fun AssistantContent(
             horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
             verticalAlignment = Alignment.Top,
         ) {
-            AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize, targetSizeDp = requestedAvatarSize)
+            AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize, targetSizeDp = requestedAvatarSize, onClick = onAvatarClick)
             Column(modifier = Modifier.weight(1f)) {
                 AssistantName(
                     name = name,

@@ -1,11 +1,13 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,6 +62,7 @@ data class MessageItemContext(
     val onActionRowEvent: (String, ActionRowEvent) -> Unit,
     val onEditFieldEvent: (String, EditFieldEvent) -> Unit,
     val onMessageItemEvent: (String, MessageItemEvent) -> Unit,
+    val onAvatarClick: () -> Unit,
 )
 
 @Composable
@@ -75,15 +78,26 @@ internal fun MessagesList(
 
     if (isOnlyGreeting) {
         val greetingMessage = data.messages.first()
-        Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            MessageItem(
-                message = greetingMessage,
-                isGreeting = true,
-                itemContext = itemContext,
-            )
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+            val viewportHeight = maxHeight - ContentPaddingV * 2
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(vertical = ContentPaddingV),
+            ) {
+                item {
+                    Box(
+                        modifier = Modifier.heightIn(min = viewportHeight),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        MessageItem(
+                            message = greetingMessage,
+                            isGreeting = true,
+                            itemContext = itemContext,
+                        )
+                    }
+                }
+            }
         }
         return
     }
@@ -194,6 +208,7 @@ private fun MessageItem(
                 onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
                 onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
                 onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+                onAvatarClick = itemContext.onAvatarClick,
             )
             MessageRole.System -> Unit
         }

@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,13 +32,14 @@ internal fun AssistantHeader(
     nameSize: TextUnit,
     modifier: Modifier = Modifier,
     targetSizeDp: Dp = avatarSize,
+    onAvatarClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AssistantHeaderGap),
     ) {
-        AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize, targetSizeDp = targetSizeDp)
+        AssistantAvatar(imageProvider = imageProvider, avatarSize = avatarSize, targetSizeDp = targetSizeDp, onClick = onAvatarClick)
         AssistantName(name = name, nameSize = nameSize)
     }
 }
@@ -48,6 +50,7 @@ internal fun AssistantAvatar(
     avatarSize: Dp,
     modifier: Modifier = Modifier,
     targetSizeDp: Dp = avatarSize,
+    onClick: () -> Unit = {},
 ) {
     val cs = MaterialTheme.colorScheme
     Box(
@@ -58,7 +61,8 @@ internal fun AssistantAvatar(
                 width = AvatarBorderWidth,
                 color = cs.secondary.copy(alpha = 0.2f),
                 shape = CircleShape,
-            ),
+            )
+            .clickable(onClick = onClick),
     ) {
         CharacterAvatar(
             imageProvider = imageProvider,

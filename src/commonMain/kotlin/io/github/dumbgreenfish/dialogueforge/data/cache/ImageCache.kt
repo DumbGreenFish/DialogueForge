@@ -6,6 +6,7 @@ import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +26,7 @@ class ImageCache(private val repo: CharacterRepository) {
     private val timestamps = mutableMapOf<String, Long>()
     private val pendingBitmapLoads = mutableSetOf<String>()
     private val pendingByteLoads = mutableMapOf<String, CompletableDeferred<ByteArray?>>()
+    private val popupJobs = mutableMapOf<String, Job>()
 
     fun observe(characterId: String, maxDimension: Int): StateFlow<ImageBitmap?> {
         val key = "$characterId:$maxDimension"
@@ -84,6 +86,33 @@ class ImageCache(private val repo: CharacterRepository) {
 
     fun preload(characterId: String, maxDimensions: List<Int>) {
         for (dim in maxDimensions) observe(characterId, dim)
+    }
+
+    fun observePopup(characterId: String, maxDimension: Int): StateFlow<ImageBitmap?> {
+        popupJobs[characterId]?.cancel()
+
+        val key = "$characterId:$maxDimension"
+        val cached = bitmapCache[key]
+        if (cached != null) {
+            scope.launch { mutex.withLock { touchBitmapCacheEntry(key) } }
+            return cached
+        }
+        val flow = MutableStateFlow<ImageBitmap?>(null)
+        val job = scope.launch {
+            mutex.withLock {
+                val existing = bitmapCache[key]
+                if (existing != null) {
+                    touchBitmapCacheEntry(key)
+                    flow.value = existing.value
+                    return@launch
+                }
+                bitmapCache[key] = flow
+                evictBitmapCacheIfNeeded()
+            }
+            loadBitmap(characterId, maxDimension, key, flow)
+        }
+        popupJobs[characterId] = job
+        return flow
     }
 
     private fun touchBitmapCacheEntry(key: String) {
