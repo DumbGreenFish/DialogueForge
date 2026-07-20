@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -140,7 +141,7 @@ private fun UserMessageContent(
         lineHeight = UserLineHeight,
     )
 
-    BoxWithConstraints(modifier = bubbleWidthModifier(messageWidth)) {
+    BoxWithConstraints(modifier = userBubbleModifier(messageWidth)) {
         val lineCount = textMeasurer.measure(
             text = AnnotatedString(text),
             style = style,
@@ -165,7 +166,7 @@ private fun UserMessageContent(
         } else {
             MarkdownText(
                 text = text,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.wrapContentWidth(),
                 color = cs.secondary,
                 fontSize = UserTextSize,
                 lineHeight = UserLineHeight,
