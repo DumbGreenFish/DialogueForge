@@ -49,6 +49,8 @@ class CharactersViewModel(
             is CharactersIntent.DeleteCharacter -> viewModelScope.launch { repository.delete(intent.id) }
             is CharactersIntent.DismissError -> _state.update { it.copy(error = null) }
             is CharactersIntent.ImportDefault -> viewModelScope.launch { importDefault() }
+            is CharactersIntent.ImportAiriUpdate -> viewModelScope.launch { importAiriUpdate() }
+            is CharactersIntent.DismissAiriUpdate -> forgeSettings.setAiriUpdateAvailable(false)
         }
     }
 
@@ -69,6 +71,17 @@ class CharactersViewModel(
             repository.import(data)
         } else {
             _state.update { it.copy(error = "Failed to load default character") }
+        }
+    }
+
+    private suspend fun importAiriUpdate() {
+        val data = DefaultCharacterData.create()
+        if (data != null) {
+            repository.import(data)
+            forgeSettings.setAiriVersion(DefaultCharacterData.AIRI_VERSION)
+            forgeSettings.setAiriUpdateAvailable(false)
+        } else {
+            _state.update { it.copy(error = "Failed to load Airi update") }
         }
     }
 }

@@ -7,6 +7,8 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 object DefaultCharacterData {
 
+    const val AIRI_VERSION = 2
+
     @OptIn(ExperimentalResourceApi::class)
     suspend fun create(): TavernCardData? {
         val cardBytes = Res.readBytes("files/airi_card.json")

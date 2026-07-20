@@ -15,8 +15,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.PredictiveBackHandler
@@ -29,6 +31,7 @@ import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.koin.KoinConfigModule
+import io.github.dumbgreenfish.dialogueforge.ui.common.ImportProgressOverlay
 import io.github.dumbgreenfish.dialogueforge.ui.common.mouseNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
@@ -61,32 +64,55 @@ fun App() {
             val fontScale by forgeSettings.fontScale.collectAsState()
             val hasCompletedFirstLaunch by forgeSettings.hasCompletedFirstLaunch.collectAsState()
 
+            data class ImportProgress(val characterName: String)
+            var importingState by remember { mutableStateOf<ImportProgress?>(null) }
+
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.Default) {
                     dbConfig.mainDatabase()
                 }
-            }
 
-            LaunchedEffect(Unit) {
                 if (!hasCompletedFirstLaunch) {
+                    importingState = ImportProgress("Airi")
                     val defaultData = DefaultCharacterData.create()
                     if (defaultData != null) {
-                        characterRepo.import(defaultData)
+                        withContext(Dispatchers.Default) {
+                            characterRepo.import(defaultData)
+                        }
                         forgeSettings.setHasCompletedFirstLaunch()
+                        forgeSettings.setAiriVersion(DefaultCharacterData.AIRI_VERSION)
+                    }
+                    importingState = null
+                } else {
+                    val storedVersion = forgeSettings.airiVersion.value
+                    val resolvedVersion = if (storedVersion == 0) {
+                        if (withContext(Dispatchers.Default) { characterRepo.existsByName("Airi") }) {
+                            forgeSettings.setAiriVersion(DefaultCharacterData.AIRI_VERSION)
+                            DefaultCharacterData.AIRI_VERSION
+                        } else {
+                            0
+                        }
+                    } else {
+                        storedVersion
+                    }
+                    if (resolvedVersion > 0 && resolvedVersion < DefaultCharacterData.AIRI_VERSION) {
+                        forgeSettings.setAiriUpdateAvailable(true)
                     }
                 }
-            }
 
-            LaunchedEffect(Unit) {
                 if (BuildConfig.DEBUG) {
                     val exists = withContext(Dispatchers.Default) {
                         characterRepo.existsByName("Sasha")
                     }
                     if (!exists) {
+                        importingState = ImportProgress("Sasha")
                         val debugData = DefaultCharacterData.createDebug()
                         if (debugData != null) {
-                            characterRepo.import(debugData)
+                            withContext(Dispatchers.Default) {
+                                characterRepo.import(debugData)
+                            }
                         }
+                        importingState = null
                     }
                 }
             }
@@ -110,48 +136,54 @@ fun App() {
                                 bar?.popForward()
                             },
                         ),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    key(activeTab) {
-                        val bar = controller.getBar(activeTab)
-                        @Suppress("UNCHECKED_CAST")
-                        val stack = (bar as NavBar<NavScreen>).stack
-                        val topScreen = stack.lastOrNull()
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                key(activeTab) {
+                    val bar = controller.getBar(activeTab)
+                    @Suppress("UNCHECKED_CAST")
+                    val stack = (bar as NavBar<NavScreen>).stack
+                    val topScreen = stack.lastOrNull()
 
-                        val backProgress = remember { Animatable(0f) }
-                        val backScope = rememberCoroutineScope()
+                    val backProgress = remember { Animatable(0f) }
+                    val backScope = rememberCoroutineScope()
 
-                        PredictiveBackHandler(enabled = stack.size > 1) { progress ->
-                            try {
-                                progress.collect { event -> backProgress.snapTo(event.progress) }
-                                bar.popBack()
-                                backProgress.snapTo(0f)
-                            } catch (e: CancellationException) {
-                                backScope.launch { backProgress.animateTo(0f) }
-                            }
+                    PredictiveBackHandler(enabled = stack.size > 1) { progress ->
+                        try {
+                            progress.collect { event -> backProgress.snapTo(event.progress) }
+                            bar.popBack()
+                            backProgress.snapTo(0f)
+                        } catch (e: CancellationException) {
+                            backScope.launch { backProgress.animateTo(0f) }
                         }
+                    }
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer {
-                                    val p = backProgress.value
-                                    val scale = 1f - (1f - ForgeAnimation.PredictiveBackMinScale) * p
-                                    scaleX = scale
-                                    scaleY = scale
-                                    alpha = 1f - (1f - ForgeAnimation.PredictiveBackMinAlpha) * p
-                                },
-                        ) {
-                            AnimatedContent(
-                                targetState = topScreen,
-                                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
-                                label = "screen-transition",
-                            ) { screen ->
-                                screen?.Render(onBack = { bar.popBack() })
-                            }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                val p = backProgress.value
+                                val scale = 1f - (1f - ForgeAnimation.PredictiveBackMinScale) * p
+                                scaleX = scale
+                                scaleY = scale
+                                alpha = 1f - (1f - ForgeAnimation.PredictiveBackMinAlpha) * p
+                            },
+                    ) {
+                        AnimatedContent(
+                            targetState = topScreen,
+                            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
+                            label = "screen-transition",
+                        ) { screen ->
+                            screen?.Render(onBack = { bar.popBack() })
                         }
                     }
                 }
+
+                importingState?.let { state ->
+                    ImportProgressOverlay(state.characterName)
+                }
+                }
+            }
             }
         }
     }

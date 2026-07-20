@@ -35,8 +35,7 @@ internal fun avatarVisualInsetFor(avatarSize: Dp): Dp =
     AvatarVisualInset * (avatarSize / RegularAvatarSize)
 
 @Composable
-internal fun userBubbleModifier(messageWidth: MessageWidth): Modifier {
-    val isCompact = isMobilePlatform
+internal fun userBubbleModifier(isCompact: Boolean, messageWidth: MessageWidth): Modifier {
     val maxConstraint = if (isCompact) Modifier else Modifier.widthIn(max = messageWidth.desktopMaxWidthDp.dp)
     return maxConstraint.wrapContentWidth()
 }

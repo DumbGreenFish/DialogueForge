@@ -31,11 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.action_ok
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_add_default
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_empty
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_title
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_message
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_add
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.import_error_title
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardGrid
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardList
@@ -78,7 +83,9 @@ private val ScrimAnimDuration = 180
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val controller = koinInject<NavController>()
+    val forgeSettings = koinInject<ForgeSettings>()
     val state by viewModel.state.collectAsState()
+    val airiUpdateAvailable by forgeSettings.airiUpdateAvailable.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
@@ -179,11 +186,30 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
         state.error?.let { message ->
             AlertDialog(
                 onDismissRequest = { viewModel.handle(CharactersIntent.DismissError) },
+                containerColor = ForgeColors.surfaceContainerHigh,
                 title = { Text(stringResource(Res.string.import_error_title)) },
                 text = { Text(message) },
                 confirmButton = {
                     TextButton(onClick = { viewModel.handle(CharactersIntent.DismissError) }) {
                         Text(stringResource(Res.string.action_ok))
+                    }
+                },
+            )
+        }
+        if (airiUpdateAvailable) {
+            AlertDialog(
+                onDismissRequest = { viewModel.handle(CharactersIntent.DismissAiriUpdate) },
+                containerColor = ForgeColors.surfaceContainerHigh,
+                title = { Text(stringResource(Res.string.airi_update_title)) },
+                text = { Text(stringResource(Res.string.airi_update_message)) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.handle(CharactersIntent.ImportAiriUpdate) }) {
+                        Text(stringResource(Res.string.airi_update_add))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.handle(CharactersIntent.DismissAiriUpdate) }) {
+                        Text(stringResource(Res.string.airi_update_dismiss))
                     }
                 },
             )

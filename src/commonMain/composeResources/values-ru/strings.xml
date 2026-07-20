@@ -11,9 +11,14 @@
     <string name="characters_search_placeholder">Поиск персонажей</string>
     <string name="characters_subtitle">Выбери с кем говорить сегодня.</string>
     <string name="characters_import">Импорт</string>
+    <string name="import_progress">Импорт %1$s…</string>
     <string name="characters_create">Создать</string>
     <string name="characters_empty">Никого не нашлось. Попробуй другой запрос или фильтр.</string>
     <string name="characters_add_default">Добавить стандартного персонажа</string>
+    <string name="airi_update_title">Airi обновлена</string>
+    <string name="airi_update_message">Доступна новая версия Airi с обновлёнными знаниями о приложении. Добавить её к персонажам?</string>
+    <string name="airi_update_add">Добавить Airi</string>
+    <string name="airi_update_dismiss">Не сейчас</string>
     <string name="filter_all">Все</string>
     <string name="filter_pinned">Закреплённые</string>
     <string name="characters_total">Всего: %1$d</string>

@@ -11,9 +11,14 @@
     <string name="characters_search_placeholder">Search characters</string>
     <string name="characters_subtitle">Pick who you\'re talking to today.</string>
     <string name="characters_import">Import</string>
+    <string name="import_progress">Importing %1$s…</string>
     <string name="characters_create">Create</string>
     <string name="characters_empty">No one matched. Try a different query or filter.</string>
     <string name="characters_add_default">Add default character</string>
+    <string name="airi_update_title">Airi has been updated</string>
+    <string name="airi_update_message">A new version of Airi is available with updated app knowledge. Add her to your characters?</string>
+    <string name="airi_update_add">Add Airi</string>
+    <string name="airi_update_dismiss">Not now</string>
     <string name="filter_all">All</string>
     <string name="filter_pinned">Pinned</string>
     <string name="characters_total">Total: %1$d</string>

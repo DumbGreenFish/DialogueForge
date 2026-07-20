@@ -111,6 +111,7 @@ internal fun UserMessage(
                     else -> UserMessageContent(
                         text = message.text,
                         messageWidth = messageWidth,
+                        isCompact = isCompact,
                     )
                 }
             }
@@ -133,6 +134,7 @@ internal fun UserMessage(
 private fun UserMessageContent(
     text: String,
     messageWidth: MessageWidth,
+    isCompact: Boolean,
 ) {
     val cs = MaterialTheme.colorScheme
     val textMeasurer = rememberTextMeasurer()
@@ -141,7 +143,7 @@ private fun UserMessageContent(
         lineHeight = UserLineHeight,
     )
 
-    BoxWithConstraints(modifier = userBubbleModifier(messageWidth)) {
+    BoxWithConstraints(modifier = userBubbleModifier(isCompact, messageWidth)) {
         val lineCount = textMeasurer.measure(
             text = AnnotatedString(text),
             style = style,

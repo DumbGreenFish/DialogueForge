@@ -16,5 +16,7 @@ sealed class CharactersIntent {
     data class DeleteCharacter(val id: String) : CharactersIntent()
     data object DismissError : CharactersIntent()
     data object ImportDefault : CharactersIntent()
+    data object ImportAiriUpdate : CharactersIntent()
+    data object DismissAiriUpdate : CharactersIntent()
     data class ImportFile(val bytes: ByteArray, val filename: String) : CharactersIntent()
 }

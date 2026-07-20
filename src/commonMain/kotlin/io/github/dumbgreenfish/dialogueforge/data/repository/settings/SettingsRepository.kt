@@ -57,6 +57,9 @@ interface SettingsRepository {
     suspend fun getHasCompletedFirstLaunch(): Boolean
     suspend fun setHasCompletedFirstLaunch(value: Boolean)
 
+    suspend fun getAiriVersion(): Int
+    suspend fun setAiriVersion(value: Int)
+
     companion object {
         const val DEFAULT_ENDPOINT = "https://api.deepseek.com/chat/completions"
         const val DEFAULT_MODEL = "deepseek-chat"

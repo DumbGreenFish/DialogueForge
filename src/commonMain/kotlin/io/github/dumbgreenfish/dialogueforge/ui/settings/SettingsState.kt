@@ -19,5 +19,7 @@ data class SettingsState(
     val chatComposerOpacity: Float = SettingsRepository.DEFAULT_CHAT_COMPOSER_OPACITY,
     val chatBackgroundDim: Float = SettingsRepository.DEFAULT_CHAT_BACKGROUND_DIM,
     val hasCompletedFirstLaunch: Boolean = false,
+    val airiVersion: Int = 0,
+    val airiUpdateAvailable: Boolean = false,
     val isLoaded: Boolean = false,
 )

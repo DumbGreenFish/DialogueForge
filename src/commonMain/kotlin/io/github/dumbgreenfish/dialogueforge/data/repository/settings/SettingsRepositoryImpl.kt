@@ -119,4 +119,9 @@ class SettingsRepositoryImpl(dbConfig: DatabaseConfig) : SettingsRepository {
         get("first_launch_done")?.toBooleanStrictOrNull() ?: false
 
     override suspend fun setHasCompletedFirstLaunch(value: Boolean) = set("first_launch_done", value.toString())
+
+    override suspend fun getAiriVersion(): Int =
+        get("airi_version")?.toIntOrNull() ?: 0
+
+    override suspend fun setAiriVersion(value: Int) = set("airi_version", value.toString())
 }

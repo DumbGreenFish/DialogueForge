@@ -45,6 +45,8 @@ class ForgeSettings(
     val chatComposerOpacity: StateFlow<Float> = project { it.chatComposerOpacity }
     val chatBackgroundDim: StateFlow<Float> = project { it.chatBackgroundDim }
     val hasCompletedFirstLaunch: StateFlow<Boolean> = project { it.hasCompletedFirstLaunch }
+    val airiVersion: StateFlow<Int> = project { it.airiVersion }
+    val airiUpdateAvailable: StateFlow<Boolean> = project { it.airiUpdateAvailable }
 
     init {
         scope.launch { loadAll() }
@@ -95,6 +97,16 @@ class ForgeSettings(
     fun setHasCompletedFirstLaunch() =
         update({ it.copy(hasCompletedFirstLaunch = true) }) { settings.setHasCompletedFirstLaunch(true) }
 
+    suspend fun loadAiriVersion() {
+        _state.update { it.copy(airiVersion = settings.getAiriVersion()) }
+    }
+
+    fun setAiriVersion(value: Int) =
+        update({ it.copy(airiVersion = value) }) { settings.setAiriVersion(value) }
+
+    fun setAiriUpdateAvailable(value: Boolean) =
+        _state.update { it.copy(airiUpdateAvailable = value) }
+
     fun reset() {
         val defaults = SettingsState(isLoaded = true)
         _state.value = defaults
@@ -128,6 +140,7 @@ class ForgeSettings(
             chatComposerOpacity = settings.getChatComposerOpacity(),
             chatBackgroundDim = settings.getChatBackgroundDim(),
             hasCompletedFirstLaunch = settings.getHasCompletedFirstLaunch(),
+            airiVersion = settings.getAiriVersion(),
             isLoaded = true,
         )
         _state.value = loaded
