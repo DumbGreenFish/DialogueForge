@@ -64,11 +64,17 @@ class DialogueViewModel(
             is DialogueIntent.DeleteSelected -> deleteSelected()
             is DialogueIntent.CopySelected -> copySelected()
             is DialogueIntent.RetrySend -> retrySend()
-            is DialogueIntent.DismissChatError -> _state.update { it.copy(chatError = null) }
+            is DialogueIntent.DismissChatError -> {
+                _state.update { it.copy(chatError = null) }
+                viewModelScope.launch {
+                    _state.value.conversationId?.let { dialogueRepository.clearConversationError(it) }
+                }
+            }
         }
     }
 
     private fun loadCharacter(id: String) {
+        generationJob?.cancel()
         if (_state.value.isLoading) return
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
@@ -81,6 +87,9 @@ class DialogueViewModel(
             )
             val conversationId = conversationResult.conversation.id
             val greetingMessageId = conversationResult.greetingMessageId
+            val chatError = conversationResult.conversation.let { conv ->
+                if (conv.hasError && conv.errorType != null) ChatError(conv.errorType, conv.errorText) else null
+            }
             totalMessageCount = dialogueRepository.getMessageCount(conversationId)
             val page = dialogueRepository.getMessagesPage(conversationId, PAGE_SIZE, 0)
             val messages = page.map { it.toMessage() }
@@ -93,6 +102,7 @@ class DialogueViewModel(
                     messages = messages,
                     hasMoreOlderMessages = page.size < totalMessageCount,
                     greetingMessageId = greetingMessageId,
+                    chatError = chatError,
                 )
             }
         }
@@ -143,6 +153,7 @@ class DialogueViewModel(
         }
 
         generationJob = viewModelScope.launch {
+            dialogueRepository.clearConversationError(conversationId)
             val userMessage = dialogueRepository.addMessage(conversationId, MessageRole.User.wire, text).toMessage()
             _state.update { it.copy(messages = listOf(userMessage) + it.messages) }
             totalMessageCount += 1
@@ -164,6 +175,7 @@ class DialogueViewModel(
                     chatError = ChatError(ChatErrorType.NoApiKey, ""),
                 )
             }
+            dialogueRepository.setConversationError(conversationId, ChatErrorType.NoApiKey.name, "")
             return
         }
 
@@ -194,6 +206,7 @@ class DialogueViewModel(
                         chatError = ChatError(type, details),
                     )
                 }
+                dialogueRepository.setConversationError(conversationId, type.name, details)
             },
         )
     }
@@ -219,6 +232,7 @@ class DialogueViewModel(
         val character = _state.value.character ?: return
         _state.update { it.copy(isGenerating = true, chatError = null) }
         generationJob = viewModelScope.launch {
+            dialogueRepository.clearConversationError(conversationId)
             val history = buildHistory()
             generateResponse(character, conversationId, history)
         }

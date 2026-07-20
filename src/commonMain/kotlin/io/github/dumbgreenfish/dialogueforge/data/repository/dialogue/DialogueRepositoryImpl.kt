@@ -72,4 +72,12 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override suspend fun updateMessage(id: String, text: String) {
         db.messageDao().updateText(id, text)
     }
+
+    override suspend fun setConversationError(conversationId: String, errorType: String, errorText: String) {
+        db.conversationDao().setError(conversationId, errorType, errorText)
+    }
+
+    override suspend fun clearConversationError(conversationId: String) {
+        db.conversationDao().clearError(conversationId)
+    }
 }

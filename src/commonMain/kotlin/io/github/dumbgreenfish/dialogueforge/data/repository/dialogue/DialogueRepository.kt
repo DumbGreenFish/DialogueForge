@@ -15,4 +15,6 @@ interface DialogueRepository {
     suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity
     suspend fun deleteMessage(id: String)
     suspend fun updateMessage(id: String, text: String)
+    suspend fun setConversationError(conversationId: String, errorType: String, errorText: String)
+    suspend fun clearConversationError(conversationId: String)
 }
