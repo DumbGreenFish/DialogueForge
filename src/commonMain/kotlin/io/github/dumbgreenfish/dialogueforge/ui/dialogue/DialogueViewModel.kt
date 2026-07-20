@@ -19,6 +19,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,32 +65,45 @@ class DialogueViewModel(
             is DialogueIntent.DeleteSelected -> deleteSelected()
             is DialogueIntent.CopySelected -> copySelected()
             is DialogueIntent.RetrySend -> retrySend()
-            is DialogueIntent.DismissChatError -> _state.update { it.copy(chatError = null) }
+            is DialogueIntent.DismissChatError -> {
+                _state.update { it.copy(chatError = null) }
+                viewModelScope.launch {
+                    _state.value.conversationId?.let { dialogueRepository.clearConversationError(it) }
+                }
+            }
         }
     }
 
     private fun loadCharacter(id: String) {
+        generationJob?.cancel()
         if (_state.value.isLoading) return
-        _state.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
+        _state.update { DialogueState(isLoading = true) }
+        viewModelScope.launch(Dispatchers.Default) {
             val entity = characterRepository.getById(id)
             val character = checkNotNull(entity?.toCharacter()) { "Character not found: $id" }
             val modelName = settingsRepository.getModel()
-            val conversation = dialogueRepository.getOrCreateConversation(
+            val conversationResult = dialogueRepository.getOrCreateConversation(
                 characterId = character.id,
                 greeting = character.firstMessage,
             )
-            totalMessageCount = dialogueRepository.getMessageCount(conversation.id)
-            val page = dialogueRepository.getMessagesPage(conversation.id, PAGE_SIZE, 0)
+            val conversationId = conversationResult.conversation.id
+            val greetingMessageId = conversationResult.greetingMessageId
+            val chatError = conversationResult.conversation.let { conv ->
+                if (conv.hasError && conv.errorType != null) ChatError(conv.errorType, conv.errorText) else null
+            }
+            totalMessageCount = dialogueRepository.getMessageCount(conversationId)
+            val page = dialogueRepository.getMessagesPage(conversationId, PAGE_SIZE, 0)
             val messages = page.map { it.toMessage() }
             _state.update {
                 it.copy(
                     character = character,
                     isLoading = false,
                     modelName = modelName,
-                    conversationId = conversation.id,
+                    conversationId = conversationId,
                     messages = messages,
                     hasMoreOlderMessages = page.size < totalMessageCount,
+                    greetingMessageId = greetingMessageId,
+                    chatError = chatError,
                 )
             }
         }
@@ -140,6 +154,7 @@ class DialogueViewModel(
         }
 
         generationJob = viewModelScope.launch {
+            dialogueRepository.clearConversationError(conversationId)
             val userMessage = dialogueRepository.addMessage(conversationId, MessageRole.User.wire, text).toMessage()
             _state.update { it.copy(messages = listOf(userMessage) + it.messages) }
             totalMessageCount += 1
@@ -161,6 +176,7 @@ class DialogueViewModel(
                     chatError = ChatError(ChatErrorType.NoApiKey, ""),
                 )
             }
+            dialogueRepository.setConversationError(conversationId, ChatErrorType.NoApiKey.name, "")
             return
         }
 
@@ -191,6 +207,7 @@ class DialogueViewModel(
                         chatError = ChatError(type, details),
                     )
                 }
+                dialogueRepository.setConversationError(conversationId, type.name, details)
             },
         )
     }
@@ -216,6 +233,7 @@ class DialogueViewModel(
         val character = _state.value.character ?: return
         _state.update { it.copy(isGenerating = true, chatError = null) }
         generationJob = viewModelScope.launch {
+            dialogueRepository.clearConversationError(conversationId)
             val history = buildHistory()
             generateResponse(character, conversationId, history)
         }

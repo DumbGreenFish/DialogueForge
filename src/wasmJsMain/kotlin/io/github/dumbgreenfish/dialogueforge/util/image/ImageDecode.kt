@@ -3,6 +3,8 @@ package io.github.dumbgreenfish.dialogueforge.util.image
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
@@ -25,7 +27,7 @@ actual fun ByteArray.toImageBitmapOrNull(maxDimension: Int): ImageBitmap? = runC
         val dstPixels = LanczosDownscaler.downscale(image.width, image.height, srcPixels, newW, newH)
         val dstBytes = intArrayToBgra(dstPixels, newW, newH)
 
-        Image.makeRaster(ImageInfo.makeN32Premul(newW, newH), dstBytes, newW * 4)
+        Image.makeRaster(ImageInfo(newW, newH, ColorType.BGRA_8888, ColorAlphaType.PREMUL), dstBytes, newW * 4)
             .toComposeImageBitmap()
     }
 }.getOrNull()
@@ -45,7 +47,7 @@ actual fun ByteArray.generateThumbnail(maxDimension: Int): ByteArray {
         val srcPixels = bgraToIntArray(srcBytes, image.width, image.height)
         val dstPixels = LanczosDownscaler.downscale(image.width, image.height, srcPixels, newW, newH)
         val dstBytes = intArrayToBgra(dstPixels, newW, newH)
-        Image.makeRaster(ImageInfo.makeN32Premul(newW, newH), dstBytes, newW * 4)
+        Image.makeRaster(ImageInfo(newW, newH, ColorType.BGRA_8888, ColorAlphaType.PREMUL), dstBytes, newW * 4)
     }
 
     return resultImage.encodeToData(EncodedImageFormat.JPEG, 85)?.bytes ?: this@generateThumbnail

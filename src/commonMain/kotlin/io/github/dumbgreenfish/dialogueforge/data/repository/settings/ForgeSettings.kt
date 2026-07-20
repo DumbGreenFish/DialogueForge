@@ -45,6 +45,7 @@ class ForgeSettings(
     val chatComposerOpacity: StateFlow<Float> = project { it.chatComposerOpacity }
     val chatBackgroundDim: StateFlow<Float> = project { it.chatBackgroundDim }
     val hasCompletedFirstLaunch: StateFlow<Boolean> = project { it.hasCompletedFirstLaunch }
+    val isLoaded: StateFlow<Boolean> = project { it.isLoaded }
     val airiVersion: StateFlow<Int> = project { it.airiVersion }
     val airiUpdateAvailable: StateFlow<Boolean> = project { it.airiUpdateAvailable }
 

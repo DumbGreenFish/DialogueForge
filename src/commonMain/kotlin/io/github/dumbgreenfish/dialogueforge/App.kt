@@ -63,11 +63,14 @@ fun App() {
             val densityScale by forgeSettings.densityScale.collectAsState()
             val fontScale by forgeSettings.fontScale.collectAsState()
             val hasCompletedFirstLaunch by forgeSettings.hasCompletedFirstLaunch.collectAsState()
+            val isLoaded by forgeSettings.isLoaded.collectAsState()
 
             data class ImportProgress(val characterName: String)
             var importingState by remember { mutableStateOf<ImportProgress?>(null) }
 
-            LaunchedEffect(Unit) {
+            LaunchedEffect(isLoaded) {
+                if (!isLoaded) return@LaunchedEffect
+
                 withContext(Dispatchers.Default) {
                     dbConfig.mainDatabase()
                 }

@@ -24,6 +24,12 @@ interface ConversationDao {
     @Query("UPDATE conversations SET updated_at = :updatedAt WHERE id = :id")
     suspend fun touch(id: String, updatedAt: Long)
 
+    @Query("UPDATE conversations SET has_error = 1, error_type = :errorType, error_text = :errorText WHERE id = :id")
+    suspend fun setError(id: String, errorType: String, errorText: String)
+
+    @Query("UPDATE conversations SET has_error = 0, error_type = NULL, error_text = '' WHERE id = :id")
+    suspend fun clearError(id: String)
+
     @Transaction
     suspend fun getOrCreate(conversation: ConversationEntity, greeting: MessageEntity?): ConversationEntity {
         val existing = getByCharacterId(conversation.characterId).firstOrNull()

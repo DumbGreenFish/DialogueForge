@@ -1,14 +1,13 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,17 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
@@ -65,9 +58,11 @@ data class MessageItemContext(
     val editingMessageId: String?,
     val editingText: TextFieldValue,
     val selectedMessageIds: Set<String>,
+    val greetingMessageId: String?,
     val onActionRowEvent: (String, ActionRowEvent) -> Unit,
     val onEditFieldEvent: (String, EditFieldEvent) -> Unit,
     val onMessageItemEvent: (String, MessageItemEvent) -> Unit,
+    val onAvatarClick: () -> Unit,
 )
 
 @Composable
@@ -77,32 +72,37 @@ internal fun MessagesList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
 ) {
-    val density = LocalDensity.current
-    var viewportHeightDp by remember { mutableStateOf(0.dp) }
-    var greetingHeightDp by remember { mutableStateOf(0.dp) }
-    var hasEverMeasured by remember { mutableStateOf(false) }
-
     val hasUserMessages = data.messages.any { it.role == MessageRole.User }
     val isOnlyGreeting = !hasUserMessages && data.messages.size == 1
-    val items = remember(data.messages, isOnlyGreeting) { buildItems(data.messages, isOnlyGreeting) }
     val firstAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
 
-    val isMeasured = viewportHeightDp > 0.dp && greetingHeightDp > 0.dp
-    LaunchedEffect(isMeasured) { if (isMeasured) hasEverMeasured = true }
-
-    val centeredSpacerHeight = if (isOnlyGreeting && isMeasured) {
-        ((viewportHeightDp - greetingHeightDp) / 2 - ContentPaddingV).coerceAtLeast(0.dp)
-    } else {
-        MessageGap
+    if (isOnlyGreeting) {
+        val greetingMessage = data.messages.first()
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+            val viewportHeight = maxHeight - ContentPaddingV * 2
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(vertical = ContentPaddingV),
+            ) {
+                item {
+                    Box(
+                        modifier = Modifier.heightIn(min = viewportHeight),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        MessageItem(
+                            message = greetingMessage,
+                            isGreeting = true,
+                            itemContext = itemContext,
+                        )
+                    }
+                }
+            }
+        }
+        return
     }
 
-    val bottomSpacerHeight by animateDpAsState(
-        targetValue = centeredSpacerHeight,
-        animationSpec = if (isOnlyGreeting && !hasEverMeasured) snap() else tween(ForgeAnimation.DurationStateTransition),
-        label = "bottomSpacer",
-    )
-
-    val contentAlpha = if (isOnlyGreeting && !isMeasured) 0f else 1f
+    val items = remember(data.messages) { buildItems(data.messages) }
 
     val shouldLoadOlder by remember {
         derivedStateOf {
@@ -119,17 +119,14 @@ internal fun MessagesList(
         if (shouldLoadOlder) data.onLoadOlder()
     }
 
-    Box(modifier = Modifier.fillMaxSize().graphicsLayer(alpha = contentAlpha)) {
     LazyColumn(
         state = listState,
         reverseLayout = true,
-        modifier = modifier
-            .fillMaxSize()
-            .onSizeChanged { viewportHeightDp = with(density) { it.height.toDp() } },
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(vertical = ContentPaddingV),
     ) {
-        item { Spacer(Modifier.height(bottomSpacerHeight)) }
+        item { Spacer(Modifier.height(MessageGap)) }
 
         if (data.chatError != null) {
             item(key = "chat_error") {
@@ -150,50 +147,13 @@ internal fun MessagesList(
             when {
                 item.dateLabel != null -> DateSeparator(label = item.dateLabel)
                 item.message != null -> {
-                    val message = item.message
-                    val isGreeting = isOnlyGreeting &&
-                            message.role == MessageRole.Assistant &&
-                            message.id == firstAssistantId
-                    val interactionState = when {
-                        itemContext.editingMessageId == message.id -> MessageInteractionState.Editing(
-                            itemContext.editingText
-                        )
-
-                        itemContext.isGenerating -> MessageInteractionState.Generating
-                        itemContext.selectedMessageIds.isNotEmpty() -> MessageInteractionState.Selecting(
-                            message.id in itemContext.selectedMessageIds
-                        )
-                        else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
-                    }
-                    Box(modifier = calculateBoxModifier()
-                        .then(
-                            if (isGreeting && isOnlyGreeting) {
-                                Modifier.onSizeChanged { greetingHeightDp = with(density) { it.height.toDp() } }
-                            } else Modifier
-                        )
-                    ) {
-                        when (message.role) {
-                            MessageRole.User -> UserMessage(
-                                message = message,
-                                interactionState = interactionState,
-                                messageWidth = itemContext.messageWidth,
-                                onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
-                                onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
-                                onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
-                            )
-                            MessageRole.Assistant -> AssistantMessage(
-                                message = message,
-                                interactionState = interactionState,
-                                character = itemContext.character,
-                                messageWidth = itemContext.messageWidth,
-                                isGreeting = isGreeting,
-                                onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
-                                onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
-                                onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
-                            )
-                            MessageRole.System -> Unit
-                        }
-                    }
+                    val isGreeting = item.message.role == MessageRole.Assistant &&
+                            item.message.id == firstAssistantId
+                    MessageItem(
+                        message = item.message,
+                        isGreeting = isGreeting,
+                        itemContext = itemContext,
+                    )
                 }
             }
         }
@@ -209,6 +169,49 @@ internal fun MessagesList(
             }
         }
     }
+}
+
+@Composable
+private fun MessageItem(
+    message: Message,
+    isGreeting: Boolean,
+    itemContext: MessageItemContext,
+) {
+    val interactionState = when {
+        itemContext.editingMessageId == message.id -> MessageInteractionState.Editing(
+            itemContext.editingText
+        )
+        itemContext.isGenerating -> MessageInteractionState.Generating
+        itemContext.selectedMessageIds.isNotEmpty() -> MessageInteractionState.Selecting(
+            message.id in itemContext.selectedMessageIds
+        )
+        else -> MessageInteractionState.Browsing(itemContext.expandedActionsMessageId == message.id)
+    }
+
+    Box(modifier = calculateBoxModifier()) {
+        when (message.role) {
+            MessageRole.User -> UserMessage(
+                message = message,
+                interactionState = interactionState,
+                messageWidth = itemContext.messageWidth,
+                onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
+                onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
+                onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+            )
+            MessageRole.Assistant -> AssistantMessage(
+                message = message,
+                interactionState = interactionState,
+                character = itemContext.character,
+                messageWidth = itemContext.messageWidth,
+                isGreeting = isGreeting,
+                greetingMessageId = itemContext.greetingMessageId,
+                onActionRowEvent = { event -> itemContext.onActionRowEvent(message.id, event) },
+                onEditFieldEvent = { event -> itemContext.onEditFieldEvent(message.id, event) },
+                onMessageItemEvent = { event -> itemContext.onMessageItemEvent(message.id, event) },
+                onAvatarClick = itemContext.onAvatarClick,
+            )
+            MessageRole.System -> Unit
+        }
     }
 }
 
@@ -222,8 +225,7 @@ private fun calculateBoxModifier(): Modifier = if (windowClass == WindowClass.Co
         .padding(horizontal = DialogueLayout.ContentPaddingH)
 }
 
-private fun buildItems(messages: List<Message>, isOnlyGreeting: Boolean): List<ChatItem> {
-    if (isOnlyGreeting) return messages.map { ChatItem(dateLabel = null, message = it) }
+private fun buildItems(messages: List<Message>): List<ChatItem> {
     val result = mutableListOf<ChatItem>()
     for ((index, msg) in messages.withIndex()) {
         result.add(ChatItem(dateLabel = null, message = msg))

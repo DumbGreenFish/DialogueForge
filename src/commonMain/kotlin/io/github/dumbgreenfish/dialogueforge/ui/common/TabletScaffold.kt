@@ -2,7 +2,9 @@ package io.github.dumbgreenfish.dialogueforge.ui.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -33,6 +35,7 @@ fun TabletScaffold(selectedTab: NavTab) {
                     controller.switchTab(tab)
                     scope.launch { drawerState.close() }
                 },
+                modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
             )
         },
     ) {

@@ -98,4 +98,5 @@
     <string name="settings_chat_background_dim">Background dim</string>
     <string name="dialogue_edit_save">Save</string>
     <string name="dialogue_edit_cancel">Cancel</string>
+    <string name="dialogue_character_image_close">Close</string>
 </resources>

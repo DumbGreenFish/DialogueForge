@@ -2,6 +2,7 @@ package io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -9,6 +10,8 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
+import com.mikepenz.markdown.compose.components.markdownComponents
+import com.mikepenz.markdown.compose.elements.MarkdownDivider
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.markdownAnnotator
@@ -34,9 +37,18 @@ internal fun MarkdownText(
         immediate = true,
     )
 
+    val components = remember {
+        markdownComponents(
+            orderedList = { CustomOrderedListComponent(it) },
+            unorderedList = { CustomBulletListComponent(it) },
+            horizontalRule = { MarkdownDivider(Modifier) },
+        )
+    }
+
     Markdown(
         markdownState = markdownState,
         modifier = modifier,
+        components = components,
         annotator = markdownAnnotator(
             config = markdownAnnotatorConfig(eolAsNewLine = true),
         ),

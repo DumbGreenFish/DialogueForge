@@ -7,6 +7,7 @@ import androidx.room3.RoomDatabase
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterDao
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.StringListConverter
+import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ChatErrorTypeConverter
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ConversationDao
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ConversationEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageDao
@@ -19,10 +20,10 @@ internal const val MAIN_DB_DIR  = "db"
 
 @Database(
     entities = [CharacterEntity::class, ConversationEntity::class, MessageEntity::class, SettingEntity::class],
-    version = 7,
+    version = 8,
     exportSchema = false,
 )
-@ColumnTypeConverters(StringListConverter::class)
+@ColumnTypeConverters(StringListConverter::class, ChatErrorTypeConverter::class)
 @ConstructedBy(MainDatabaseConstructor::class)
 abstract class MainDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
