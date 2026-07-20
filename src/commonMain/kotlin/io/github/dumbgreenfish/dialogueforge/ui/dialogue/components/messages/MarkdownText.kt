@@ -7,9 +7,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.markdownAnnotator
+import com.mikepenz.markdown.model.markdownAnnotatorConfig
 import com.mikepenz.markdown.model.rememberMarkdownState
 
 @Composable
@@ -34,7 +37,16 @@ internal fun MarkdownText(
     Markdown(
         markdownState = markdownState,
         modifier = modifier,
+        annotator = markdownAnnotator(
+            config = markdownAnnotatorConfig(eolAsNewLine = true),
+        ),
         typography = markdownTypography(
+            h1 = baseStyle.copy(fontSize = fontSize * 1.75f, fontWeight = FontWeight.Bold),
+            h2 = baseStyle.copy(fontSize = fontSize * 1.5f, fontWeight = FontWeight.Bold),
+            h3 = baseStyle.copy(fontSize = fontSize * 1.25f, fontWeight = FontWeight.Bold),
+            h4 = baseStyle.copy(fontSize = fontSize * 1.1f, fontWeight = FontWeight.Bold),
+            h5 = baseStyle.copy(fontWeight = FontWeight.Bold),
+            h6 = baseStyle.copy(fontSize = fontSize * 0.95f, fontWeight = FontWeight.Bold),
             text = baseStyle,
             paragraph = baseStyle,
             ordered = baseStyle,

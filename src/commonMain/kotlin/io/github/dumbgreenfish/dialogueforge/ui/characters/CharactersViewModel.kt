@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.dumbgreenfish.dialogueforge.data.format.ParseResult
 import io.github.dumbgreenfish.dialogueforge.data.format.TavernCardParser
+import io.github.dumbgreenfish.dialogueforge.data.model.DefaultCharacterData
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
@@ -47,6 +48,7 @@ class CharactersViewModel(
             is CharactersIntent.FiltersReset       -> updateFilter { CharacterFilter() }
             is CharactersIntent.DeleteCharacter -> viewModelScope.launch { repository.delete(intent.id) }
             is CharactersIntent.DismissError -> _state.update { it.copy(error = null) }
+            is CharactersIntent.ImportDefault -> viewModelScope.launch { importDefault() }
         }
     }
 
@@ -58,6 +60,15 @@ class CharactersViewModel(
         when (val result = TavernCardParser.parse(intent.bytes, intent.filename)) {
             is ParseResult.Success -> repository.import(result.data)
             is ParseResult.Failure -> _state.update { it.copy(error = result.message) }
+        }
+    }
+
+    private suspend fun importDefault() {
+        val data = DefaultCharacterData.create()
+        if (data != null) {
+            repository.import(data)
+        } else {
+            _state.update { it.copy(error = "Failed to load default character") }
         }
     }
 }

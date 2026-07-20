@@ -14,9 +14,23 @@ object DefaultCharacterData {
             Res.readBytes("files/airi_avatar.png")
         } catch (_: Exception) { null }
 
-        val result = TavernCardParser.parse(cardBytes, "airi_card.json")
+        val result = TavernCardParser.parse(cardBytes, "airi_card.json", externalAvatar = avatarBytes)
         return when (result) {
-            is ParseResult.Success -> result.data.copy(avatarBytes = avatarBytes)
+            is ParseResult.Success -> result.data
+            is ParseResult.Failure -> null
+        }
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun createDebug(): TavernCardData? {
+        val cardBytes = Res.readBytes("files/sasha_card.json")
+        val avatarBytes = try {
+            Res.readBytes("files/sasha_avatar.png")
+        } catch (_: Exception) { null }
+
+        val result = TavernCardParser.parse(cardBytes, "sasha_card.json", externalAvatar = avatarBytes)
+        return when (result) {
+            is ParseResult.Success -> result.data
             is ParseResult.Failure -> null
         }
     }

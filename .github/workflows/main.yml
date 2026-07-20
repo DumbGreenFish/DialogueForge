@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Windows distributions
         run: |
-          ./gradlew.bat packageDistributionForCurrentOS
+          ./gradlew.bat packageDistributionForCurrentOS -PdebugFeaturesEnabled=false
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -87,7 +87,7 @@ jobs:
 
       - name: Build Linux distributions
         run: |
-          ./gradlew packageDeb packageRpm packageAppImage
+          ./gradlew packageDeb packageRpm packageAppImage -PdebugFeaturesEnabled=false
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
@@ -135,7 +135,7 @@ jobs:
 
       - name: Build Web (WASM)
         run: |
-          ./gradlew clean wasmJsBrowserDistribution
+          ./gradlew clean wasmJsBrowserDistribution -PdebugFeaturesEnabled=false
 
       - name: Package web as ZIP
         run: |
@@ -201,11 +201,11 @@ jobs:
 
       - name: Build Android AAB (App Bundle)
         run: |
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease -PdebugFeaturesEnabled=false
 
       - name: Build Android APK
         run: |
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -PdebugFeaturesEnabled=false
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4

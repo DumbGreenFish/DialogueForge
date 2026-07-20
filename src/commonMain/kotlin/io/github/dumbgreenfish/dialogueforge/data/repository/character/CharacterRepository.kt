@@ -12,4 +12,5 @@ interface CharacterRepository {
     suspend fun getMainImageThumbnail(id: String): ByteArray?
     suspend fun getFullMainImage(id: String): ByteArray?
     suspend fun getSizedThumbnail(id: String, maxDimension: Int): ByteArray?
+    suspend fun existsByName(name: String): Boolean
 }

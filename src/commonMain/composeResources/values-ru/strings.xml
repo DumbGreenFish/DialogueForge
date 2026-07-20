@@ -13,6 +13,7 @@
     <string name="characters_import">Импорт</string>
     <string name="characters_create">Создать</string>
     <string name="characters_empty">Никого не нашлось. Попробуй другой запрос или фильтр.</string>
+    <string name="characters_add_default">Добавить стандартного персонажа</string>
     <string name="filter_all">Все</string>
     <string name="filter_pinned">Закреплённые</string>
     <string name="characters_total">Всего: %1$d</string>

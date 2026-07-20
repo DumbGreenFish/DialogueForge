@@ -13,6 +13,7 @@
     <string name="characters_import">Import</string>
     <string name="characters_create">Create</string>
     <string name="characters_empty">No one matched. Try a different query or filter.</string>
+    <string name="characters_add_default">Add default character</string>
     <string name="filter_all">All</string>
     <string name="filter_pinned">Pinned</string>
     <string name="characters_total">Total: %1$d</string>

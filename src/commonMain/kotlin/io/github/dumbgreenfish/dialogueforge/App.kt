@@ -77,6 +77,20 @@ fun App() {
                 }
             }
 
+            LaunchedEffect(Unit) {
+                if (BuildConfig.DEBUG) {
+                    val exists = withContext(Dispatchers.Default) {
+                        characterRepo.existsByName("Sasha")
+                    }
+                    if (!exists) {
+                        val debugData = DefaultCharacterData.createDebug()
+                        if (debugData != null) {
+                            characterRepo.import(debugData)
+                        }
+                    }
+                }
+            }
+
             WithReferenceDensity(densityScale, fontScale) {
                 val controller = koinInject<NavController>()
                 val activeTab by controller.activeTab.collectAsState()

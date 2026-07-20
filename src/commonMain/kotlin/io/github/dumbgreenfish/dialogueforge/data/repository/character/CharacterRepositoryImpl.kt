@@ -36,4 +36,6 @@ class CharacterRepositoryImpl(dbConfig: DatabaseConfig) : CharacterRepository {
             else -> dao.getThumbnailData(id)
         }
     }
+
+    override suspend fun existsByName(name: String) = db.characterDao().existsByName(name)
 }

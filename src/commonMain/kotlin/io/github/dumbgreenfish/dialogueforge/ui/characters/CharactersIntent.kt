@@ -15,5 +15,6 @@ sealed class CharactersIntent {
     data object FiltersReset                   : CharactersIntent()
     data class DeleteCharacter(val id: String) : CharactersIntent()
     data object DismissError : CharactersIntent()
+    data object ImportDefault : CharactersIntent()
     data class ImportFile(val bytes: ByteArray, val filename: String) : CharactersIntent()
 }

@@ -17,6 +17,7 @@ val groupName: String by project
 val appName: String by project
 val projectVersion: String by project
 val projectUuid: String by project
+val debugFeaturesEnabled: String by project
 
 val packageNamespace = "$groupName.$appName"
 
@@ -36,6 +37,7 @@ val keystoreProperties = Properties().apply {
 val generateBuildConfig by tasks.registering {
     val outputDir = layout.buildDirectory.dir("generated/buildConfig/kotlin")
     val version = projectVersion
+    val debug = debugFeaturesEnabled.toBoolean()
     outputs.dir(outputDir)
     doLast {
         val file = outputDir.get().asFile
@@ -47,6 +49,7 @@ val generateBuildConfig by tasks.registering {
 
                 internal object BuildConfig {
                     const val VERSION = "$version"
+                    const val DEBUG = $debug
                 }
                 """.trimIndent()
         )

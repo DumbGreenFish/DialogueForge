@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.action_ok
+import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_add_default
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_empty
 import io.github.dumbgreenfish.dialogueforge.generated.resources.import_error_title
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardGrid
@@ -114,7 +116,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             }
 
             if (displayed.isEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
+                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(onAddDefault = { viewModel.handle(CharactersIntent.ImportDefault) }) }
             } else {
                 items(displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
@@ -190,10 +192,10 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
 }
 
 @Composable
-private fun EmptyState() {
-    Box(
-        modifier        = Modifier.fillMaxWidth().padding(vertical = EmptyStateVerticalPadding),
-        contentAlignment = Alignment.Center,
+private fun EmptyState(onAddDefault: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = EmptyStateVerticalPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text      = stringResource(Res.string.characters_empty),
@@ -201,5 +203,8 @@ private fun EmptyState() {
             color     = ForgeColors.onSurfaceFaint,
             textAlign = TextAlign.Center,
         )
+        TextButton(onClick = onAddDefault) {
+            Text(stringResource(Res.string.characters_add_default))
+        }
     }
 }

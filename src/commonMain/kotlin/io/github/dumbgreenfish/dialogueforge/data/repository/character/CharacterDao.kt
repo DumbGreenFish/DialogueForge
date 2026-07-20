@@ -30,6 +30,9 @@ interface CharacterDao {
     @Query("SELECT thumbnail_data FROM characters WHERE id = :id LIMIT 1")
     suspend fun getThumbnailData(id: String): ByteArray?
 
+    @Query("SELECT EXISTS(SELECT 1 FROM characters WHERE name = :name)")
+    suspend fun existsByName(name: String): Boolean
+
     @Query("SELECT avatarData FROM characters WHERE id = :id LIMIT 1")
     suspend fun getFullImageData(id: String): ByteArray?
 
