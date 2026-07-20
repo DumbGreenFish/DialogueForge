@@ -16,6 +16,12 @@ interface MessageDao {
     @Query("SELECT COUNT(*) FROM messages WHERE conversation_id = :conversationId")
     suspend fun countByConversation(conversationId: String): Int
 
+    @Query("SELECT * FROM messages WHERE conversation_id = :conversationId ORDER BY order_in_conversation DESC LIMIT :limit OFFSET :offset")
+    suspend fun getByConversationPaged(conversationId: String, limit: Int, offset: Int): List<MessageEntity>
+
+    @Query("SELECT * FROM messages WHERE id = :id")
+    suspend fun getById(id: String): MessageEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: MessageEntity)
 

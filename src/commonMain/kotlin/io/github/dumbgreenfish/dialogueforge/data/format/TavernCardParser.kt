@@ -16,11 +16,14 @@ private val TExtType  = byteArrayOf(0x74, 0x45, 0x58, 0x74)
 
 object TavernCardParser {
 
-    fun parse(bytes: ByteArray, filename: String): ParseResult {
+    fun parse(bytes: ByteArray, filename: String, externalAvatar: ByteArray? = null): ParseResult {
         if (bytes.size >= 2 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte())
             return ParseResult.Failure("CHARX format is not yet supported")
         if (bytes.startsWith(PngHeader)) return parsePng(bytes)
-        return parseJsonBytes(bytes, avatarBytes = null)
+        val result = parseJsonBytes(bytes, avatarBytes = externalAvatar)
+        if (result is ParseResult.Success && result.data.avatarBytes == null)
+            return ParseResult.Failure("JSON character card has no avatar image")
+        return result
     }
 
     private fun parsePng(bytes: ByteArray): ParseResult {

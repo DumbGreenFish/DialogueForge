@@ -3,6 +3,7 @@ package io.github.dumbgreenfish.dialogueforge.data.service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -24,12 +25,16 @@ class LlmService(
         install(ContentNegotiation) {
             json(json)
         }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 300_000
+            connectTimeoutMillis = 300_000
+            socketTimeoutMillis = 300_000
+        }
     }
 
     suspend fun chat(
         systemPrompt: String,
         history: List<Pair<String, String>>,
-        userMessage: String,
     ): Result<String> = try {
         val endpoint = settings.getEndpoint()
         val model = settings.getModel()
@@ -43,7 +48,6 @@ class LlmService(
         for ((role, content) in history) {
             messages.add(ChatMessage(role, content))
         }
-        messages.add(ChatMessage("user", userMessage))
 
         val request = ChatCompletionRequest(
             model = model,

@@ -20,6 +20,9 @@ kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.11.0"
 compose-material-icons = "1.7.3"
 ktor = "3.5.1"
+cloudy = "0.6.1"
+markdown-renderer = "0.41.0"
+lucide-icons = "2.2.1"
 
 # It's required to keep this version
 # for compitability with Compose Multiplatform
@@ -76,6 +79,9 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 
+cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
+markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
+lucide-icons = { module = "com.composables:icons-lucide-cmp", version.ref="lucide-icons" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

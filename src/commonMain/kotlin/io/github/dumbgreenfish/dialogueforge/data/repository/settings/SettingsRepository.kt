@@ -40,6 +40,26 @@ interface SettingsRepository {
     suspend fun getSidebarWidth(): Int
     suspend fun setSidebarWidth(value: Int)
 
+    suspend fun getChatBackgroundBytes(): ByteArray?
+    suspend fun setChatBackgroundBytes(bytes: ByteArray?)
+    suspend fun getChatBackgroundOpacity(): Float
+    suspend fun setChatBackgroundOpacity(value: Float)
+
+    suspend fun getChatHeaderOpacity(): Float
+    suspend fun setChatHeaderOpacity(value: Float)
+
+    suspend fun getChatComposerOpacity(): Float
+    suspend fun setChatComposerOpacity(value: Float)
+
+    suspend fun getChatBackgroundDim(): Float
+    suspend fun setChatBackgroundDim(value: Float)
+
+    suspend fun getHasCompletedFirstLaunch(): Boolean
+    suspend fun setHasCompletedFirstLaunch(value: Boolean)
+
+    suspend fun getAiriVersion(): Int
+    suspend fun setAiriVersion(value: Int)
+
     companion object {
         const val DEFAULT_ENDPOINT = "https://api.deepseek.com/chat/completions"
         const val DEFAULT_MODEL = "deepseek-chat"
@@ -53,5 +73,10 @@ interface SettingsRepository {
         const val DEFAULT_MESSAGE_WIDTH = "Normal"
         const val DEFAULT_COMPOSER_MAX_HEIGHT = 160
         const val DEFAULT_SIDEBAR_WIDTH = 240
+
+        const val DEFAULT_CHAT_BACKGROUND_OPACITY = 0.15f
+        const val DEFAULT_CHAT_HEADER_OPACITY = 0.3f
+        const val DEFAULT_CHAT_COMPOSER_OPACITY = 0.3f
+        const val DEFAULT_CHAT_BACKGROUND_DIM = 0f
     }
 }

@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.settings
 
 import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
+import kotlin.io.encoding.Base64
 import org.koin.core.annotation.Single
 
 @Single(binds = [SettingsRepository::class])
@@ -72,4 +73,55 @@ class SettingsRepositoryImpl(dbConfig: DatabaseConfig) : SettingsRepository {
         get("sidebar_width")?.toIntOrNull() ?: SettingsRepository.DEFAULT_SIDEBAR_WIDTH
 
     override suspend fun setSidebarWidth(value: Int) = set("sidebar_width", value.toString())
+
+    override suspend fun getChatBackgroundBytes(): ByteArray? {
+        val encoded = get("chat_bg_image") ?: return null
+        if (encoded.isEmpty()) return null
+        return try {
+            Base64.decode(encoded)
+        } catch (_: Exception) { null }
+    }
+
+    override suspend fun setChatBackgroundBytes(bytes: ByteArray?) {
+        if (bytes == null) {
+            set("chat_bg_image", "")
+        } else {
+            val encoded = Base64.encode(bytes)
+            set("chat_bg_image", encoded)
+        }
+    }
+
+    override suspend fun getChatBackgroundOpacity(): Float =
+        get("chat_bg_opacity")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_BACKGROUND_OPACITY
+
+    override suspend fun setChatBackgroundOpacity(value: Float) = set("chat_bg_opacity", value.toString())
+
+    override suspend fun getChatHeaderOpacity(): Float =
+        get("chat_header_opacity")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_HEADER_OPACITY
+
+    override suspend fun setChatHeaderOpacity(value: Float) = set("chat_header_opacity", value.toString())
+
+    override suspend fun getChatComposerOpacity(): Float =
+        get("chat_composer_opacity")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_COMPOSER_OPACITY
+
+    override suspend fun setChatComposerOpacity(value: Float) = set("chat_composer_opacity", value.toString())
+
+    override suspend fun getChatBackgroundDim(): Float =
+        get("chat_bg_dim")?.toFloatOrNull()
+            ?: SettingsRepository.DEFAULT_CHAT_BACKGROUND_DIM
+
+    override suspend fun setChatBackgroundDim(value: Float) = set("chat_bg_dim", value.toString())
+
+    override suspend fun getHasCompletedFirstLaunch(): Boolean =
+        get("first_launch_done")?.toBooleanStrictOrNull() ?: false
+
+    override suspend fun setHasCompletedFirstLaunch(value: Boolean) = set("first_launch_done", value.toString())
+
+    override suspend fun getAiriVersion(): Int =
+        get("airi_version")?.toIntOrNull() ?: 0
+
+    override suspend fun setAiriVersion(value: Int) = set("airi_version", value.toString())
 }

@@ -39,6 +39,14 @@ class ForgeSettings(
     val messageWidth: StateFlow<MessageWidth> = project { it.messageWidth }
     val composerMaxHeightDp: StateFlow<Int> = project { it.composerMaxHeightDp }
     val sidebarWidthDp: StateFlow<Int> = project { it.sidebarWidthDp }
+    val chatBackgroundBytes: StateFlow<ByteArray?> = project { it.chatBackgroundBytes }
+    val chatBackgroundOpacity: StateFlow<Float> = project { it.chatBackgroundOpacity }
+    val chatHeaderOpacity: StateFlow<Float> = project { it.chatHeaderOpacity }
+    val chatComposerOpacity: StateFlow<Float> = project { it.chatComposerOpacity }
+    val chatBackgroundDim: StateFlow<Float> = project { it.chatBackgroundDim }
+    val hasCompletedFirstLaunch: StateFlow<Boolean> = project { it.hasCompletedFirstLaunch }
+    val airiVersion: StateFlow<Int> = project { it.airiVersion }
+    val airiUpdateAvailable: StateFlow<Boolean> = project { it.airiUpdateAvailable }
 
     init {
         scope.launch { loadAll() }
@@ -65,6 +73,40 @@ class ForgeSettings(
     fun setSidebarWidth(value: Int) =
         update({ it.copy(sidebarWidthDp = value) }) { settings.setSidebarWidth(value) }
 
+    fun setChatBackground(bytes: ByteArray?, opacity: Float) =
+        update({ it.copy(chatBackgroundBytes = bytes, chatBackgroundOpacity = opacity) }) {
+            settings.setChatBackgroundBytes(bytes)
+            settings.setChatBackgroundOpacity(opacity)
+        }
+
+    fun setChatBackgroundOpacity(value: Float) =
+        update({ it.copy(chatBackgroundOpacity = value) }) { settings.setChatBackgroundOpacity(value) }
+
+    fun setChatHeaderOpacity(value: Float) =
+        update({ it.copy(chatHeaderOpacity = value) }) { settings.setChatHeaderOpacity(value) }
+
+    fun setChatComposerOpacity(value: Float) =
+        update({ it.copy(chatComposerOpacity = value) }) { settings.setChatComposerOpacity(value) }
+
+    fun setChatBackgroundDim(value: Float) =
+        update({ it.copy(chatBackgroundDim = value) }) { settings.setChatBackgroundDim(value) }
+
+    fun removeChatBackground() =
+        update({ it.copy(chatBackgroundBytes = null) }) { settings.setChatBackgroundBytes(null) }
+
+    fun setHasCompletedFirstLaunch() =
+        update({ it.copy(hasCompletedFirstLaunch = true) }) { settings.setHasCompletedFirstLaunch(true) }
+
+    suspend fun loadAiriVersion() {
+        _state.update { it.copy(airiVersion = settings.getAiriVersion()) }
+    }
+
+    fun setAiriVersion(value: Int) =
+        update({ it.copy(airiVersion = value) }) { settings.setAiriVersion(value) }
+
+    fun setAiriUpdateAvailable(value: Boolean) =
+        _state.update { it.copy(airiUpdateAvailable = value) }
+
     fun reset() {
         val defaults = SettingsState(isLoaded = true)
         _state.value = defaults
@@ -77,6 +119,9 @@ class ForgeSettings(
             settings.setMessageWidth(defaults.messageWidth.name)
             settings.setComposerMaxHeight(defaults.composerMaxHeightDp)
             settings.setSidebarWidth(defaults.sidebarWidthDp)
+            settings.setChatHeaderOpacity(defaults.chatHeaderOpacity)
+            settings.setChatComposerOpacity(defaults.chatComposerOpacity)
+            settings.setChatBackgroundDim(defaults.chatBackgroundDim)
         }
     }
 
@@ -89,6 +134,13 @@ class ForgeSettings(
             messageWidth = safeEnum(settings.getMessageWidth(), MessageWidth.Normal),
             composerMaxHeightDp = settings.getComposerMaxHeight(),
             sidebarWidthDp = settings.getSidebarWidth(),
+            chatBackgroundBytes = settings.getChatBackgroundBytes(),
+            chatBackgroundOpacity = settings.getChatBackgroundOpacity(),
+            chatHeaderOpacity = settings.getChatHeaderOpacity(),
+            chatComposerOpacity = settings.getChatComposerOpacity(),
+            chatBackgroundDim = settings.getChatBackgroundDim(),
+            hasCompletedFirstLaunch = settings.getHasCompletedFirstLaunch(),
+            airiVersion = settings.getAiriVersion(),
             isLoaded = true,
         )
         _state.value = loaded

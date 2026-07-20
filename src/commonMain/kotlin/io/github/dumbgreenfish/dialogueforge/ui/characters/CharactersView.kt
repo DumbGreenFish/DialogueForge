@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,10 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.action_ok
+import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_add_default
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_empty
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_title
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_message
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_add
+import io.github.dumbgreenfish.dialogueforge.generated.resources.airi_update_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.import_error_title
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardGrid
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.card.CharacterCardList
@@ -76,7 +83,9 @@ private val ScrimAnimDuration = 180
 fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
     val viewModel = koinViewModel<CharactersViewModel>()
     val controller = koinInject<NavController>()
+    val forgeSettings = koinInject<ForgeSettings>()
     val state by viewModel.state.collectAsState()
+    val airiUpdateAvailable by forgeSettings.airiUpdateAvailable.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
@@ -114,7 +123,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             }
 
             if (displayed.isEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState() }
+                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(onAddDefault = { viewModel.handle(CharactersIntent.ImportDefault) }) }
             } else {
                 items(displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
@@ -177,6 +186,7 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
         state.error?.let { message ->
             AlertDialog(
                 onDismissRequest = { viewModel.handle(CharactersIntent.DismissError) },
+                containerColor = ForgeColors.surfaceContainerHigh,
                 title = { Text(stringResource(Res.string.import_error_title)) },
                 text = { Text(message) },
                 confirmButton = {
@@ -186,14 +196,32 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                 },
             )
         }
+        if (airiUpdateAvailable) {
+            AlertDialog(
+                onDismissRequest = { viewModel.handle(CharactersIntent.DismissAiriUpdate) },
+                containerColor = ForgeColors.surfaceContainerHigh,
+                title = { Text(stringResource(Res.string.airi_update_title)) },
+                text = { Text(stringResource(Res.string.airi_update_message)) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.handle(CharactersIntent.ImportAiriUpdate) }) {
+                        Text(stringResource(Res.string.airi_update_add))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.handle(CharactersIntent.DismissAiriUpdate) }) {
+                        Text(stringResource(Res.string.airi_update_dismiss))
+                    }
+                },
+            )
+        }
     }
 }
 
 @Composable
-private fun EmptyState() {
-    Box(
-        modifier        = Modifier.fillMaxWidth().padding(vertical = EmptyStateVerticalPadding),
-        contentAlignment = Alignment.Center,
+private fun EmptyState(onAddDefault: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = EmptyStateVerticalPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text      = stringResource(Res.string.characters_empty),
@@ -201,5 +229,8 @@ private fun EmptyState() {
             color     = ForgeColors.onSurfaceFaint,
             textAlign = TextAlign.Center,
         )
+        TextButton(onClick = onAddDefault) {
+            Text(stringResource(Res.string.characters_add_default))
+        }
     }
 }

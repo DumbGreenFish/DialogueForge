@@ -22,6 +22,12 @@ class SettingsViewModel(
             is SettingsIntent.UpdateMessageWidth -> forgeSettings.setMessageWidth(intent.value)
             is SettingsIntent.UpdateComposerMaxHeight -> forgeSettings.setComposerMaxHeight(intent.valueDp)
             is SettingsIntent.UpdateSidebarWidth -> forgeSettings.setSidebarWidth(intent.valueDp)
+            is SettingsIntent.SetChatBackground -> forgeSettings.setChatBackground(intent.bytes, forgeSettings.state.value.chatBackgroundOpacity)
+            is SettingsIntent.RemoveChatBackground -> forgeSettings.removeChatBackground()
+            is SettingsIntent.UpdateChatBackgroundOpacity -> forgeSettings.setChatBackgroundOpacity(intent.value)
+            is SettingsIntent.UpdateChatHeaderOpacity -> forgeSettings.setChatHeaderOpacity(intent.value)
+            is SettingsIntent.UpdateChatComposerOpacity -> forgeSettings.setChatComposerOpacity(intent.value)
+            is SettingsIntent.UpdateChatBackgroundDim -> forgeSettings.setChatBackgroundDim(intent.value)
         }
     }
 }

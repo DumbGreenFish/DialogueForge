@@ -6,7 +6,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -36,6 +39,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,6 +49,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -55,6 +61,13 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animat
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_off
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_slow
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_speed
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_dim
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_opacity
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_pick
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_remove
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_header_opacity
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_composer_opacity
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_composer_max_height
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_default_view_mode
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_density_scale
@@ -71,8 +84,12 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_sideba
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_grid
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_list
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
+import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
+import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.AnimationSpeed
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -105,6 +122,10 @@ private const val ComposerStep      = 20f
 private const val SidebarMin        = 200f
 private const val SidebarMax        = 320f
 private const val SidebarStep       = 10f
+private const val PanelOpacityMin   = 0.3f
+private const val PanelOpacityMax   = 1.0f
+private const val BgDimMin          = 0f
+private const val BgDimMax          = 0.8f
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
@@ -213,7 +234,47 @@ fun SettingsView(modifier: Modifier = Modifier) {
                 isExpanded = expandedId == "composer",
                 onToggle = { toggle("composer") },
             )
+            SettingsDivider()
+            ExpandableSliderSetting(
+                headline = stringResource(Res.string.settings_chat_header_opacity),
+                value = state.chatHeaderOpacity,
+                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatHeaderOpacity(it)) },
+                valueRange = PanelOpacityMin..PanelOpacityMax,
+                valueSuffix = "",
+                isExpanded = expandedId == "header_opacity",
+                onToggle = { toggle("header_opacity") },
+            )
+            SettingsDivider()
+            ExpandableSliderSetting(
+                headline = stringResource(Res.string.settings_chat_composer_opacity),
+                value = state.chatComposerOpacity,
+                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatComposerOpacity(it)) },
+                valueRange = PanelOpacityMin..PanelOpacityMax,
+                valueSuffix = "",
+                isExpanded = expandedId == "composer_opacity",
+                onToggle = { toggle("composer_opacity") },
+            )
+            SettingsDivider()
+            ExpandableSliderSetting(
+                headline = stringResource(Res.string.settings_chat_background_dim),
+                value = state.chatBackgroundDim,
+                onValueChange = { viewModel.handle(SettingsIntent.UpdateChatBackgroundDim(it)) },
+                valueRange = BgDimMin..BgDimMax,
+                valueSuffix = "",
+                isExpanded = expandedId == "bg_dim",
+                onToggle = { toggle("bg_dim") },
+            )
         }
+
+        Spacer(Modifier.height(SectionHeaderToCardGap))
+
+        ChatBackgroundSetting(
+            bytes = state.chatBackgroundBytes,
+            opacity = state.chatBackgroundOpacity,
+            onPick = { bytes -> viewModel.handle(SettingsIntent.SetChatBackground(bytes)) },
+            onRemove = { viewModel.handle(SettingsIntent.RemoveChatBackground) },
+            onOpacityChange = { viewModel.handle(SettingsIntent.UpdateChatBackgroundOpacity(it)) },
+        )
 
         SectionHeader(
             title = stringResource(Res.string.settings_section_navigation),
@@ -246,6 +307,80 @@ fun SettingsView(modifier: Modifier = Modifier) {
         }
 
         Spacer(Modifier.height(ContentPadBottom))
+    }
+}
+
+@Composable
+private fun ChatBackgroundSetting(
+    bytes: ByteArray?,
+    opacity: Float,
+    onPick: (ByteArray) -> Unit,
+    onRemove: () -> Unit,
+    onOpacityChange: (Float) -> Unit,
+) {
+    val cs = MaterialTheme.colorScheme
+    var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    val picker = rememberFilePicker { data, _ -> onPick(data) }
+
+    LaunchedEffect(bytes) {
+        previewBitmap = if (bytes != null) {
+            withContext(Dispatchers.Default) { bytes.toImageBitmapOrNull() }
+        } else null
+    }
+
+    val hasBackground = bytes != null
+
+    SettingsCard {
+        SettingRow(
+            headline = stringResource(Res.string.settings_chat_background),
+            trailing = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (hasBackground) {
+                        previewBitmap?.let { bmp ->
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(cs.surfaceVariant, CircleShape),
+                            ) {
+                                Image(
+                                    bitmap = bmp,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
+                        }
+                        TextButton(onClick = onRemove) {
+                            Text(
+                                stringResource(Res.string.settings_chat_background_remove),
+                                color = cs.error,
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    }
+                    OutlinedButton(onClick = picker) {
+                        Text(
+                            if (hasBackground) "..." else stringResource(Res.string.settings_chat_background_pick),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+            },
+            onClick = {},
+        )
+    }
+
+    if (hasBackground) {
+        SettingsDivider()
+        ExpandableSliderSetting(
+            headline = stringResource(Res.string.settings_chat_background_opacity),
+            value = opacity,
+            onValueChange = onOpacityChange,
+            valueRange = 0.05f..0.40f,
+            valueSuffix = "",
+            isExpanded = false,
+            onToggle = {},
+        )
     }
 }
 

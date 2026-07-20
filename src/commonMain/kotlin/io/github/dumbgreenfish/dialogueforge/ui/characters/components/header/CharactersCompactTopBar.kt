@@ -5,14 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
@@ -47,13 +45,12 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val TopBarHeight           = 64.dp
-private val TopBarPaddingH         = 4.dp
 private val ForgeMarkContainerSize = 32.dp
 private val ForgeMarkSize          = 16.dp
 private val ForgeMarkTitlePad      = 4.dp
@@ -85,88 +82,88 @@ internal fun CharactersCompactTopBar() {
             targetState = searchExpanded,
             transitionSpec = { searchBarTransition() },
         ) { expanded ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .height(TopBarHeight)
-                    .padding(horizontal = TopBarPaddingH),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(GapItems),
-            ) {
-                if (expanded) {
-                    SearchField(
-                        value = state.query,
-                        onChange = { viewModel.handle(CharactersIntent.SearchChanged(it)) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester),
-                    )
-
-                    IconButton(onClick = {
-                        searchExpanded = false
-                        viewModel.handle(CharactersIntent.SearchChanged(""))
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.size(ForgeMarkContainerSize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        ForgeMark(Modifier.size(ForgeMarkSize))
-                    }
-
-                    Text(
-                        text = stringResource(item.labelRes),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = cs.onSurface,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = ForgeMarkTitlePad),
-                    )
-
-                    Box {
-                        IconButton(onClick = { filterOpen = true }) {
+            BaseTopBar(
+                isCompact = true,
+                backgroundColor = cs.background,
+                leading = {
+                    if (expanded) {
+                        IconButton(onClick = {
+                            searchExpanded = false
+                            viewModel.handle(CharactersIntent.SearchChanged(""))
+                        }) {
                             Icon(
-                                imageVector = if (filterActive) Icons.Filled.Tune else Icons.Outlined.Tune,
+                                imageVector = Icons.Outlined.ArrowBack,
                                 contentDescription = null,
-                                tint = if (filterActive) ForgeColors.spark else cs.onSurfaceVariant,
+                                tint = cs.onSurfaceVariant,
                             )
                         }
-                        if (filterActive) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .offset(x = FilterBadgeOffset, y = -FilterBadgeOffset)
-                                    .size(FilterBadgeSize)
-                                    .clip(CircleShape)
-                                    .background(cs.primary),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = filterActiveCount.toString(),
-                                    color = cs.onPrimary,
-                                    fontSize = FilterBadgeFontSize,
-                                    fontWeight = FontWeight.W700,
-                                )
-                            }
+                    } else {
+                        Box(
+                            modifier = Modifier.size(ForgeMarkContainerSize),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            ForgeMark(Modifier.size(ForgeMarkSize))
                         }
                     }
-
-                    IconButton(onClick = { searchExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Search,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
+                },
+                title = {
+                    if (expanded) {
+                        SearchField(
+                            value = state.query,
+                            onChange = { viewModel.handle(CharactersIntent.SearchChanged(it)) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(item.labelRes),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = cs.onSurface,
+                            modifier = Modifier.padding(start = ForgeMarkTitlePad),
                         )
                     }
-                }
-            }
+                },
+                trailing = {
+                    if (!expanded) {
+                        Box {
+                            IconButton(onClick = { filterOpen = true }) {
+                                Icon(
+                                    imageVector = if (filterActive) Icons.Filled.Tune else Icons.Outlined.Tune,
+                                    contentDescription = null,
+                                    tint = if (filterActive) ForgeColors.spark else cs.onSurfaceVariant,
+                                )
+                            }
+                            if (filterActive) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = FilterBadgeOffset, y = -FilterBadgeOffset)
+                                        .size(FilterBadgeSize)
+                                        .clip(CircleShape)
+                                        .background(cs.primary),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = filterActiveCount.toString(),
+                                        color = cs.onPrimary,
+                                        fontSize = FilterBadgeFontSize,
+                                        fontWeight = FontWeight.W700,
+                                    )
+                                }
+                            }
+                        }
+
+                        IconButton(onClick = { searchExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = null,
+                                tint = cs.onSurfaceVariant,
+                            )
+                        }
+                    }
+                },
+            )
         }
     }
 

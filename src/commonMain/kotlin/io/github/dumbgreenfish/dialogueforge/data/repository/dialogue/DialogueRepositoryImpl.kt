@@ -18,6 +18,12 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override fun getMessages(conversationId: String): Flow<List<MessageEntity>> =
         db.messageDao().getByConversation(conversationId)
 
+    override suspend fun getMessagesPage(conversationId: String, limit: Int, offset: Int): List<MessageEntity> =
+        db.messageDao().getByConversationPaged(conversationId, limit, offset)
+
+    override suspend fun getMessageCount(conversationId: String): Int =
+        db.messageDao().countByConversation(conversationId)
+
     override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationEntity {
         val now = Clock.System.now().toEpochMilliseconds()
         val conversation = ConversationEntity(

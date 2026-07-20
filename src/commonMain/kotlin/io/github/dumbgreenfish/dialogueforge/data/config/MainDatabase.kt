@@ -19,7 +19,7 @@ internal const val MAIN_DB_DIR  = "db"
 
 @Database(
     entities = [CharacterEntity::class, ConversationEntity::class, MessageEntity::class, SettingEntity::class],
-    version = 3,
+    version = 7,
     exportSchema = false,
 )
 @ColumnTypeConverters(StringListConverter::class)
