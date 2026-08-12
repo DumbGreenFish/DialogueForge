@@ -58,6 +58,8 @@ desktop.ini
 .env.local
 
 # ===== AI assistants =====
+/docs/
+/reports/
 .claude/
 .claude
 CLAUDE.md

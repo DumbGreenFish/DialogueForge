@@ -1,6 +1,8 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import java.util.Properties
 
 plugins {
@@ -67,6 +69,10 @@ kotlin {
         compilerOptions {
             jvmTarget.set(jvmTargetVersion)
         }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant {
+            sourceSetTree.set(KotlinSourceSetTree.test)
+        }
     }
 
     @OptIn(ExperimentalWasmDsl::class)
@@ -74,6 +80,9 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "$appName.js"
+            }
+            testTask {
+                enabled = false
             }
         }
         binaries.executable()
@@ -114,6 +123,13 @@ kotlin {
             }
         }
 
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("org.jetbrains.compose.ui:ui-test:${libs.versions.compose.plugin.get()}")
+            }
+        }
+
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -123,12 +139,24 @@ kotlin {
             }
         }
 
+        val desktopTest by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.koin.android)
                 implementation(libs.sqlite.bundled)
                 implementation(libs.ktor.client.okhttp)
+            }
+        }
+
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(libs.androidx.test.runner)
             }
         }
 
@@ -142,6 +170,7 @@ kotlin {
 }
 
 dependencies {
+    add("debugImplementation", libs.androidx.compose.ui.test.manifest)
     add("kspAndroid", libs.room3.compiler)
     add("kspDesktop", libs.room3.compiler)
     add("kspWasmJs", libs.room3.compiler)
@@ -167,6 +196,7 @@ android {
             .map { it.toInt() }
             .let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
         versionName = version.toString()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
