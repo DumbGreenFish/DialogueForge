@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,7 +25,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.unit.IntSize
 import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
+import io.github.dumbgreenfish.dialogueforge.data.generation.ConversationVisibility
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.util.image.toImageBitmapOrNull
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.background.ChatBackground
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.composer.Composer
@@ -38,12 +42,15 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.Mes
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.messages.MessagesListData
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.popup.CharacterImagePopup
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.scaffold.DialogueScaffold
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.setup.BackgroundSetupIntroductionDialog
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.components.setup.BackgroundWorkDialog
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -64,6 +71,12 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
     val bgDim by forgeSettings.chatBackgroundDim.collectAsState()
 
     val imageCache = koinInject<ImageCache>()
+    val conversationVisibility = koinInject<ConversationVisibility>()
+
+    DisposableEffect(characterId) {
+        conversationVisibility.showCharacter(characterId)
+        onDispose { conversationVisibility.hideCharacter(characterId) }
+    }
 
     LaunchedEffect(characterId) {
         viewModel.handle(DialogueIntent.LoadCharacter(characterId))
@@ -211,6 +224,18 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                 imageCache = imageCache,
                 onDismiss = { showCharacterPopup = false },
             )
+        }
+
+        when (state.backgroundSetupStep) {
+            BackgroundSetupStep.Introduction -> BackgroundSetupIntroductionDialog(
+                onAccept = { viewModel.handle(DialogueIntent.AcceptBackgroundSetup) },
+                onDecline = { viewModel.handle(DialogueIntent.DeclineBackgroundSetup) },
+            )
+            BackgroundSetupStep.BackgroundWork -> BackgroundWorkDialog(
+                onOpenSettings = { viewModel.handle(DialogueIntent.OpenBackgroundSettings) },
+                onContinue = { viewModel.handle(DialogueIntent.ContinueWithoutBackgroundSettings) },
+            )
+            null -> Unit
         }
     }
 }

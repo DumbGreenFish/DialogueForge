@@ -5,21 +5,17 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationController
+import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationRequest
+import io.github.dumbgreenfish.dialogueforge.data.generation.BackgroundGenerationSettings
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
-import io.github.dumbgreenfish.dialogueforge.data.service.LlmResponseException
-import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
-import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,15 +32,31 @@ private const val PAGE_SIZE = 50
 class DialogueViewModel(
     private val characterRepository: CharacterRepository,
     private val dialogueRepository: DialogueRepository,
-    private val llmService: LlmService,
+    private val generationController: GenerationController,
     private val settingsRepository: SettingsRepository,
+    private val backgroundGenerationSettings: BackgroundGenerationSettings,
     @InjectedParam private val clipboardManager: ClipboardManager,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DialogueState())
     val state: StateFlow<DialogueState> = _state.asStateFlow()
 
-    private var generationJob: Job? = null
+    private var messageObservationJob: Job? = null
     private var totalMessageCount: Int = 0
+
+    init {
+        viewModelScope.launch {
+            generationController.activeConversationIds.collect { activeIds ->
+                _state.update { current ->
+                    current.copy(isGenerating = current.conversationId in activeIds)
+                }
+            }
+        }
+        viewModelScope.launch {
+            generationController.changedConversationIds.collect { conversationId ->
+                if (_state.value.conversationId == conversationId) refreshConversation(conversationId)
+            }
+        }
+    }
 
     fun handle(intent: DialogueIntent) {
         when (intent) {
@@ -52,6 +64,10 @@ class DialogueViewModel(
             is DialogueIntent.Back -> {}
             is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.value) }
             is DialogueIntent.Send -> onSend()
+            is DialogueIntent.AcceptBackgroundSetup -> acceptBackgroundSetup()
+            is DialogueIntent.DeclineBackgroundSetup -> finishBackgroundSetup(openSettings = false)
+            is DialogueIntent.OpenBackgroundSettings -> finishBackgroundSetup(openSettings = true)
+            is DialogueIntent.ContinueWithoutBackgroundSettings -> finishBackgroundSetup(openSettings = false)
             is DialogueIntent.StopGeneration -> stopGeneration()
             is DialogueIntent.DeleteMessage -> deleteMessage(intent.messageId)
             is DialogueIntent.LoadOlderMessages -> loadOlderMessages()
@@ -76,7 +92,6 @@ class DialogueViewModel(
     }
 
     private fun loadCharacter(id: String) {
-        generationJob?.cancel()
         if (_state.value.isLoading) return
         _state.update { DialogueState(isLoading = true) }
         viewModelScope.launch(Dispatchers.Default) {
@@ -89,8 +104,13 @@ class DialogueViewModel(
             )
             val conversationId = conversationResult.conversation.id
             val greetingMessageId = conversationResult.greetingMessageId
+            val isGenerating = conversationId in generationController.activeConversationIds.value
             val chatError = conversationResult.conversation.let { conv ->
-                if (conv.hasError && conv.errorType != null) ChatError(conv.errorType, conv.errorText) else null
+                if (conv.hasError && conv.errorType != null && !(isGenerating && conv.errorType == ChatErrorType.Interrupted)) {
+                    ChatError(conv.errorType, conv.errorText)
+                } else {
+                    null
+                }
             }
             totalMessageCount = dialogueRepository.getMessageCount(conversationId)
             val page = dialogueRepository.getMessagesPage(conversationId, PAGE_SIZE, 0)
@@ -105,8 +125,48 @@ class DialogueViewModel(
                     hasMoreOlderMessages = page.size < totalMessageCount,
                     greetingMessageId = greetingMessageId,
                     chatError = chatError,
+                    isGenerating = isGenerating,
                 )
             }
+            observeMessages(conversationId)
+        }
+    }
+
+    private fun observeMessages(conversationId: String) {
+        messageObservationJob?.cancel()
+        messageObservationJob = viewModelScope.launch {
+            dialogueRepository.getMessages(conversationId).collect {
+                refreshMessages(conversationId)
+            }
+        }
+    }
+
+    private suspend fun refreshConversation(conversationId: String) {
+        refreshMessages(conversationId)
+        val conversation = dialogueRepository.getConversation(conversationId)
+        val isGenerating = conversationId in generationController.activeConversationIds.value
+        val chatError = conversation?.let {
+            if (it.hasError && it.errorType != null && !(isGenerating && it.errorType == ChatErrorType.Interrupted)) {
+                ChatError(it.errorType, it.errorText)
+            } else {
+                null
+            }
+        }
+        _state.update { current ->
+            if (current.conversationId == conversationId) current.copy(chatError = chatError) else current
+        }
+    }
+
+    private suspend fun refreshMessages(conversationId: String) {
+        if (_state.value.conversationId != conversationId) return
+        totalMessageCount = dialogueRepository.getMessageCount(conversationId)
+        val loadedMessageCount = _state.value.messages.size.coerceAtLeast(PAGE_SIZE)
+        val page = dialogueRepository.getMessagesPage(conversationId, loadedMessageCount, 0)
+        _state.update { current ->
+            if (current.conversationId != conversationId) current else current.copy(
+                messages = page.map { it.toMessage() },
+                hasMoreOlderMessages = page.size < totalMessageCount,
+            )
         }
     }
 
@@ -130,114 +190,72 @@ class DialogueViewModel(
     }
 
     private fun onSend() {
-        val text = _state.value.inputText.text.trim()
-        val conversationId = _state.value.conversationId ?: return
-        val character = _state.value.character ?: return
-        val lastMessage = _state.value.messages.firstOrNull()
-
-        if (text.isEmpty()) {
-            if (lastMessage?.role != MessageRole.User) return
-            _state.update { it.copy(isGenerating = true) }
-            val lastUserText = lastMessage.text
-            generationJob = viewModelScope.launch {
-                val history = buildHistory()
-                generateResponse(character, conversationId, history)
-            }
+        if (generationRequestOrNull() == null) return
+        if (backgroundGenerationSettings.shouldShowOnboarding()) {
+            _state.update { it.copy(backgroundSetupStep = BackgroundSetupStep.Introduction) }
             return
         }
-
-        _state.update {
-            it.copy(
-                inputText = TextFieldValue(),
-                isGenerating = true,
-                chatError = null,
-            )
-        }
-
-        generationJob = viewModelScope.launch {
-            dialogueRepository.clearConversationError(conversationId)
-            val userMessage = dialogueRepository.addMessage(conversationId, MessageRole.User.wire, text).toMessage()
-            _state.update { it.copy(messages = listOf(userMessage) + it.messages) }
-            totalMessageCount += 1
-            val history = buildHistory()
-            generateResponse(character, conversationId, history)
-        }
+        sendCurrentInput()
     }
 
-    private suspend fun generateResponse(
-        character: Character,
-        conversationId: String,
-        history: List<Pair<String, String>>,
-    ) {
-        val apiKey = settingsRepository.getApiKey()
-        if (apiKey.isNullOrBlank()) {
-            _state.update {
-                it.copy(
-                    isGenerating = false,
-                    chatError = ChatError(ChatErrorType.NoApiKey, ""),
-                )
-            }
-            dialogueRepository.setConversationError(conversationId, ChatErrorType.NoApiKey.name, "")
-            return
-        }
+    private fun acceptBackgroundSetup() {
+        if (_state.value.backgroundSetupStep != BackgroundSetupStep.Introduction) return
+        backgroundGenerationSettings.requestNotificationPermission()
+        _state.update { it.copy(backgroundSetupStep = BackgroundSetupStep.BackgroundWork) }
+    }
 
-        val systemPrompt = buildSystemPrompt(character)
-        llmService.chat(
-            systemPrompt = systemPrompt,
-            history = history,
-        ).fold(
-            onSuccess = { response ->
-                val assistantMessage = dialogueRepository.addMessage(
-                    conversationId,
-                    MessageRole.Assistant.wire,
-                    response,
-                ).toMessage()
-                _state.update {
-                    it.copy(
-                        messages = listOf(assistantMessage) + it.messages,
-                        isGenerating = false,
-                    )
-                }
-                totalMessageCount += 1
-            },
-            onFailure = { throwable ->
-                val (type, details) = chatErrorFrom(throwable)
-                _state.update {
-                    it.copy(
-                        isGenerating = false,
-                        chatError = ChatError(type, details),
-                    )
-                }
-                dialogueRepository.setConversationError(conversationId, type.name, details)
-            },
+    private fun finishBackgroundSetup(openSettings: Boolean) {
+        if (_state.value.backgroundSetupStep == null) return
+        backgroundGenerationSettings.completeOnboarding()
+        _state.update { it.copy(backgroundSetupStep = null) }
+        sendCurrentInput()
+        if (openSettings) backgroundGenerationSettings.openBackgroundSettings()
+    }
+
+    private fun generationRequestOrNull(): GenerationRequest? {
+        val current = _state.value
+        val conversationId = current.conversationId ?: return null
+        val character = current.character ?: return null
+        val text = current.inputText.text.trim()
+        if (text.isEmpty() && current.messages.firstOrNull()?.role != MessageRole.User) return null
+        return GenerationRequest(
+            conversationId = conversationId,
+            characterId = character.id,
+            userText = text.ifEmpty { null },
+            characterName = character.name,
         )
     }
 
-    private fun chatErrorFrom(e: Throwable): Pair<ChatErrorType, String> {
-        val message = e.message.orEmpty()
-        val type = when (e) {
-            is HttpRequestTimeoutException -> ChatErrorType.Network
-            is LlmResponseException,
-            is ClientRequestException,
-            is ServerResponseException -> ChatErrorType.Server
-            else -> ChatErrorType.Unknown
+    private fun sendCurrentInput() {
+        val request = generationRequestOrNull() ?: return
+
+        if (request.userText == null) {
+            if (generationController.start(request)) {
+                _state.update { it.copy(isGenerating = true, chatError = null) }
+            }
+            return
         }
-        return type to message
+
+        if (generationController.start(request)) {
+            _state.update {
+                it.copy(
+                    inputText = TextFieldValue(),
+                    isGenerating = true,
+                    chatError = null,
+                )
+            }
+        }
     }
 
     private fun stopGeneration() {
-        generationJob?.cancel()
-        _state.update { it.copy(isGenerating = false) }
+        _state.value.conversationId?.let(generationController::cancel)
     }
 
     private fun retrySend() {
         val conversationId = _state.value.conversationId ?: return
         val character = _state.value.character ?: return
-        _state.update { it.copy(isGenerating = true, chatError = null) }
-        generationJob = viewModelScope.launch {
-            dialogueRepository.clearConversationError(conversationId)
-            val history = buildHistory()
-            generateResponse(character, conversationId, history)
+        if (generationController.start(GenerationRequest(conversationId, character.id, null, character.name))) {
+            _state.update { it.copy(isGenerating = true, chatError = null) }
         }
     }
 
@@ -328,38 +346,4 @@ class DialogueViewModel(
         }
     }
 
-    private fun buildHistory(): List<Pair<String, String>> {
-        return _state.value.messages
-            .asReversed()
-            .filter { it.role == MessageRole.User || it.role == MessageRole.Assistant }
-            .map { it.role.wire to it.text }
-    }
-
-    private fun buildSystemPrompt(character: Character): String {
-        val sb = StringBuilder()
-        sb.appendLine("You are ${character.name}.")
-
-        val desc = character.description
-        if (desc.isNotBlank()) {
-            sb.appendLine()
-            sb.appendLine(desc)
-        }
-
-        val personality = character.personality
-        if (personality.isNotBlank()) {
-            sb.appendLine()
-            sb.appendLine("Personality: $personality")
-        }
-
-        val scenario = character.scenario
-        if (scenario.isNotBlank()) {
-            sb.appendLine()
-            sb.appendLine("Scenario: $scenario")
-        }
-
-        sb.appendLine()
-        sb.appendLine("Respond in character as ${character.name}. Stay consistent with the description and personality above.")
-
-        return sb.toString()
-    }
 }

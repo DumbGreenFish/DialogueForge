@@ -20,4 +20,13 @@ class NavController {
 
     fun switchTab(tab: NavTab) { _activeTab.value = tab }
     fun getBar(tab: NavTab): NavBar<*> = bars.getValue(tab)
+
+    fun openChatFromNotification(characterId: String) {
+        val characters = bars.getValue(NavTab.Characters) as CharactersTab
+        characters.stack.clear()
+        characters.stack.add(CharactersTab.Screen.MainScreen)
+        characters.forwardStack.clear()
+        characters.navigateTo(CharactersTab.Screen.ChatScreen(characterId))
+        _activeTab.value = NavTab.Characters
+    }
 }

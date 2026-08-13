@@ -34,6 +34,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_api_key_not_set
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_network
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_interrupted
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_server
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_unknown
@@ -70,6 +71,7 @@ internal fun ChatErrorItem(
         ChatErrorType.NoApiKey -> stringResource(Res.string.dialogue_error_api_key_not_set)
         ChatErrorType.Network -> stringResource(Res.string.dialogue_error_network)
         ChatErrorType.Server -> stringResource(Res.string.dialogue_error_server)
+        ChatErrorType.Interrupted -> stringResource(Res.string.dialogue_error_interrupted)
         ChatErrorType.Unknown -> stringResource(Res.string.dialogue_error_unknown)
     }
 
@@ -159,6 +161,14 @@ private fun errorStyle(type: ChatErrorType, cs: androidx.compose.material3.Color
         iconTint = cs.error,
         buttonColor = cs.error.copy(alpha = 0.12f),
         buttonContentColor = cs.error,
+    )
+    ChatErrorType.Interrupted -> ErrorStyle(
+        containerColor = cs.errorContainer,
+        border = null,
+        icon = Lucide.CircleAlert,
+        iconTint = cs.error,
+        buttonColor = cs.error,
+        buttonContentColor = cs.onError,
     )
     ChatErrorType.Unknown -> ErrorStyle(
         containerColor = cs.errorContainer,

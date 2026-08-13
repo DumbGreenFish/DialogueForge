@@ -55,12 +55,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShapes
+import io.github.dumbgreenfish.dialogueforge.data.generation.BackgroundGenerationSettings
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_fast
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_normal
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_off
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_slow
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_animation_speed
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_background_work
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_dim
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_chat_background_opacity
@@ -78,6 +80,9 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_messag
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_message_width
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_reset
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_appearance
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_notifications
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_open
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_notifications
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_chat
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_navigation
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_sidebar_width
@@ -91,6 +96,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.settings.model.MessageWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import kotlin.math.roundToInt
@@ -131,6 +137,7 @@ private const val BgDimMax          = 0.8f
 @OptIn(KoinExperimentalAPI::class)
 fun SettingsView(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<SettingsViewModel>()
+    val backgroundGenerationSettings = koinInject<BackgroundGenerationSettings>()
     val state by viewModel.state.collectAsState()
     var expandedId by remember { mutableStateOf<String?>(null) }
 
@@ -295,6 +302,42 @@ fun SettingsView(modifier: Modifier = Modifier) {
                 isExpanded = expandedId == "sidebar",
                 onToggle = { toggle("sidebar") },
             )
+        }
+
+        if (backgroundGenerationSettings.isAvailable) {
+            SectionHeader(
+                title = stringResource(Res.string.settings_section_notifications),
+                modifier = Modifier.padding(top = SectionGap),
+            )
+            Spacer(Modifier.height(SectionHeaderToCardGap))
+
+            SettingsCard {
+                SettingRow(
+                    headline = stringResource(Res.string.settings_notifications),
+                    trailing = {
+                        OutlinedButton(onClick = backgroundGenerationSettings::configureNotifications) {
+                            Text(
+                                stringResource(Res.string.settings_open),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    },
+                    onClick = backgroundGenerationSettings::configureNotifications,
+                )
+                SettingsDivider()
+                SettingRow(
+                    headline = stringResource(Res.string.settings_background_work),
+                    trailing = {
+                        OutlinedButton(onClick = backgroundGenerationSettings::openBackgroundSettings) {
+                            Text(
+                                stringResource(Res.string.settings_open),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    },
+                    onClick = backgroundGenerationSettings::openBackgroundSettings,
+                )
+            }
         }
 
         Spacer(Modifier.height(FooterButtonGap))

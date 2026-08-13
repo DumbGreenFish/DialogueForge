@@ -24,6 +24,9 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override suspend fun getMessageCount(conversationId: String): Int =
         db.messageDao().countByConversation(conversationId)
 
+    override suspend fun getConversation(conversationId: String): ConversationEntity? =
+        db.conversationDao().getById(conversationId)
+
     override suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationResult {
         val now = Clock.System.now().toEpochMilliseconds()
         val conversation = ConversationEntity(

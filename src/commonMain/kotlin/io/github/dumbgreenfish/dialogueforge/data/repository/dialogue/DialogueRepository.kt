@@ -11,6 +11,7 @@ interface DialogueRepository {
     fun getMessages(conversationId: String): Flow<List<MessageEntity>>
     suspend fun getMessagesPage(conversationId: String, limit: Int, offset: Int): List<MessageEntity>
     suspend fun getMessageCount(conversationId: String): Int
+    suspend fun getConversation(conversationId: String): ConversationEntity? = null
     suspend fun getOrCreateConversation(characterId: String, greeting: String): ConversationResult
     suspend fun addMessage(conversationId: String, role: String, text: String): MessageEntity
     suspend fun deleteMessage(id: String)

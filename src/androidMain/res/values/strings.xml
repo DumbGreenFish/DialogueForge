@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_generation_channel">Response generation</string>
+    <string name="notification_completion_channel">Completed responses</string>
+    <string name="notification_generation_title">Generating response</string>
+    <string name="notification_generation_title_multiple">Generating responses</string>
+    <string name="notification_generation_single">A response is being generated for character %1$s. Please wait!</string>
+    <string name="notification_generation_multiple">%1$d active</string>
+    <string name="notification_stop_all">Stop all</string>
+</resources>

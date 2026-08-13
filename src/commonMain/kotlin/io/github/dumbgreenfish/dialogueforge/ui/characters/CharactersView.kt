@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,6 +47,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.Characters
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.header.CompactHeader
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
+import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeAlertDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -184,9 +184,8 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             )
         }
         state.error?.let { message ->
-            AlertDialog(
+            ForgeAlertDialog(
                 onDismissRequest = { viewModel.handle(CharactersIntent.DismissError) },
-                containerColor = ForgeColors.surfaceContainerHigh,
                 title = { Text(stringResource(Res.string.import_error_title)) },
                 text = { Text(message) },
                 confirmButton = {
@@ -197,9 +196,8 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             )
         }
         if (airiUpdateAvailable) {
-            AlertDialog(
+            ForgeAlertDialog(
                 onDismissRequest = { viewModel.handle(CharactersIntent.DismissAiriUpdate) },
-                containerColor = ForgeColors.surfaceContainerHigh,
                 title = { Text(stringResource(Res.string.airi_update_title)) },
                 text = { Text(stringResource(Res.string.airi_update_message)) },
                 confirmButton = {
