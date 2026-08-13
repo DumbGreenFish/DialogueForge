@@ -22,4 +22,5 @@ data class DialogueState(
     val selectedMessageIds: Set<String> = emptySet(),
     val chatError: ChatError? = null,
     val greetingMessageId: String? = null,
+    val backgroundSetupStep: BackgroundSetupStep? = null,
 )

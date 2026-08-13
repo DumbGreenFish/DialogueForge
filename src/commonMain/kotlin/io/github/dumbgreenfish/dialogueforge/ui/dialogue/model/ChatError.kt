@@ -4,6 +4,7 @@ enum class ChatErrorType {
     NoApiKey,
     Network,
     Server,
+    Interrupted,
     Unknown,
 }
 

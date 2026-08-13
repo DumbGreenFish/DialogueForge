@@ -35,6 +35,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.ImportProgressOverlay
 import io.github.dumbgreenfish.dialogueforge.ui.common.mouseNav
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NotificationNavigationRequests
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavScreen
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 import kotlinx.coroutines.Dispatchers
@@ -122,7 +123,22 @@ fun App() {
 
             WithReferenceDensity(densityScale, fontScale) {
                 val controller = koinInject<NavController>()
+                val notificationNavigation = koinInject<NotificationNavigationRequests>()
                 val activeTab by controller.activeTab.collectAsState()
+                val notificationCharacterId by notificationNavigation.characterId.collectAsState()
+
+                LaunchedEffect(notificationCharacterId) {
+                    notificationCharacterId?.let { characterId ->
+                        try {
+                            val characterExists = withContext(Dispatchers.Default) {
+                                characterRepo.getById(characterId) != null
+                            }
+                            if (characterExists) controller.openChatFromNotification(characterId)
+                        } finally {
+                            notificationNavigation.consume(characterId)
+                        }
+                    }
+                }
 
                 Surface(
                     modifier = Modifier

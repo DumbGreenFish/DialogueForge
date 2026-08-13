@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_generation_channel">Генерация ответов</string>
+    <string name="notification_completion_channel">Готовые ответы</string>
+    <string name="notification_generation_title">Генерируется ответ</string>
+    <string name="notification_generation_title_multiple">Генерируются ответы</string>
+    <string name="notification_generation_single">Происходит генерация ответа для персонажа %1$s. Пожалуйста, подождите!</string>
+    <string name="notification_generation_multiple">Активных генераций: %1$d</string>
+    <string name="notification_stop_all">Остановить все</string>
+</resources>
