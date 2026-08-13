@@ -72,9 +72,9 @@ internal fun MessagesList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
 ) {
-    val hasUserMessages = data.messages.any { it.role == MessageRole.User }
-    val isOnlyGreeting = !hasUserMessages && data.messages.size == 1
-    val firstAssistantId = data.messages.firstOrNull { it.role == MessageRole.Assistant }?.id
+    val isOnlyGreeting = data.messages.singleOrNull()?.let { message ->
+        usesGreetingPresentation(data.messages, message)
+    } == true
 
     if (isOnlyGreeting) {
         val greetingMessage = data.messages.first()
@@ -147,11 +147,9 @@ internal fun MessagesList(
             when {
                 item.dateLabel != null -> DateSeparator(label = item.dateLabel)
                 item.message != null -> {
-                    val isGreeting = item.message.role == MessageRole.Assistant &&
-                            item.message.id == firstAssistantId
                     MessageItem(
                         message = item.message,
-                        isGreeting = isGreeting,
+                        isGreeting = usesGreetingPresentation(data.messages, item.message),
                         itemContext = itemContext,
                     )
                 }
@@ -169,6 +167,11 @@ internal fun MessagesList(
             }
         }
     }
+}
+
+internal fun usesGreetingPresentation(messages: List<Message>, message: Message): Boolean {
+    val onlyMessage = messages.singleOrNull() ?: return false
+    return onlyMessage.id == message.id && onlyMessage.role == MessageRole.Assistant
 }
 
 @Composable

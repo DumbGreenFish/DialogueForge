@@ -60,6 +60,7 @@ desktop.ini
 # ===== AI assistants =====
 /docs/
 /reports/
+/.agents/
 .claude/
 .claude
 CLAUDE.md
