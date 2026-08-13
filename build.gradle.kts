@@ -200,6 +200,10 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+        }
+
         getByName("release") {
             if (keystoreProperties.isNotEmpty()) {
                 val releaseSigning = signingConfigs.create("release") {

@@ -65,14 +65,14 @@ internal fun AssistantMessage(
     modifier: Modifier = Modifier,
 ) {
     val avatarSize by animateDpAsState(
-        targetValue = if (isGreeting) GreetingAvatarSize else RegularAvatarSize,
+        targetValue = assistantAvatarTargetSize(isGreeting),
         animationSpec = tween(ForgeAnimation.DurationStateTransition),
         label = "avatarSize",
     )
     var requestedAvatarSize by remember { mutableStateOf(GreetingAvatarSize) }
 
     LaunchedEffect(isGreeting) {
-        val target = if (isGreeting) GreetingAvatarSize else RegularAvatarSize
+        val target = assistantAvatarTargetSize(isGreeting)
         if (requestedAvatarSize != target) {
             delay(ForgeAnimation.DurationStateTransition.toLong())
             requestedAvatarSize = target
@@ -171,6 +171,9 @@ internal fun AssistantMessage(
         }
     }
 }
+
+internal fun assistantAvatarTargetSize(isGreeting: Boolean): Dp =
+    if (isGreeting) GreetingAvatarSize else RegularAvatarSize
 
 @Composable
 private fun AssistantContent(

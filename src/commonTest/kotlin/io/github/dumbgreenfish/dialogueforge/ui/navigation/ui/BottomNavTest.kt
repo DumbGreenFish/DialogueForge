@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class BottomNavTest {
     @Test
-    fun displaysAllTabsAndChangesSelection() = runComposeUiTest {
+    fun displays_all_tabs_and_changes_selection() = runComposeUiTest {
         var selected by mutableStateOf(NavTab.Characters)
         val strings = TestStrings(
             Res.string.nav_characters,

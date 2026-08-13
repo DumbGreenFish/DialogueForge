@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class DeleteCharacterDialogTest {
     @Test
-    fun confirmInvokesCallback() = runComposeUiTest {
+    fun confirm_action_invokes_callback() = runComposeUiTest {
         var confirmed = false
         val strings = deleteCharacterStrings()
 
@@ -42,7 +42,7 @@ class DeleteCharacterDialogTest {
     }
 
     @Test
-    fun dismissInvokesCallback() = runComposeUiTest {
+    fun dismiss_action_invokes_callback() = runComposeUiTest {
         var dismissed = false
         val strings = deleteCharacterStrings()
 
