@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.CircleAlert
 import com.composables.icons.lucide.CircleX
@@ -38,7 +38,6 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_server
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_unknown
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
-import io.github.dumbgreenfish.dialogueforge.ui.common.isMobilePlatform
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
@@ -64,7 +63,6 @@ internal fun ChatErrorItem(
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
-    val detailMaxLines = if (isMobilePlatform) 2 else 5
     val startIndent = if (windowClass == WindowClass.Compact) CompactStartIndent else ErrorStartIndent
 
     val style = errorStyle(error.type, cs)
@@ -99,13 +97,13 @@ internal fun ChatErrorItem(
 
             if (error.details.isNotBlank()) {
                 Spacer(Modifier.height(ErrorDetailGap))
-                Text(
-                    text = error.details,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = cs.onSurfaceVariant,
-                    maxLines = detailMaxLines,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                SelectionContainer {
+                    Text(
+                        text = error.details,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = cs.onSurfaceVariant,
+                    )
+                }
             }
 
             Spacer(Modifier.height(ErrorButtonRowGap))
@@ -171,4 +169,3 @@ private fun errorStyle(type: ChatErrorType, cs: androidx.compose.material3.Color
         buttonContentColor = cs.onError,
     )
 }
-

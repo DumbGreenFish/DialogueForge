@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
+import io.github.dumbgreenfish.dialogueforge.data.service.LlmResponseException
 import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
@@ -216,6 +217,7 @@ class DialogueViewModel(
         val message = e.message.orEmpty()
         val type = when (e) {
             is HttpRequestTimeoutException -> ChatErrorType.Network
+            is LlmResponseException,
             is ClientRequestException,
             is ServerResponseException -> ChatErrorType.Server
             else -> ChatErrorType.Unknown

@@ -127,6 +127,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation("org.jetbrains.compose.ui:ui-test:${libs.versions.compose.plugin.get()}")
+                implementation(libs.ktor.client.mock)
             }
         }
 
