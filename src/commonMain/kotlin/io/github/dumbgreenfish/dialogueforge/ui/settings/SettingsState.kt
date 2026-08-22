@@ -11,6 +11,7 @@ data class SettingsState(
     val animationSpeed: AnimationSpeed = AnimationSpeed.Normal,
     val defaultViewMode: CharactersViewMode = CharactersViewMode.List,
     val messageWidth: MessageWidth = MessageWidth.Normal,
+    val streamResponses: Boolean = SettingsRepository.DEFAULT_STREAM_RESPONSES,
     val composerMaxHeightDp: Int = SettingsRepository.DEFAULT_COMPOSER_MAX_HEIGHT,
     val sidebarWidthDp: Int = SettingsRepository.DEFAULT_SIDEBAR_WIDTH,
     val chatBackgroundBytes: ByteArray? = null,

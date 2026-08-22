@@ -57,6 +57,8 @@
     <string name="dialogue_error_retry">Retry</string>
     <string name="dialogue_error_api_key_not_set">API key not set. Configure in Presets.</string>
     <string name="dialogue_error_server">Failed to get response</string>
+    <string name="dialogue_error_token_limit">The response reached the token limit</string>
+    <string name="dialogue_error_content_filter">The response was stopped by the provider's content filter</string>
     <string name="dialogue_error_interrupted">Generation was interrupted</string>
     <string name="dialogue_error_network">Server unreachable</string>
     <string name="dialogue_error_unknown">Something went wrong</string>
@@ -95,6 +97,7 @@
     <string name="settings_view_grid">Grid</string>
     <string name="settings_section_chat">Chat</string>
     <string name="settings_message_width">Message width</string>
+    <string name="settings_stream_responses">Stream responses</string>
     <string name="settings_message_compact">Compact</string>
     <string name="settings_message_normal">Normal</string>
     <string name="settings_message_wide">Wide</string>

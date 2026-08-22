@@ -8,6 +8,7 @@ internal class FakeSettingsRepository(
     private var model: String = "test-model",
     private var temperature: Float = 0.7f,
     private var maxTokens: Int = 4096,
+    streamResponses: Boolean = false,
 ) : SettingsRepository {
     private val values = mutableMapOf<String, String>()
     private var densityScale = SettingsRepository.DEFAULT_DENSITY_SCALE
@@ -24,6 +25,10 @@ internal class FakeSettingsRepository(
     private var chatBackgroundDim = SettingsRepository.DEFAULT_CHAT_BACKGROUND_DIM
     private var hasCompletedFirstLaunch = false
     private var airiVersion = 0
+
+    init {
+        if (streamResponses) values["stream_responses"] = true.toString()
+    }
 
     override suspend fun get(key: String): String? = values[key]
     override suspend fun set(key: String, value: String) { values[key] = value }

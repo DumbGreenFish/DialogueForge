@@ -4,8 +4,9 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.character.Character
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
+import io.github.dumbgreenfish.dialogueforge.data.service.LlmClient
+import io.github.dumbgreenfish.dialogueforge.data.service.LlmFinishReasonException
 import io.github.dumbgreenfish.dialogueforge.data.service.LlmResponseException
-import io.github.dumbgreenfish.dialogueforge.data.service.LlmService
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -20,10 +21,15 @@ import kotlin.coroutines.cancellation.CancellationException
 class MessageGenerationTask(
     private val characterRepository: CharacterRepository,
     private val dialogueRepository: DialogueRepository,
-    private val llmService: LlmService,
+    private val llmClient: LlmClient,
     private val settingsRepository: SettingsRepository,
+    private val logger: GenerationLogger,
 ) : GenerationTask {
-    override suspend fun run(request: GenerationRequest): GenerationResult {
+    override suspend fun run(
+        request: GenerationRequest,
+        onPartialResponse: (String) -> Unit,
+    ): GenerationResult {
+        var partialResponse = ""
         try {
             dialogueRepository.clearConversationError(request.conversationId)
             request.userText?.let { text ->
@@ -52,9 +58,13 @@ class MessageGenerationTask(
                 .sortedBy { it.orderInConversation }
                 .map { it.role to it.text }
 
-            return llmService.chat(
+            return llmClient.chat(
                 systemPrompt = systemPrompt(character),
                 history = history,
+                onUpdate = { response ->
+                    partialResponse = response
+                    onPartialResponse(response)
+                },
             ).fold(
                 onSuccess = { response ->
                     dialogueRepository.addMessage(request.conversationId, ASSISTANT_ROLE, response)
@@ -67,22 +77,34 @@ class MessageGenerationTask(
                     )
                 },
                 onFailure = { throwable ->
+                    persistPartialResponse(request.conversationId, partialResponse)
                     val (type, details) = chatError(throwable)
                     dialogueRepository.setConversationError(request.conversationId, type.name, details)
                     GenerationResult.Failure
                 },
             )
         } catch (e: CancellationException) {
-            if (e is UserGenerationCancellationException) {
-                withContext(NonCancellable) {
+            withContext(NonCancellable) {
+                persistPartialResponse(request.conversationId, partialResponse)
+                if (e is UserGenerationCancellationException) {
                     dialogueRepository.clearConversationError(request.conversationId)
                 }
             }
             throw e
         } catch (e: Exception) {
+            persistPartialResponse(request.conversationId, partialResponse)
             val (type, details) = chatError(e)
             dialogueRepository.setConversationError(request.conversationId, type.name, details)
             return GenerationResult.Failure
+        }
+    }
+
+    private suspend fun persistPartialResponse(conversationId: String, response: String) {
+        if (response.isBlank()) return
+        try {
+            dialogueRepository.addMessage(conversationId, ASSISTANT_ROLE, response)
+        } catch (error: Exception) {
+            logger.partialResponsePersistenceFailed(response.length, error)
         }
     }
 
@@ -106,6 +128,11 @@ class MessageGenerationTask(
 
     private fun chatError(error: Throwable): Pair<ChatErrorType, String> {
         val type = when (error) {
+            is LlmFinishReasonException -> when (error.finishReason) {
+                "length" -> ChatErrorType.TokenLimit
+                "content_filter" -> ChatErrorType.ContentFilter
+                else -> ChatErrorType.Server
+            }
             is HttpRequestTimeoutException -> ChatErrorType.Network
             is LlmResponseException,
             is ClientRequestException,

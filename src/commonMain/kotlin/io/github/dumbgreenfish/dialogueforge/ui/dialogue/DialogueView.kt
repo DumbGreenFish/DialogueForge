@@ -164,7 +164,7 @@ fun DialogueView(characterId: String, onBack: () -> Unit, modifier: Modifier = M
                 if (character != null) {
                     MessagesList(
                         data = MessagesListData(
-                            messages = state.messages,
+                            messages = messagesForDisplay(state),
                             isLoadingOlder = state.isLoadingOlder,
                             hasMoreOlderMessages = state.hasMoreOlderMessages,
                             onLoadOlder = { viewModel.handle(DialogueIntent.LoadOlderMessages) },

@@ -38,6 +38,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
@@ -86,6 +88,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_sectio
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_chat
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_section_navigation
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_sidebar_width
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_stream_responses
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_grid
 import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_view_list
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharactersViewMode
@@ -117,6 +120,8 @@ private val ChevronSize             = 20.dp
 private val ChevronGap              = 4.dp
 private val FooterButtonGap         = 32.dp
 private val ResetButtonHeight       = 48.dp
+
+internal const val StreamingResponsesSwitchTag = "stream_responses_switch"
 
 private const val DensityMin        = 0.7f
 private const val DensityMax        = 3.0f
@@ -216,6 +221,12 @@ fun SettingsView(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(SectionHeaderToCardGap))
 
         SettingsCard {
+            StreamingResponsesSetting(
+                headline = stringResource(Res.string.settings_stream_responses),
+                enabled = state.streamResponses,
+                onEnabledChange = { viewModel.handle(SettingsIntent.UpdateStreamResponses(it)) },
+            )
+            SettingsDivider()
             ExpandableEnumSetting(
                 headline = stringResource(Res.string.settings_message_width),
                 options = MessageWidth.entries,
@@ -351,6 +362,25 @@ fun SettingsView(modifier: Modifier = Modifier) {
 
         Spacer(Modifier.height(ContentPadBottom))
     }
+}
+
+@Composable
+internal fun StreamingResponsesSetting(
+    headline: String,
+    enabled: Boolean,
+    onEnabledChange: (Boolean) -> Unit,
+) {
+    SettingRow(
+        headline = headline,
+        trailing = {
+            Switch(
+                checked = enabled,
+                onCheckedChange = onEnabledChange,
+                modifier = Modifier.testTag(StreamingResponsesSwitchTag),
+            )
+        },
+        onClick = { onEnabledChange(!enabled) },
+    )
 }
 
 @Composable

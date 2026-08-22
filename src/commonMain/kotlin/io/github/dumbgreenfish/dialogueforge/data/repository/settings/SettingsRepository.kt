@@ -19,6 +19,11 @@ interface SettingsRepository {
     suspend fun getMaxTokens(): Int
     suspend fun setMaxTokens(tokens: Int)
 
+    suspend fun getStreamResponses(): Boolean =
+        get(STREAM_RESPONSES_KEY)?.toBooleanStrictOrNull() ?: DEFAULT_STREAM_RESPONSES
+
+    suspend fun setStreamResponses(value: Boolean) = set(STREAM_RESPONSES_KEY, value.toString())
+
     suspend fun getDensityScale(): Float
     suspend fun setDensityScale(value: Float)
 
@@ -65,6 +70,8 @@ interface SettingsRepository {
         const val DEFAULT_MODEL = "deepseek-chat"
         const val DEFAULT_TEMPERATURE = 0.7f
         const val DEFAULT_MAX_TOKENS = 4096
+        const val DEFAULT_STREAM_RESPONSES = false
+        const val STREAM_RESPONSES_KEY = "stream_responses"
 
         const val DEFAULT_DENSITY_SCALE = 1.0f
         const val DEFAULT_FONT_SCALE = 1.0f

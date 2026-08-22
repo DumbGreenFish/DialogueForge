@@ -13,6 +13,7 @@ data class DialogueState(
     val presetName: String = "",
     val modelName: String = "",
     val messages: List<Message> = emptyList(),
+    val streamingMessage: Message? = null,
     val conversationId: String? = null,
     val isLoadingOlder: Boolean = false,
     val hasMoreOlderMessages: Boolean = true,

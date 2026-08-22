@@ -17,6 +17,7 @@ import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageEnt
 import io.github.dumbgreenfish.dialogueforge.testing.FakeSettingsRepository
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -169,6 +170,61 @@ class DialogueViewModelTest {
         assertEquals(setOf("other-conversation"), generation.activeConversationIds.value)
     }
 
+    @Test
+    fun streamed_partial_response_is_updated_in_place_for_the_open_conversation() = runBlocking {
+        val generation = FakeGenerationController()
+        val viewModel = viewModel(FakeDialogueRepository(), generation)
+        load(viewModel)
+        generation.start(GenerationRequest(CONVERSATION_ID, CHARACTER_ID, "Hello"))
+
+        generation.publishPartial(CONVERSATION_ID, "Hel")
+        val first = withTimeout(TEST_TIMEOUT_MILLIS) {
+            viewModel.state.first { it.streamingMessage?.text == "Hel" }.streamingMessage!!
+        }
+        generation.publishPartial(CONVERSATION_ID, "Hello")
+        val second = withTimeout(TEST_TIMEOUT_MILLIS) {
+            viewModel.state.first { it.streamingMessage?.text == "Hello" }.streamingMessage!!
+        }
+
+        assertEquals(first.id, second.id)
+        assertEquals(MessageRole.Assistant, second.role)
+        assertEquals("Hello", second.text)
+    }
+
+    @Test
+    fun partial_response_from_another_conversation_is_not_shown() = runBlocking {
+        val generation = FakeGenerationController()
+        val viewModel = viewModel(FakeDialogueRepository(), generation)
+        load(viewModel)
+
+        generation.publishPartial("other-conversation", "Not for this screen")
+
+        assertEquals(null, viewModel.state.value.streamingMessage)
+    }
+
+    @Test
+    fun terminal_generation_removes_streaming_message_and_keeps_persisted_assistant_message() = runBlocking {
+        val generation = FakeGenerationController()
+        val repository = FakeDialogueRepository()
+        val viewModel = viewModel(repository, generation)
+        load(viewModel)
+        generation.start(GenerationRequest(CONVERSATION_ID, CHARACTER_ID, "Hello"))
+        generation.publishPartial(CONVERSATION_ID, "Completed response")
+        withTimeout(TEST_TIMEOUT_MILLIS) {
+            viewModel.state.first { it.streamingMessage?.text == "Completed response" }
+        }
+
+        repository.messages += message("assistant-id", "assistant", "Completed response", 0)
+        generation.finish(CONVERSATION_ID)
+
+        val state = withTimeout(TEST_TIMEOUT_MILLIS) {
+            viewModel.state.first {
+                it.streamingMessage == null && it.messages.firstOrNull()?.text == "Completed response"
+            }
+        }
+        assertEquals(1, state.messages.count { it.text == "Completed response" })
+    }
+
     private fun viewModel(
         repository: FakeDialogueRepository,
         generation: FakeGenerationController,
@@ -217,7 +273,9 @@ class DialogueViewModelTest {
 
     private class FakeGenerationController : GenerationController {
         private val active = MutableStateFlow<Set<String>>(emptySet())
+        private val partial = MutableStateFlow<Map<String, String>>(emptyMap())
         override val activeConversationIds: StateFlow<Set<String>> = active
+        override val partialResponses: StateFlow<Map<String, String>> = partial
         override val changedConversationIds = MutableSharedFlow<String>(extraBufferCapacity = 16)
         val requests = mutableListOf<GenerationRequest>()
         val cancelledConversationIds = mutableListOf<String>()
@@ -232,20 +290,28 @@ class DialogueViewModelTest {
         override fun cancel(conversationId: String) {
             cancelledConversationIds += conversationId
             active.value -= conversationId
+            partial.value -= conversationId
         }
 
         override fun cancelAll() {
             cancelledConversationIds += active.value
             active.value = emptySet()
+            partial.value = emptyMap()
         }
 
         override fun interruptAll() {
             active.value = emptySet()
+            partial.value = emptyMap()
         }
 
         fun finish(conversationId: String) {
             active.value -= conversationId
+            partial.value -= conversationId
             changedConversationIds.tryEmit(conversationId)
+        }
+
+        fun publishPartial(conversationId: String, response: String) {
+            partial.value += conversationId to response
         }
     }
 

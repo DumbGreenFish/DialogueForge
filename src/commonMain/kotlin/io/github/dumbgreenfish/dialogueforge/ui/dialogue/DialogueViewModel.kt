@@ -15,6 +15,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -54,6 +55,24 @@ class DialogueViewModel(
         viewModelScope.launch {
             generationController.changedConversationIds.collect { conversationId ->
                 if (_state.value.conversationId == conversationId) refreshConversation(conversationId)
+            }
+        }
+        viewModelScope.launch {
+            generationController.partialResponses.collect { responses ->
+                _state.update { current ->
+                    val conversationId = current.conversationId
+                    val partial = conversationId?.let(responses::get)
+                    current.copy(
+                        streamingMessage = partial?.let { text ->
+                            Message(
+                                id = streamingMessageId(conversationId),
+                                role = MessageRole.Assistant,
+                                text = text,
+                                timestamp = 0L,
+                            )
+                        },
+                    )
+                }
             }
         }
     }
@@ -126,6 +145,9 @@ class DialogueViewModel(
                     greetingMessageId = greetingMessageId,
                     chatError = chatError,
                     isGenerating = isGenerating,
+                    streamingMessage = generationController.partialResponses.value[conversationId]?.let { text ->
+                        Message(streamingMessageId(conversationId), MessageRole.Assistant, text, 0L)
+                    },
                 )
             }
             observeMessages(conversationId)

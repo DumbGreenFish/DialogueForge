@@ -34,7 +34,7 @@ internal fun MarkdownText(
     )
     val markdownState = rememberMarkdownState(
         content = text,
-        immediate = true,
+        retainState = true,
     )
 
     val components = remember {

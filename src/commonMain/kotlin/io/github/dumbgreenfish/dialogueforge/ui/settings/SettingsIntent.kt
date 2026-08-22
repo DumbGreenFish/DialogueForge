@@ -10,6 +10,7 @@ sealed class SettingsIntent {
     data class UpdateAnimationSpeed(val value: AnimationSpeed) : SettingsIntent()
     data class UpdateDefaultViewMode(val value: CharactersViewMode) : SettingsIntent()
     data class UpdateMessageWidth(val value: MessageWidth) : SettingsIntent()
+    data class UpdateStreamResponses(val value: Boolean) : SettingsIntent()
     data class UpdateComposerMaxHeight(val valueDp: Int) : SettingsIntent()
     data class UpdateSidebarWidth(val valueDp: Int) : SettingsIntent()
     data class UpdateChatBackgroundOpacity(val value: Float) : SettingsIntent()

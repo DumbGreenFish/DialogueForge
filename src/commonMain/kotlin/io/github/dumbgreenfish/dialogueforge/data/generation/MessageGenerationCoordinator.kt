@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 
@@ -23,6 +24,8 @@ class MessageGenerationCoordinator(
     private val jobs = MutableStateFlow<Map<String, ActiveGeneration>>(emptyMap())
     private val _activeConversationIds = MutableStateFlow<Set<String>>(emptySet())
     override val activeConversationIds: StateFlow<Set<String>> = _activeConversationIds.asStateFlow()
+    private val _partialResponses = MutableStateFlow<Map<String, String>>(emptyMap())
+    override val partialResponses: StateFlow<Map<String, String>> = _partialResponses.asStateFlow()
     private val _changedConversationIds = MutableSharedFlow<String>(extraBufferCapacity = 32)
     override val changedConversationIds: SharedFlow<String> = _changedConversationIds.asSharedFlow()
 
@@ -39,7 +42,9 @@ class MessageGenerationCoordinator(
         lateinit var job: Job
         job = scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
             try {
-                when (val result = task.run(request)) {
+                when (val result = task.run(request) { response ->
+                    publishPartial(request.conversationId, response)
+                }) {
                     is GenerationResult.Success -> notifier.completed(request.conversationId, result)
                     GenerationResult.Failure -> Unit
                 }
@@ -56,6 +61,7 @@ class MessageGenerationCoordinator(
             }
             val updated = current + (request.conversationId to ActiveGeneration(job, request))
             if (jobs.compareAndSet(current, updated)) {
+                removePartial(request.conversationId)
                 publishActive(updated)
                 break
             }
@@ -89,6 +95,7 @@ class MessageGenerationCoordinator(
             if (conversationId !in current) return
             val updated = current - conversationId
             if (jobs.compareAndSet(current, updated)) {
+                removePartial(conversationId)
                 publishActive(updated)
                 _changedConversationIds.tryEmit(conversationId)
                 lifetime.activeGenerationsChanged(updated.values.map(ActiveGeneration::request))
@@ -99,6 +106,14 @@ class MessageGenerationCoordinator(
 
     private fun publishActive(activeJobs: Map<String, ActiveGeneration>) {
         _activeConversationIds.value = activeJobs.keys
+    }
+
+    private fun publishPartial(conversationId: String, response: String) {
+        _partialResponses.update { it + (conversationId to response) }
+    }
+
+    private fun removePartial(conversationId: String) {
+        _partialResponses.update { it - conversationId }
     }
 
     private data class ActiveGeneration(

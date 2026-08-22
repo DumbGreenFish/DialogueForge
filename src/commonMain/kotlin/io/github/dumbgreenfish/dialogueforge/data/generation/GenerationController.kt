@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface GenerationController {
     val activeConversationIds: StateFlow<Set<String>>
+    val partialResponses: StateFlow<Map<String, String>>
     val changedConversationIds: SharedFlow<String>
     fun start(request: GenerationRequest): Boolean
     fun cancel(conversationId: String)

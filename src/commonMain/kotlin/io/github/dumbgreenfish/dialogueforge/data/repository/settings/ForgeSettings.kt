@@ -37,6 +37,7 @@ class ForgeSettings(
     val animationSpeed: StateFlow<AnimationSpeed> = project { it.animationSpeed }
     val defaultViewMode: StateFlow<CharactersViewMode> = project { it.defaultViewMode }
     val messageWidth: StateFlow<MessageWidth> = project { it.messageWidth }
+    val streamResponses: StateFlow<Boolean> = project { it.streamResponses }
     val composerMaxHeightDp: StateFlow<Int> = project { it.composerMaxHeightDp }
     val sidebarWidthDp: StateFlow<Int> = project { it.sidebarWidthDp }
     val chatBackgroundBytes: StateFlow<ByteArray?> = project { it.chatBackgroundBytes }
@@ -67,6 +68,9 @@ class ForgeSettings(
 
     fun setMessageWidth(value: MessageWidth) =
         update({ it.copy(messageWidth = value) }) { settings.setMessageWidth(value.name) }
+
+    fun setStreamResponses(value: Boolean) =
+        update({ it.copy(streamResponses = value) }) { settings.setStreamResponses(value) }
 
     fun setComposerMaxHeight(value: Int) =
         update({ it.copy(composerMaxHeightDp = value) }) { settings.setComposerMaxHeight(value) }
@@ -118,6 +122,7 @@ class ForgeSettings(
             settings.setAnimationSpeed(defaults.animationSpeed.name)
             settings.setDefaultViewMode(defaults.defaultViewMode.name)
             settings.setMessageWidth(defaults.messageWidth.name)
+            settings.setStreamResponses(defaults.streamResponses)
             settings.setComposerMaxHeight(defaults.composerMaxHeightDp)
             settings.setSidebarWidth(defaults.sidebarWidthDp)
             settings.setChatHeaderOpacity(defaults.chatHeaderOpacity)
@@ -133,6 +138,7 @@ class ForgeSettings(
             animationSpeed = safeEnum(settings.getAnimationSpeed(), AnimationSpeed.Normal),
             defaultViewMode = safeEnum(settings.getDefaultViewMode(), CharactersViewMode.List),
             messageWidth = safeEnum(settings.getMessageWidth(), MessageWidth.Normal),
+            streamResponses = settings.getStreamResponses(),
             composerMaxHeightDp = settings.getComposerMaxHeight(),
             sidebarWidthDp = settings.getSidebarWidth(),
             chatBackgroundBytes = settings.getChatBackgroundBytes(),

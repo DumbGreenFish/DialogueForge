@@ -35,6 +35,8 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_dismiss
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_network
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_interrupted
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_token_limit
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_content_filter
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_server
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_unknown
@@ -71,6 +73,8 @@ internal fun ChatErrorItem(
         ChatErrorType.NoApiKey -> stringResource(Res.string.dialogue_error_api_key_not_set)
         ChatErrorType.Network -> stringResource(Res.string.dialogue_error_network)
         ChatErrorType.Server -> stringResource(Res.string.dialogue_error_server)
+        ChatErrorType.TokenLimit -> stringResource(Res.string.dialogue_error_token_limit)
+        ChatErrorType.ContentFilter -> stringResource(Res.string.dialogue_error_content_filter)
         ChatErrorType.Interrupted -> stringResource(Res.string.dialogue_error_interrupted)
         ChatErrorType.Unknown -> stringResource(Res.string.dialogue_error_unknown)
     }
@@ -154,7 +158,9 @@ private fun errorStyle(type: ChatErrorType, cs: androidx.compose.material3.Color
         buttonContentColor = ForgeColors.spark,
     )
     ChatErrorType.Network,
-    ChatErrorType.Server -> ErrorStyle(
+    ChatErrorType.Server,
+    ChatErrorType.TokenLimit,
+    ChatErrorType.ContentFilter -> ErrorStyle(
         containerColor = cs.error.copy(alpha = 0.04f),
         border = BorderStroke(1.5.dp, cs.error.copy(alpha = 0.4f)),
         icon = Lucide.CircleAlert,

@@ -122,6 +122,50 @@ class MessageGenerationCoordinatorTest {
         assertEquals(listOf("successful"), notifier.conversationIds)
     }
 
+    @Test
+    fun partial_responses_are_published_per_conversation_and_removed_after_completion() {
+        runBlocking {
+            val task = ControlledGenerationTask()
+            val coordinator = coordinator(task)
+            coordinator.start(request("conversation-a", "character-a"))
+            coordinator.start(request("conversation-b", "character-b"))
+            task.awaitStarted("conversation-a")
+            task.awaitStarted("conversation-b")
+
+            task.publish("conversation-a", "One")
+            task.publish("conversation-b", "Two")
+            task.publish("conversation-a", "One updated")
+
+            assertEquals(
+                mapOf("conversation-a" to "One updated", "conversation-b" to "Two"),
+                coordinator.partialResponses.value,
+            )
+
+            task.complete("conversation-a")
+            withTimeout(TEST_TIMEOUT_MILLIS) {
+                coordinator.partialResponses.first { it == mapOf("conversation-b" to "Two") }
+            }
+            task.complete("conversation-b")
+            withTimeout(TEST_TIMEOUT_MILLIS) { coordinator.partialResponses.first { it.isEmpty() } }
+        }
+    }
+
+    @Test
+    fun cancelling_generation_removes_its_partial_response() {
+        runBlocking {
+            val task = ControlledGenerationTask()
+            val coordinator = coordinator(task)
+            coordinator.start(request("conversation-a", "character-a"))
+            task.awaitStarted("conversation-a")
+            task.publish("conversation-a", "Partial")
+
+            coordinator.cancel("conversation-a")
+
+            task.awaitCancelled("conversation-a")
+            withTimeout(TEST_TIMEOUT_MILLIS) { coordinator.partialResponses.first { it.isEmpty() } }
+        }
+    }
+
     private fun CoroutineScope.coordinator(
         task: GenerationTask,
         lifetime: GenerationLifetime = RecordingGenerationLifetime(),
@@ -139,10 +183,15 @@ class MessageGenerationCoordinatorTest {
         private val started = mutableMapOf<String, CompletableDeferred<Unit>>()
         private val results = mutableMapOf<String, CompletableDeferred<GenerationResult>>()
         private val cancelled = mutableMapOf<String, CompletableDeferred<Unit>>()
+        private val progressCallbacks = mutableMapOf<String, (String) -> Unit>()
 
-        override suspend fun run(request: GenerationRequest): GenerationResult {
+        override suspend fun run(
+            request: GenerationRequest,
+            onPartialResponse: (String) -> Unit,
+        ): GenerationResult {
             val id = request.conversationId
             starts[id] = (starts[id] ?: 0) + 1
+            progressCallbacks[id] = onPartialResponse
             started.getOrPut(id) { CompletableDeferred() }.complete(Unit)
             return try {
                 results.getOrPut(id) { CompletableDeferred() }.await()
@@ -170,6 +219,9 @@ class MessageGenerationCoordinatorTest {
 
         fun startCount(id: String): Int = starts[id] ?: 0
         fun wasCancelled(id: String): Boolean = cancelled[id]?.isCompleted == true
+        fun publish(id: String, response: String) {
+            checkNotNull(progressCallbacks[id]) { "Generation has not started: $id" }(response)
+        }
     }
 
     private class RecordingGenerationLifetime : GenerationLifetime {

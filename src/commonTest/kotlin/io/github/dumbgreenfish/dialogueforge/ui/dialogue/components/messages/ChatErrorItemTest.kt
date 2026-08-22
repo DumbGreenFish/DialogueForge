@@ -10,8 +10,10 @@ import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_dismiss
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_content_filter
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_retry
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_server
+import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_error_token_limit
 import io.github.dumbgreenfish.dialogueforge.testing.TestStrings
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
@@ -52,5 +54,48 @@ class ChatErrorItemTest {
 
         assertTrue(retried)
         assertTrue(dismissed)
+    }
+
+    @Test
+    fun token_limit_finish_reason_has_localized_message() = runComposeUiTest {
+        val strings = TestStrings(
+            Res.string.dialogue_error_token_limit,
+            Res.string.dialogue_error_retry,
+            Res.string.dialogue_error_dismiss,
+        )
+
+        setContent {
+            strings.provide {
+                DialogueForgeTheme {
+                    ChatErrorItem(
+                        error = ChatError(ChatErrorType.TokenLimit, ""),
+                        onRetry = {},
+                        onDismiss = {},
+                    )
+                }
+            }
+        }
+        onNodeWithText(strings[Res.string.dialogue_error_token_limit]).assertIsDisplayed()
+    }
+
+    @Test
+    fun content_filter_finish_reason_has_localized_message() = runComposeUiTest {
+        val strings = TestStrings(
+            Res.string.dialogue_error_content_filter,
+            Res.string.dialogue_error_retry,
+            Res.string.dialogue_error_dismiss,
+        )
+        setContent {
+            strings.provide {
+                DialogueForgeTheme {
+                    ChatErrorItem(
+                        error = ChatError(ChatErrorType.ContentFilter, ""),
+                        onRetry = {},
+                        onDismiss = {},
+                    )
+                }
+            }
+        }
+        onNodeWithText(strings[Res.string.dialogue_error_content_filter]).assertIsDisplayed()
     }
 }

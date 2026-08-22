@@ -20,6 +20,7 @@ class SettingsViewModel(
             is SettingsIntent.UpdateAnimationSpeed -> forgeSettings.setAnimationSpeed(intent.value)
             is SettingsIntent.UpdateDefaultViewMode -> forgeSettings.setDefaultViewMode(intent.value)
             is SettingsIntent.UpdateMessageWidth -> forgeSettings.setMessageWidth(intent.value)
+            is SettingsIntent.UpdateStreamResponses -> forgeSettings.setStreamResponses(intent.value)
             is SettingsIntent.UpdateComposerMaxHeight -> forgeSettings.setComposerMaxHeight(intent.valueDp)
             is SettingsIntent.UpdateSidebarWidth -> forgeSettings.setSidebarWidth(intent.valueDp)
             is SettingsIntent.SetChatBackground -> forgeSettings.setChatBackground(intent.bytes, forgeSettings.state.value.chatBackgroundOpacity)

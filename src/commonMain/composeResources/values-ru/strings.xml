@@ -60,6 +60,8 @@
     <string name="dialogue_error_retry">Повторить</string>
     <string name="dialogue_error_api_key_not_set">API ключ не указан. Настройте в Пресетах.</string>
     <string name="dialogue_error_server">Не удалось получить ответ</string>
+    <string name="dialogue_error_token_limit">Ответ достиг лимита токенов</string>
+    <string name="dialogue_error_content_filter">Ответ остановлен фильтром содержимого провайдера</string>
     <string name="dialogue_error_interrupted">Генерация была прервана</string>
     <string name="dialogue_error_network">Сервер недоступен</string>
     <string name="dialogue_error_unknown">Что-то пошло не так</string>
@@ -99,6 +101,7 @@
     <string name="settings_view_grid">Сетка</string>
     <string name="settings_section_chat">Чат</string>
     <string name="settings_message_width">Ширина сообщений</string>
+    <string name="settings_stream_responses">Потоковая генерация ответов</string>
     <string name="settings_message_compact">Узко</string>
     <string name="settings_message_normal">Обычно</string>
     <string name="settings_message_wide">Широко</string>
