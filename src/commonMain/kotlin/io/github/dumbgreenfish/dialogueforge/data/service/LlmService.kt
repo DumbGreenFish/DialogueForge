@@ -195,7 +195,12 @@ class LlmService(
                         responseBody = responseBody.truncatedForDiagnostic(),
                     )
                 }
-                completion.choices.firstOrNull()?.message?.content?.takeIf(String::isNotBlank)
+                val choice = completion.choices.firstOrNull()
+                finishReason = choice?.finishReason
+                if (finishReason == "length" || finishReason == "content_filter") {
+                    throw LlmFinishReasonException(checkNotNull(finishReason))
+                }
+                choice?.message?.content?.takeIf(String::isNotBlank)
                     ?: throw LlmResponseException(
                         statusCode = response.status.value,
                         statusDescription = response.status.description,

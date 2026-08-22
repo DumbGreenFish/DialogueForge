@@ -26,4 +26,5 @@ data class ChatCompletionResponse(
 @Serializable
 data class Choice(
     val message: ChatMessage? = null,
+    @SerialName("finish_reason") val finishReason: String? = null,
 )

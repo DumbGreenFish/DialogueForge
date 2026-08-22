@@ -28,6 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -205,7 +208,28 @@ internal fun MessagesList(
     LazyColumn(
         state = listState,
         reverseLayout = true,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(streamingMessage?.id, listState) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.type == PointerEventType.Scroll) {
+                            streamingMessage?.id?.let { streamingMessageId ->
+                                listState.layoutInfo.visibleItemsInfo
+                                    .firstOrNull { item -> item.key == streamingMessageId }
+                                    ?.let { item ->
+                                        streamingRowLayoutState.attachedHeight = item.size
+                                    }
+                            }
+                            streamingCameraState.isUserScrollSessionActive = true
+                            cameraDebugLog {
+                                "pointer-scroll ${listState.cameraDebugSnapshot()}"
+                            }
+                        }
+                    }
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(vertical = ContentPaddingV),
     ) {

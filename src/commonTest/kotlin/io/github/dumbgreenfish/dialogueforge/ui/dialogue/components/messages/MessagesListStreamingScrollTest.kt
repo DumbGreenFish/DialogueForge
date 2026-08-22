@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipeDown
@@ -103,6 +104,32 @@ class MessagesListStreamingScrollTest {
             assertFalse(currentPosition.isAtBottom)
             assertEquals(detachedPosition.index, currentPosition.index)
             assertEquals(detachedPosition.offset, currentPosition.offset)
+        }
+    }
+
+    @Test
+    fun streaming_updates_do_not_reclaim_or_move_scroll_after_mouse_wheel_input() = runComposeUiTest {
+        val listState = LazyListState()
+        val messages = mutableStateOf(messagesWithStreamingText(StreamingMarkdownChunks.first()))
+
+        setContent { TestMessagesList(messages = messages.value, listState = listState) }
+
+        waitForIdle()
+        assertTrue(listState.position().isAtBottom)
+
+        onNodeWithTag(MessagesListTag).performMouseInput { scroll(MouseWheelScrollDelta) }
+        waitForIdle()
+
+        val detachedAnchor = listState.anchor()
+        assertFalse(listState.position().isAtBottom)
+
+        repeat(StreamingUpdateCount) { update ->
+            runOnUiThread {
+                messages.value = messagesWithStreamingText(streamingText(update + 1))
+            }
+            waitForIdle()
+
+            assertEquals(detachedAnchor, listState.anchor())
         }
     }
 
@@ -272,6 +299,7 @@ class MessagesListStreamingScrollTest {
         const val StreamingTimestamp = 0L
         const val PersistedTimestamp = 8_640_000_000L
         const val DragStepDurationMillis = 32L
+        const val MouseWheelScrollDelta = -6f
 
         const val ExpectedSeparatedLazyItemCount = PersistedMessageCount + 3
 

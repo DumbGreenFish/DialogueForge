@@ -72,6 +72,31 @@ class LlmServiceTest {
     }
 
     @Test
+    fun standard_mode_reports_length_finish_reason_instead_of_returning_truncated_content() = runBlocking {
+        val body =
+            """{"choices":[{"message":{"role":"assistant","content":"Truncated"},"finish_reason":"length"}]}"""
+        val result = service(
+            engine = MockEngine { respondJson(body, HttpStatusCode.OK) },
+            settings = FakeSettingsRepository(streamResponses = false),
+        ).chat("", listOf("user" to "Hello")) {}
+
+        val error = assertIs<LlmFinishReasonException>(result.exceptionOrNull())
+        assertEquals("length", error.finishReason)
+    }
+
+    @Test
+    fun standard_mode_reports_content_filter_finish_reason_without_message_content() = runBlocking {
+        val body = """{"choices":[{"finish_reason":"content_filter"}]}"""
+        val result = service(
+            engine = MockEngine { respondJson(body, HttpStatusCode.OK) },
+            settings = FakeSettingsRepository(streamResponses = false),
+        ).chat("", listOf("user" to "Hello")) {}
+
+        val error = assertIs<LlmFinishReasonException>(result.exceptionOrNull())
+        assertEquals("content_filter", error.finishReason)
+    }
+
+    @Test
     fun streaming_mode_publishes_first_update_before_response_eof() = runBlocking {
         val responseChannel = ByteChannel(autoFlush = true)
         val releaseRemainder = CompletableDeferred<Unit>()

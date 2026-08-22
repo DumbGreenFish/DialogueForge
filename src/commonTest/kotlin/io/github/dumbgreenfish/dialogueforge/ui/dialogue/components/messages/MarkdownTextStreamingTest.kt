@@ -27,6 +27,12 @@ class MarkdownTextStreamingTest {
             }
         }
 
+        waitUntil(
+            conditionDescription = "initial Markdown partial is rendered",
+            timeoutMillis = MarkdownRenderTimeoutMillis,
+        ) {
+            onAllNodesWithText("First partial").fetchSemanticsNodes().isNotEmpty()
+        }
         onNodeWithText("First partial").assertIsDisplayed()
         runOnUiThread { text.value = "Expanded partial" }
         waitUntil(
