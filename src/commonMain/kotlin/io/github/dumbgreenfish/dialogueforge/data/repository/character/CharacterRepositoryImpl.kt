@@ -1,7 +1,9 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.character
 
-import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
-import io.github.dumbgreenfish.dialogueforge.data.model.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.data.dto.card.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.toEntity
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
 

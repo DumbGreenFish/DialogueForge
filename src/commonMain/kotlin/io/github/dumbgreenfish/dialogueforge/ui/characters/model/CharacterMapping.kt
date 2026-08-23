@@ -1,6 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.characters.model
 
-import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
 import io.github.dumbgreenfish.dialogueforge.ui.common.formatDate
 
 private const val TAGLINE_PREVIEW_LENGTH = 120

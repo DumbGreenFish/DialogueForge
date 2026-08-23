@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.character
 
-import io.github.dumbgreenfish.dialogueforge.data.model.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.data.dto.card.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
 import kotlinx.coroutines.flow.Flow
 
 interface CharacterRepository {

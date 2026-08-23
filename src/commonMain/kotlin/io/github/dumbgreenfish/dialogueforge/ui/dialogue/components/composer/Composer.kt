@@ -45,7 +45,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_input_hint

@@ -5,6 +5,8 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
+import io.github.dumbgreenfish.dialogueforge.data.model.ConversationEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 
 @Dao
 interface ConversationDao {

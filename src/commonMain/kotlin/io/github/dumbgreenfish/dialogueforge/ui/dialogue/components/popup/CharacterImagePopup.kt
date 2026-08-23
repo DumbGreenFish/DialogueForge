@@ -36,7 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.X
-import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
+import io.github.dumbgreenfish.dialogueforge.service.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_character_image_close
 import kotlin.math.roundToInt

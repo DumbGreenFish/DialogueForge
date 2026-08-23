@@ -1,5 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.dialogue
 
+import io.github.dumbgreenfish.dialogueforge.data.model.ConversationEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 import kotlinx.coroutines.flow.Flow
 
 data class ConversationResult(

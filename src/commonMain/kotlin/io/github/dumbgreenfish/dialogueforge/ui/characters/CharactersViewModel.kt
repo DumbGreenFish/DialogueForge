@@ -2,11 +2,11 @@ package io.github.dumbgreenfish.dialogueforge.ui.characters
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.dumbgreenfish.dialogueforge.data.format.ParseResult
-import io.github.dumbgreenfish.dialogueforge.data.format.TavernCardParser
-import io.github.dumbgreenfish.dialogueforge.data.model.DefaultCharacterData
+import io.github.dumbgreenfish.dialogueforge.data.dto.card.ParseResult
+import io.github.dumbgreenfish.dialogueforge.service.TavernCardParser
+import io.github.dumbgreenfish.dialogueforge.service.DefaultCharacterData
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.CharacterFilter
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.toCharacter
 import kotlinx.coroutines.flow.MutableStateFlow

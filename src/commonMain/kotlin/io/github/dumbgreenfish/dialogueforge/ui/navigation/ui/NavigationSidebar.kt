@@ -27,8 +27,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.BuildConfig
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ModelNameProvider
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ModelNameProvider
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.design.LabelSmallText

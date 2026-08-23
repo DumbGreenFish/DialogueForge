@@ -5,15 +5,16 @@ package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationController
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationRequest
-import io.github.dumbgreenfish.dialogueforge.data.generation.BackgroundGenerationSettings
-import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterEntity
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationController
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationRequest
+import io.github.dumbgreenfish.dialogueforge.config.BackgroundGenerationSettings
+import io.github.dumbgreenfish.dialogueforge.data.dto.card.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
-import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ConversationEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.ConversationEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.ConversationResult
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
-import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 import io.github.dumbgreenfish.dialogueforge.testing.FakeSettingsRepository
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
@@ -351,7 +352,7 @@ class DialogueViewModelTest {
     private class FakeCharacterRepository : CharacterRepository {
         override val characters: Flow<List<CharacterEntity>> = MutableStateFlow(emptyList())
         override suspend fun getById(id: String): CharacterEntity = character()
-        override suspend fun import(data: io.github.dumbgreenfish.dialogueforge.data.model.TavernCardData) = Unit
+        override suspend fun import(data: TavernCardData) = Unit
         override suspend fun delete(id: String) = Unit
         override suspend fun togglePin(id: String) = Unit
         override suspend fun getMainImageThumbnail(id: String): ByteArray? = null

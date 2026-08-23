@@ -5,6 +5,7 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

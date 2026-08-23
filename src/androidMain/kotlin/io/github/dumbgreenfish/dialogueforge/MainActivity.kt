@@ -6,7 +6,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import io.github.dumbgreenfish.dialogueforge.data.generation.ConversationVisibility
+import io.github.dumbgreenfish.dialogueforge.service.generation.ConversationVisibility
 import io.github.dumbgreenfish.dialogueforge.notification.AndroidNotificationPermission
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NotificationNavigationRequests
 import org.koin.core.context.GlobalContext

@@ -1,6 +1,8 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.dialogue
 
-import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.data.model.ConversationEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationController
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationController
 import io.github.dumbgreenfish.dialogueforge.notification.GenerationNotificationFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

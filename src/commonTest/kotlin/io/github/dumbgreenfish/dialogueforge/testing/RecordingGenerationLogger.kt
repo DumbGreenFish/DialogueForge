@@ -1,7 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.testing
 
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationLogger
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationMode
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationLogger
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationMode
 
 internal class RecordingGenerationLogger : GenerationLogger {
     val entries = mutableListOf<Entry>()

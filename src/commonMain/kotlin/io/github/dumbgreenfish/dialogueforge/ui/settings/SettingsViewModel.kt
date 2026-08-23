@@ -1,7 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.settings
 
 import androidx.lifecycle.ViewModel
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.annotation.KoinViewModel
 

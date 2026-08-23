@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import io.github.dumbgreenfish.dialogueforge.data.repository.settings.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
 import io.github.dumbgreenfish.dialogueforge.testing.FakeSettingsRepository
 import kotlinx.coroutines.flow.first

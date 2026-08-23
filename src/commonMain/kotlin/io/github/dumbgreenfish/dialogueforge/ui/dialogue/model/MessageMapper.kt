@@ -1,6 +1,6 @@
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue.model
 
-import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.MessageEntity
+import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 
 internal fun MessageEntity.toMessage(): Message = Message(
     id = id,

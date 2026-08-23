@@ -17,10 +17,10 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.DialogueForgeTheme
-import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
+import io.github.dumbgreenfish.dialogueforge.service.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
-import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterEntity
-import io.github.dumbgreenfish.dialogueforge.data.model.TavernCardData
+import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
+import io.github.dumbgreenfish.dialogueforge.data.dto.card.TavernCardData
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole

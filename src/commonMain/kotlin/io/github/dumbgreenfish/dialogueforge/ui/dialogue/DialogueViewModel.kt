@@ -5,9 +5,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationController
-import io.github.dumbgreenfish.dialogueforge.data.generation.GenerationRequest
-import io.github.dumbgreenfish.dialogueforge.data.generation.BackgroundGenerationSettings
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationController
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationRequest
+import io.github.dumbgreenfish.dialogueforge.config.BackgroundGenerationSettings
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
@@ -44,7 +44,15 @@ class DialogueViewModel(
     private var messageObservationJob: Job? = null
     private var totalMessageCount: Int = 0
 
-    init {
+    fun launchGenerationResultProcessing() {
+        viewModelScope.launch {
+            generationController.changedConversationIds.collect { conversationId ->
+                if (_state.value.conversationId == conversationId) refreshErrorState(conversationId)
+            }
+        }
+    }
+
+    fun launchGenerationFlagProcessing() {
         viewModelScope.launch {
             generationController.activeConversationIds.collect { activeIds ->
                 _state.update { current ->
@@ -52,11 +60,9 @@ class DialogueViewModel(
                 }
             }
         }
-        viewModelScope.launch {
-            generationController.changedConversationIds.collect { conversationId ->
-                if (_state.value.conversationId == conversationId) refreshConversation(conversationId)
-            }
-        }
+    }
+
+    fun launchPartialResponsesProcessing() {
         viewModelScope.launch {
             generationController.partialResponses.collect { responses ->
                 _state.update { current ->
@@ -75,6 +81,12 @@ class DialogueViewModel(
                 }
             }
         }
+    }
+
+    init {
+        launchGenerationFlagProcessing()
+        launchGenerationResultProcessing()
+        launchPartialResponsesProcessing()
     }
 
     fun handle(intent: DialogueIntent) {
@@ -163,12 +175,13 @@ class DialogueViewModel(
         }
     }
 
-    private suspend fun refreshConversation(conversationId: String) {
+    private suspend fun refreshErrorState(conversationId: String) {
         refreshMessages(conversationId)
         val conversation = dialogueRepository.getConversation(conversationId)
         val isGenerating = conversationId in generationController.activeConversationIds.value
+        val hasTemporaryInterruptionMarker = isGenerating && conversation?.errorType == ChatErrorType.Interrupted
         val chatError = conversation?.let {
-            if (it.hasError && it.errorType != null && !(isGenerating && it.errorType == ChatErrorType.Interrupted)) {
+            if (it.hasError && it.errorType != null && !hasTemporaryInterruptionMarker) {
                 ChatError(it.errorType, it.errorText)
             } else {
                 null

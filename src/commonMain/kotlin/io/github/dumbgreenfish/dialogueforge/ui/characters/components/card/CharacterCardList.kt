@@ -24,11 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
-import io.github.dumbgreenfish.dialogueforge.data.cache.ImageCache
+import io.github.dumbgreenfish.dialogueforge.service.cache.ImageCache
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.character_menu_more
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.CharacterContextMenu

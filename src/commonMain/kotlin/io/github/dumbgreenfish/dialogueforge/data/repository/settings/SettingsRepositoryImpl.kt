@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.data.repository.settings
 
-import io.github.dumbgreenfish.dialogueforge.data.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.config.DatabaseConfig
+import io.github.dumbgreenfish.dialogueforge.data.model.SettingEntity
 import kotlin.io.encoding.Base64
 import org.koin.core.annotation.Single
 
