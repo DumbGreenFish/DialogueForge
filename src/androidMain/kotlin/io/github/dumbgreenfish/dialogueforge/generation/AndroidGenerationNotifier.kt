@@ -4,9 +4,11 @@ import android.app.Application
 import android.graphics.BitmapFactory
 import io.github.dumbgreenfish.dialogueforge.notification.GenerationNotificationFactory
 import io.github.dumbgreenfish.dialogueforge.service.generation.ConversationVisibility
-import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationNotifier
-import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationResult
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationNotifier as LegacyGenerationNotifier
+import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationResult as LegacyGenerationResult
 import io.github.dumbgreenfish.dialogueforge.service.generation.shouldPostCompletionNotification
+import io.github.dumbgreenfish.dialogueforge.service.generation.api.GenerationResult
+import io.github.dumbgreenfish.dialogueforge.service.generation.coordination.GenerationNotifier as CanonicalGenerationNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,12 +16,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 
-@Single(binds = [GenerationNotifier::class])
+@Single(binds = [CanonicalGenerationNotifier::class])
 class AndroidGenerationNotifier internal constructor(
     application: Application,
     private val visibility: ConversationVisibility,
     private val notificationGateway: CompletionNotificationGateway,
-) : GenerationNotifier {
+) : CanonicalGenerationNotifier, LegacyGenerationNotifier {
     private val notifications = GenerationNotificationFactory(application)
     private val preferences = application.getSharedPreferences(PREFERENCES_NAME, Application.MODE_PRIVATE)
     private val notificationLock = Any()
@@ -58,6 +60,21 @@ class AndroidGenerationNotifier internal constructor(
                 ),
             )
         }
+    }
+
+    override fun completed(
+        conversationId: String,
+        result: LegacyGenerationResult.Success,
+    ) {
+        completed(
+            conversationId = conversationId,
+            result = GenerationResult.Success(
+                characterId = result.characterId,
+                characterName = result.characterName,
+                avatar = result.avatar,
+                response = result.response,
+            ),
+        )
     }
 
     private fun cancelForCharacter(characterId: String) {

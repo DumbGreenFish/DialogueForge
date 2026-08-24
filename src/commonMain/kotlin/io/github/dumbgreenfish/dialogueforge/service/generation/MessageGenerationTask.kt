@@ -1,23 +1,22 @@
 package io.github.dumbgreenfish.dialogueforge.service.generation
 
-import io.github.dumbgreenfish.dialogueforge.data.model.CharacterEntity
 import io.github.dumbgreenfish.dialogueforge.data.repository.character.CharacterRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.dialogue.DialogueRepository
 import io.github.dumbgreenfish.dialogueforge.data.repository.settings.SettingsRepository
 import io.github.dumbgreenfish.dialogueforge.service.LlmClient
-import io.github.dumbgreenfish.dialogueforge.data.dto.completion.LlmFinishReasonException
-import io.github.dumbgreenfish.dialogueforge.data.dto.completion.LlmResponseException
-import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.plugins.ServerResponseException
-import kotlinx.coroutines.flow.first
+import io.github.dumbgreenfish.dialogueforge.service.generation.api.GenerationResult as CanonicalGenerationResult
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.CharacterSystemPromptBuilder
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.ChatErrorMapper
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.ConversationGenerationSession
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.ConversationGenerationSessionFactory
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.GenerationSession
+import io.github.dumbgreenfish.dialogueforge.service.generation.execution.MessageGenerationTask as CanonicalMessageGenerationTask
+import io.github.dumbgreenfish.dialogueforge.service.llm.LlmClient as CanonicalLlmClient
+import io.github.dumbgreenfish.dialogueforge.service.llm.request.MissingApiKeyException
+import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
-import kotlin.coroutines.cancellation.CancellationException
 
-@Single(binds = [GenerationTask::class])
 class MessageGenerationTask(
     private val characterRepository: CharacterRepository,
     private val dialogueRepository: DialogueRepository,
@@ -29,121 +28,131 @@ class MessageGenerationTask(
         request: GenerationRequest,
         onPartialResponse: (String) -> Unit,
     ): GenerationResult {
-        var partialResponse = ""
-        try {
-            dialogueRepository.clearConversationError(request.conversationId)
-            request.userText?.let { text ->
-                dialogueRepository.addMessage(request.conversationId, USER_ROLE, text)
-            }
-            dialogueRepository.setConversationError(
-                request.conversationId,
-                ChatErrorType.Interrupted.name,
-                "",
+        val state = LegacyGenerationState()
+        val delegate = CanonicalMessageGenerationTask(
+            characterRepository = characterRepository,
+            sessionFactory = LegacyConversationGenerationSessionFactory(
+                repository = dialogueRepository,
+                logger = logger,
+                state = state,
+            ),
+            systemPromptBuilder = CharacterSystemPromptBuilder(),
+            llmClient = LegacyLlmClientAdapter(
+                delegate = llmClient,
+                settings = settingsRepository,
+                state = state,
+                onPartialResponse = onPartialResponse,
+            ),
+            errorMapper = ChatErrorMapper(),
+        )
+        return when (val result = delegate.run(request)) {
+            CanonicalGenerationResult.Failure -> GenerationResult.Failure
+            is CanonicalGenerationResult.Success -> GenerationResult.Success(
+                characterId = result.characterId,
+                characterName = result.characterName,
+                avatar = result.avatar,
+                response = result.response,
             )
+        }
+    }
+}
 
-            if (settingsRepository.getApiKey().isNullOrBlank()) {
-                dialogueRepository.setConversationError(
-                    request.conversationId,
-                    ChatErrorType.NoApiKey.name,
-                    "",
-                )
-                return GenerationResult.Failure
-            }
+private class LegacyLlmClientAdapter(
+    private val delegate: LlmClient,
+    private val settings: SettingsRepository,
+    private val state: LegacyGenerationState,
+    private val onPartialResponse: (String) -> Unit,
+) : CanonicalLlmClient {
+    override suspend fun chat(
+        systemPrompt: String,
+        history: List<Pair<String, String>>,
+        onUpdate: suspend (String) -> Unit,
+    ): Result<String> {
+        if (settings.getApiKey().isNullOrBlank()) {
+            return Result.failure(MissingApiKeyException())
+        }
+        return delegate.chat(
+            systemPrompt = systemPrompt,
+            history = history,
+            onUpdate = { response ->
+                state.partialResponse = response
+                onPartialResponse(response)
+            },
+        )
+    }
+}
 
-            val character = checkNotNull(characterRepository.getById(request.characterId)) {
-                "Character not found: ${request.characterId}"
-            }
-            val history = dialogueRepository.getMessages(request.conversationId)
-                .first()
-                .sortedBy { it.orderInConversation }
-                .map { it.role to it.text }
+private class LegacyConversationGenerationSessionFactory(
+    private val repository: DialogueRepository,
+    private val logger: GenerationLogger,
+    private val state: LegacyGenerationState,
+) : ConversationGenerationSessionFactory(repository) {
+    override fun create(conversationId: String): GenerationSession =
+        LegacyConversationGenerationSession(
+            conversationId = conversationId,
+            repository = repository,
+            logger = logger,
+            state = state,
+        )
+}
 
-            return llmClient.chat(
-                systemPrompt = systemPrompt(character),
-                history = history,
-                onUpdate = { response ->
-                    partialResponse = response
-                    onPartialResponse(response)
-                },
-            ).fold(
-                onSuccess = { response ->
-                    dialogueRepository.addMessage(request.conversationId, ASSISTANT_ROLE, response)
-                    dialogueRepository.clearConversationError(request.conversationId)
-                    GenerationResult.Success(
-                        characterId = character.id,
-                        characterName = character.name,
-                        avatar = characterRepository.getMainImageThumbnail(character.id),
-                        response = response,
-                    )
-                },
-                onFailure = { throwable ->
-                    persistPartialResponse(request.conversationId, partialResponse)
-                    val (type, details) = chatError(throwable)
-                    dialogueRepository.setConversationError(request.conversationId, type.name, details)
-                    GenerationResult.Failure
-                },
-            )
-        } catch (e: CancellationException) {
-            withContext(NonCancellable) {
-                persistPartialResponse(request.conversationId, partialResponse)
-                if (e is UserGenerationCancellationException) {
-                    dialogueRepository.clearConversationError(request.conversationId)
-                }
-            }
-            throw e
-        } catch (e: Exception) {
-            persistPartialResponse(request.conversationId, partialResponse)
-            val (type, details) = chatError(e)
-            dialogueRepository.setConversationError(request.conversationId, type.name, details)
-            return GenerationResult.Failure
+private class LegacyConversationGenerationSession(
+    private val conversationId: String,
+    private val repository: DialogueRepository,
+    private val logger: GenerationLogger,
+    private val state: LegacyGenerationState,
+) : GenerationSession {
+    private val canonicalSession = ConversationGenerationSession(conversationId, repository)
+
+    override suspend fun begin(userText: String?): List<Pair<String, String>> =
+        canonicalSession.begin(userText)
+
+    override suspend fun writeAssistantResponse(text: String) {
+        state.partialResponse = text
+    }
+
+    override suspend fun complete(response: String) {
+        repository.addMessage(conversationId, ASSISTANT_ROLE, response)
+        repository.clearConversationError(conversationId)
+    }
+
+    override suspend fun fail(error: ChatError) {
+        persistPartialResponse()
+        repository.setConversationError(
+            conversationId = conversationId,
+            errorType = error.type.name,
+            errorText = error.details,
+        )
+    }
+
+    override suspend fun cancel() {
+        withContext(NonCancellable) {
+            persistPartialResponse()
+            repository.clearConversationError(conversationId)
         }
     }
 
-    private suspend fun persistPartialResponse(conversationId: String, response: String) {
+    override suspend fun interrupt() {
+        withContext(NonCancellable) {
+            persistPartialResponse()
+        }
+    }
+
+    private suspend fun persistPartialResponse() {
+        val response = state.partialResponse
         if (response.isBlank()) return
         try {
-            dialogueRepository.addMessage(conversationId, ASSISTANT_ROLE, response)
+            repository.addMessage(conversationId, ASSISTANT_ROLE, response)
         } catch (error: Exception) {
             logger.partialResponsePersistenceFailed(response.length, error)
         }
     }
 
-    private fun systemPrompt(character: CharacterEntity): String = buildString {
-        appendLine("You are ${character.name}.")
-        character.description.takeIf(String::isNotBlank)?.let {
-            appendLine()
-            appendLine(it)
-        }
-        character.personality.takeIf(String::isNotBlank)?.let {
-            appendLine()
-            appendLine("Personality: $it")
-        }
-        character.scenario.takeIf(String::isNotBlank)?.let {
-            appendLine()
-            appendLine("Scenario: $it")
-        }
-        appendLine()
-        appendLine("Respond in character as ${character.name}. Stay consistent with the description and personality above.")
-    }
-
-    private fun chatError(error: Throwable): Pair<ChatErrorType, String> {
-        val type = when (error) {
-            is LlmFinishReasonException -> when (error.finishReason) {
-                "length" -> ChatErrorType.TokenLimit
-                "content_filter" -> ChatErrorType.ContentFilter
-                else -> ChatErrorType.Server
-            }
-            is HttpRequestTimeoutException -> ChatErrorType.Network
-            is LlmResponseException,
-            is ClientRequestException,
-            is ServerResponseException -> ChatErrorType.Server
-            else -> ChatErrorType.Unknown
-        }
-        return type to error.message.orEmpty()
-    }
-
     private companion object {
-        const val USER_ROLE = "user"
         const val ASSISTANT_ROLE = "assistant"
     }
+}
+
+private class LegacyGenerationState {
+    var partialResponse: String = ""
 }

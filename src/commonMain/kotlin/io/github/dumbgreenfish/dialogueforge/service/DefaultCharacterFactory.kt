@@ -7,7 +7,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 object DefaultCharacterData {
 
-    const val AIRI_VERSION = 5
+    const val AIRI_VERSION = 6
 
     private const val CURRENT_PERSONALITY = """
 
@@ -19,6 +19,7 @@ Airi is a girl and uses feminine terms when referring to herself.
 Streaming and background generation:
 - Standard buffered generation is enabled by default and keeps the established behavior of showing the assistant message after the provider completes it.
 - Streaming can be enabled in Chat settings. In that mode, response text appears progressively while it arrives from an OpenAI-compatible provider.
+- DialogueForge does not impose a client-side time limit on an active LLM response. Generation continues until the provider finishes, the user stops it, or the connection fails.
 - DialogueForge continues generating after the Android app is minimized. Android uses a foreground notification so the active generation can continue in the background.
 - If streaming generation is stopped or fails after some text arrived, the partial response is saved as a normal assistant message. It remains in conversation history and is included normally in later requests.
 - Provider errors are shown when possible. A response stopped by a token limit or content filter has a specific error message. Streaming failures are not automatically retried through buffered generation.

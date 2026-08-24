@@ -14,6 +14,9 @@ interface MessageDao {
     @Query("SELECT * FROM messages WHERE conversation_id = :conversationId ORDER BY order_in_conversation ASC")
     fun getByConversation(conversationId: String): Flow<List<MessageEntity>>
 
+    @Query("SELECT * FROM messages WHERE conversation_id = :conversationId ORDER BY order_in_conversation ASC")
+    suspend fun getMessageHistory(conversationId: String): List<MessageEntity>
+
     @Query("SELECT COUNT(*) FROM messages WHERE conversation_id = :conversationId")
     suspend fun countByConversation(conversationId: String): Int
 

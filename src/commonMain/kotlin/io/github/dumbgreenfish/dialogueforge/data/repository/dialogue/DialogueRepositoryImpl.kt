@@ -20,6 +20,9 @@ class DialogueRepositoryImpl(dbConfig: DatabaseConfig) : DialogueRepository {
     override fun getMessages(conversationId: String): Flow<List<MessageEntity>> =
         db.messageDao().getByConversation(conversationId)
 
+    override suspend fun getMessageHistory(conversationId: String): List<MessageEntity> =
+        db.messageDao().getMessageHistory(conversationId)
+
     override suspend fun getMessagesPage(conversationId: String, limit: Int, offset: Int): List<MessageEntity> =
         db.messageDao().getByConversationPaged(conversationId, limit, offset)
 

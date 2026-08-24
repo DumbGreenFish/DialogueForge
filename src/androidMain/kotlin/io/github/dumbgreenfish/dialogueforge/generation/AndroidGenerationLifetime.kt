@@ -1,7 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.generation
 
-import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationLifetime
-import io.github.dumbgreenfish.dialogueforge.service.generation.GenerationRequest
+import io.github.dumbgreenfish.dialogueforge.service.generation.api.GenerationRequest
+import io.github.dumbgreenfish.dialogueforge.service.generation.coordination.GenerationLifetime
 import org.koin.core.annotation.Single
 
 @Single(binds = [GenerationLifetime::class])

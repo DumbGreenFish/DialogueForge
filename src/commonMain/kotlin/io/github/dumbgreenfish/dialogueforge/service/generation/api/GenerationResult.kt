@@ -1,0 +1,12 @@
+package io.github.dumbgreenfish.dialogueforge.service.generation.api
+
+sealed interface GenerationResult {
+    data class Success(
+        val characterId: String,
+        val characterName: String,
+        val avatar: ByteArray?,
+        val response: String,
+    ) : GenerationResult
+
+    data object Failure : GenerationResult
+}

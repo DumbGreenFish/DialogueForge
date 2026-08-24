@@ -1,8 +1,4 @@
 package io.github.dumbgreenfish.dialogueforge.service.generation
 
-data class GenerationRequest(
-    val conversationId: String,
-    val characterId: String,
-    val userText: String?,
-    val characterName: String = characterId,
-)
+typealias GenerationRequest =
+    io.github.dumbgreenfish.dialogueforge.service.generation.api.GenerationRequest

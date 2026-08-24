@@ -3,6 +3,7 @@ package io.github.dumbgreenfish.dialogueforge.data.repository.dialogue
 import io.github.dumbgreenfish.dialogueforge.data.model.ConversationEntity
 import io.github.dumbgreenfish.dialogueforge.data.model.MessageEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 data class ConversationResult(
     val conversation: ConversationEntity,
@@ -11,6 +12,8 @@ data class ConversationResult(
 
 interface DialogueRepository {
     fun getMessages(conversationId: String): Flow<List<MessageEntity>>
+    suspend fun getMessageHistory(conversationId: String): List<MessageEntity> =
+        getMessages(conversationId).first()
     suspend fun getMessagesPage(conversationId: String, limit: Int, offset: Int): List<MessageEntity>
     suspend fun getMessageCount(conversationId: String): Int
     suspend fun getConversation(conversationId: String): ConversationEntity? = null

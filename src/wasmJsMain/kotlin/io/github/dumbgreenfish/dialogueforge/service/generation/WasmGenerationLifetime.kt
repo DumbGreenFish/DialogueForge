@@ -1,8 +1,10 @@
 package io.github.dumbgreenfish.dialogueforge.service.generation
 
+import io.github.dumbgreenfish.dialogueforge.service.generation.api.GenerationRequest as CanonicalGenerationRequest
+import io.github.dumbgreenfish.dialogueforge.service.generation.coordination.GenerationLifetime as GenerationLifetimeContract
 import org.koin.core.annotation.Single
 
-@Single(binds = [GenerationLifetime::class])
-class WasmGenerationLifetime : GenerationLifetime {
-    override fun activeGenerationsChanged(activeGenerations: List<GenerationRequest>) = Unit
+@Single(binds = [GenerationLifetimeContract::class])
+class WasmGenerationLifetime : GenerationLifetimeContract {
+    override fun activeGenerationsChanged(activeGenerations: List<CanonicalGenerationRequest>) = Unit
 }
