@@ -2,12 +2,8 @@ package io.github.dumbgreenfish.dialogueforge.ui.characters.components.header
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,7 +42,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
 import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -69,7 +65,7 @@ internal fun CharactersCompactTopBar() {
     var filterOpen by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
-    val item = navItems.first { it.tab == NavTab.Characters }
+    val item = navItems.first { it.tab == NavTabs.Characters }
     val cs = MaterialTheme.colorScheme
     val filterActiveCount = state.filter.activeCount
     val filterActive = filterActiveCount > 0

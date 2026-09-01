@@ -14,13 +14,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavigationSidebar
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun TabletScaffold(selectedTab: NavTab) {
+fun TabletScaffold(selectedTab: NavTabs) {
     val controller = koinInject<NavController>()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

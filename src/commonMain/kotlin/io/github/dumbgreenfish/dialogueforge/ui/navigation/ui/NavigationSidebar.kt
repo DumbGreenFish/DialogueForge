@@ -27,8 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.BuildConfig
-import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
-import io.github.dumbgreenfish.dialogueforge.service.ModelNameProvider
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
 import io.github.dumbgreenfish.dialogueforge.design.LabelSmallText
@@ -36,7 +34,10 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.app_name
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_active_model_label
 import io.github.dumbgreenfish.dialogueforge.generated.resources.sidebar_model_placeholder
+import io.github.dumbgreenfish.dialogueforge.service.ForgeSettings
+import io.github.dumbgreenfish.dialogueforge.service.ModelNameProvider
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -57,8 +58,8 @@ private val FooterIconSize        = 16.dp
 
 @Composable
 fun NavigationSidebar(
-    selected: NavTab,
-    onSelect: (NavTab) -> Unit,
+    selected: NavTabs,
+    onSelect: (NavTabs) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val modelNameProvider = koinInject<ModelNameProvider>()
@@ -114,7 +115,7 @@ fun NavigationSidebar(
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
                 .background(ForgeColors.surfaceContainerHigh)
-                .clickable { onSelect(NavTab.Presets) }
+                .clickable { onSelect(NavTabs.Presets) }
                 .padding(FooterInnerPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FooterGap),

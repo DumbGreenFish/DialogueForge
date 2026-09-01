@@ -1,17 +1,14 @@
-package io.github.dumbgreenfish.dialogueforge.ui.navigation
+package io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs
 
 import androidx.compose.runtime.mutableStateListOf
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 
-abstract class NavBar<T : NavScreen>(mainScreen: T) {
-    abstract val tabEnum: NavTab
+abstract class NavTab<T : NavScreen>(mainScreen: T) {
     val stack = mutableStateListOf(mainScreen)
     val forwardStack = mutableStateListOf<T>()
 
     fun popBack() {
         if (stack.size > 1) {
-            @Suppress("UNCHECKED_CAST")
-            forwardStack.add(stack.removeLast() as T)
+            forwardStack.add(stack.removeAt(stack.lastIndex))
         }
     }
 

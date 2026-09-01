@@ -54,9 +54,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.DeleteCharacterDialog
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.CharactersTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.CharactersTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 
 private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
@@ -127,10 +127,8 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             } else {
                 items(displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
-                        val bar = controller.getBar(NavTab.Characters)
-                        if (bar is CharactersTab) {
-                            bar.navigateTo(CharactersTab.Screen.ChatScreen(char.id))
-                        }
+                        val tab = NavTabs.Characters.tabObject as CharactersTab
+                        tab.navigateTo(CharactersTab.Screen.ChatScreen(char.id))
                     }
                     if (state.viewMode == CharactersViewMode.List) {
                         CharacterCardList(

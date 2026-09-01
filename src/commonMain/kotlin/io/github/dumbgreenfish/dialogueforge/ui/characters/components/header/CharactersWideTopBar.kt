@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
@@ -52,7 +49,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.Fil
 import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBarHeight
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -78,7 +75,7 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
     val launchPicker = rememberFilePicker { bytes, filename ->
         viewModel.handle(CharactersIntent.ImportFile(bytes, filename))
     }
-    val item = navItems.first { it.tab == NavTab.Characters }
+    val item = navItems.first { it.tab == NavTabs.Characters }
 
     Column(Modifier.fillMaxWidth()) {
         AnimatedContent(

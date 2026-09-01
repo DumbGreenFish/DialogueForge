@@ -139,7 +139,7 @@ private const val BgDimMax          = 0.8f
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
-fun SettingsView(modifier: Modifier = Modifier) {
+fun OldSettingsView(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<SettingsViewModel>()
     val backgroundGenerationSettings = koinInject<BackgroundGenerationSettings>()
     val state by viewModel.state.collectAsState()

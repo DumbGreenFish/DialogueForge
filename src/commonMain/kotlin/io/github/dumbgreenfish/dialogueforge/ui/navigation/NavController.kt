@@ -1,6 +1,7 @@
 package io.github.dumbgreenfish.dialogueforge.ui.navigation
 
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.CharactersTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -8,25 +9,18 @@ import org.koin.core.annotation.Single
 
 @Single
 class NavController {
-    private val bars = mapOf(
-        NavTab.Characters to CharactersTab(),
-        NavTab.Persona to PersonaTab(),
-        NavTab.Presets to PresetsTab(),
-        NavTab.Settings to SettingsTab(),
-    )
 
-    private val _activeTab = MutableStateFlow(NavTab.Characters)
-    val activeTab: StateFlow<NavTab> = _activeTab.asStateFlow()
+    private val _activeTab = MutableStateFlow(NavTabs.Characters)
+    val activeTab: StateFlow<NavTabs> = _activeTab.asStateFlow()
 
-    fun switchTab(tab: NavTab) { _activeTab.value = tab }
-    fun getBar(tab: NavTab): NavBar<*> = bars.getValue(tab)
+    fun switchTab(tab: NavTabs) { _activeTab.value = tab }
 
     fun openChatFromNotification(characterId: String) {
-        val characters = bars.getValue(NavTab.Characters) as CharactersTab
+        val characters = NavTabs.Characters.tabObject as CharactersTab
         characters.stack.clear()
         characters.stack.add(CharactersTab.Screen.MainScreen)
         characters.forwardStack.clear()
         characters.navigateTo(CharactersTab.Screen.ChatScreen(characterId))
-        _activeTab.value = NavTab.Characters
+        _activeTab.value = NavTabs.Characters
     }
 }

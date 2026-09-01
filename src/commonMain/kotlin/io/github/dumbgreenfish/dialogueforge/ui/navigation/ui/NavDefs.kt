@@ -15,12 +15,11 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_characters
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_persona
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_presets
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_settings
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.StringResource
 
-enum class NavTab { Characters, Persona, Presets, Settings }
-
 data class NavItemDef(
-    val tab: NavTab,
+    val tab: NavTabs,
     val labelRes: StringResource,
     val iconOutlined: ImageVector,
     val iconFilled: ImageVector,
@@ -29,8 +28,8 @@ data class NavItemDef(
 }
 
 val navItems = listOf(
-    NavItemDef(NavTab.Characters, Res.string.nav_characters, Icons.Outlined.Groups,   Icons.Filled.Groups),
-    NavItemDef(NavTab.Persona,    Res.string.nav_persona,    Icons.Outlined.Person,   Icons.Filled.Person),
-    NavItemDef(NavTab.Presets,    Res.string.nav_presets,    Icons.Outlined.Tune,     Icons.Filled.Tune),
-    NavItemDef(NavTab.Settings,   Res.string.nav_settings,   Icons.Outlined.Settings, Icons.Filled.Settings),
+    NavItemDef(NavTabs.Characters, Res.string.nav_characters, Icons.Outlined.Groups,   Icons.Filled.Groups),
+    NavItemDef(NavTabs.Persona,    Res.string.nav_persona,    Icons.Outlined.Person,   Icons.Filled.Person),
+    NavItemDef(NavTabs.Presets,    Res.string.nav_presets,    Icons.Outlined.Tune,     Icons.Filled.Tune),
+    NavItemDef(NavTabs.Settings,   Res.string.nav_settings,   Icons.Outlined.Settings, Icons.Filled.Settings),
 )

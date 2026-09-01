@@ -1,18 +1,15 @@
-package io.github.dumbgreenfish.dialogueforge.ui.navigation
+package io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import io.github.dumbgreenfish.dialogueforge.ui.common.ScaffoldForTab
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.DialogueView
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
 
-class CharactersTab : NavBar<CharactersTab.Screen>(Screen.MainScreen) {
-    override val tabEnum = NavTab.Characters
-
+class CharactersTab private constructor(): NavTab<CharactersTab.Screen>(Screen.MainScreen) {
     sealed class Screen : NavScreen() {
         data object MainScreen : Screen() {
             @Composable override fun Render(onBack: () -> Unit) {
-                ScaffoldForTab(NavTab.Characters)
+                ScaffoldForTab(NavTabs.Characters)
             }
         }
         class ChatScreen(val characterId: String) : Screen() {
@@ -24,6 +21,12 @@ class CharactersTab : NavBar<CharactersTab.Screen>(Screen.MainScreen) {
             }
 
             companion object { private var _entryCounter = 0L }
+        }
+    }
+
+    companion object {
+        val instance : CharactersTab by lazy {
+            CharactersTab()
         }
     }
 }

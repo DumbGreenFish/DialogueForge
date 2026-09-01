@@ -11,12 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavigationSidebar
 import org.koin.compose.koinInject
 
 @Composable
-fun WideScaffold(selectedTab: NavTab) {
+fun WideScaffold(selectedTab: NavTabs) {
     val controller = koinInject<NavController>()
     Scaffold { innerPadding ->
         Row(Modifier.fillMaxSize().padding(innerPadding)) {

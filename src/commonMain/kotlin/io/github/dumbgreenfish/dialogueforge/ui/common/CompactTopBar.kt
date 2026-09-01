@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavTab
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 
@@ -19,7 +19,7 @@ private val ForgeMarkSize          = 26.dp
 private val ForgeMarkTitlePad      = 4.dp
 
 @Composable
-fun CompactTopBar(selectedTab: NavTab) {
+fun CompactTopBar(selectedTab: NavTabs) {
     val cs = MaterialTheme.colorScheme
     val item = navItems.first { it.tab == selectedTab }
     BaseTopBar(

@@ -17,6 +17,7 @@ import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_persona
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_presets
 import io.github.dumbgreenfish.dialogueforge.generated.resources.nav_settings
 import io.github.dumbgreenfish.dialogueforge.testing.TestStrings
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,7 +25,7 @@ import kotlin.test.assertEquals
 class BottomNavTest {
     @Test
     fun displays_all_tabs_and_changes_selection() = runComposeUiTest {
-        var selected by mutableStateOf(NavTab.Characters)
+        var selected by mutableStateOf(NavTabs.Characters)
         val strings = TestStrings(
             Res.string.nav_characters,
             Res.string.nav_persona,
@@ -48,7 +49,7 @@ class BottomNavTest {
         onNodeWithText(strings[Res.string.nav_presets]).assertIsDisplayed()
         onNodeWithText(strings[Res.string.nav_settings]).assertIsDisplayed().assertIsNotSelected().performClick()
 
-        assertEquals(NavTab.Settings, selected)
+        assertEquals(NavTabs.Settings, selected)
         onNodeWithText(strings[Res.string.nav_settings]).assertIsSelected()
         onNodeWithText(strings[Res.string.nav_characters]).assertIsNotSelected()
     }

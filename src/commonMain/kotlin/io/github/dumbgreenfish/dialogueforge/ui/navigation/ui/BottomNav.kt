@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.design.ForgeShape
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberNavItemAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
@@ -47,8 +48,8 @@ private val LabelLineHeight   = 14.sp
 
 @Composable
 fun ForgeBottomNav(
-    selected: NavTab,
-    onSelect: (NavTab) -> Unit,
+    selected: NavTabs,
+    onSelect: (NavTabs) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme

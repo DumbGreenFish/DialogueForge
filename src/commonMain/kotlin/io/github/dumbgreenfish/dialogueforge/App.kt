@@ -33,10 +33,8 @@ import io.github.dumbgreenfish.dialogueforge.design.WithReferenceDensity
 import io.github.dumbgreenfish.dialogueforge.config.KoinConfigModule
 import io.github.dumbgreenfish.dialogueforge.ui.common.ImportProgressOverlay
 import io.github.dumbgreenfish.dialogueforge.ui.common.mouseNav
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NotificationNavigationRequests
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -144,23 +142,17 @@ fun App() {
                         .fillMaxSize()
                         .mouseNav(
                             onBack = {
-                                @Suppress("UNCHECKED_CAST")
-                                val bar = controller.getBar(activeTab) as? NavBar<NavScreen>
-                                bar?.popBack()
+                                activeTab.tabObject.popBack()
                             },
                             onForward = {
-                                @Suppress("UNCHECKED_CAST")
-                                val bar = controller.getBar(activeTab) as? NavBar<NavScreen>
-                                bar?.popForward()
+                                activeTab.tabObject.popForward()
                             },
                         ),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                 key(activeTab) {
-                    val bar = controller.getBar(activeTab)
-                    @Suppress("UNCHECKED_CAST")
-                    val stack = (bar as NavBar<NavScreen>).stack
+                    val stack = activeTab.tabObject.stack
                     val topScreen = stack.lastOrNull()
 
                     val backProgress = remember { Animatable(0f) }
@@ -169,7 +161,7 @@ fun App() {
                     PredictiveBackHandler(enabled = stack.size > 1) { progress ->
                         try {
                             progress.collect { event -> backProgress.snapTo(event.progress) }
-                            bar.popBack()
+                            activeTab.tabObject.popBack()
                             backProgress.snapTo(0f)
                         } catch (e: CancellationException) {
                             backScope.launch { backProgress.animateTo(0f) }
@@ -192,7 +184,7 @@ fun App() {
                             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
                             label = "screen-transition",
                         ) { screen ->
-                            screen?.Render(onBack = { bar.popBack() })
+                            screen?.Render(onBack = { activeTab.tabObject.popBack() })
                         }
                     }
                 }
