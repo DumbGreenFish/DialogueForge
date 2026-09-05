@@ -2,6 +2,7 @@ package io.github.dumbgreenfish.dialogueforge.ui.common.topbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +32,7 @@ fun BaseTopBar(
     title: @Composable () -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
+    val cs = MaterialTheme.colorScheme
     val rowModifier = if (isCompact) {
         Modifier
             .windowInsetsPadding(WindowInsets.statusBars)
@@ -40,17 +44,20 @@ fun BaseTopBar(
             .padding(horizontal = BaseWideTopBarPaddingH)
     }
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(backgroundColor)
-            .then(rowModifier),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        leading()
-        Box(Modifier.weight(1f)) {
-            title()
+    Column {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+                .then(rowModifier),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            leading()
+            Box(Modifier.weight(1f)) {
+                title()
+            }
+            trailing()
         }
-        trailing()
+        HorizontalDivider(color = cs.outline)
     }
 }

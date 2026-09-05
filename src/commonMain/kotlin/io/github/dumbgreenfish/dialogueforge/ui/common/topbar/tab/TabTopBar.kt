@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.common.topbar
+package io.github.dumbgreenfish.dialogueforge.ui.common.topbar.tab
 
 import androidx.compose.runtime.Composable
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.header.CharactersCompactTopBar

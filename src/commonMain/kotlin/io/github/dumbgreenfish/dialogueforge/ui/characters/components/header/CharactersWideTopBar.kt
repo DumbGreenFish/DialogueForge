@@ -210,7 +210,6 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                 },
             )
         }
-        HorizontalDivider(color = cs.outline)
     }
 
     if (searchExpanded) {

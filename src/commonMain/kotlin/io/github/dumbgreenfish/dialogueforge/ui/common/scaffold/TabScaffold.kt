@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersView
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
-import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.TabTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.tab.TabTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs

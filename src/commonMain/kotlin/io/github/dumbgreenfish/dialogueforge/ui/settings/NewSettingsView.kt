@@ -83,12 +83,11 @@ fun SettingsView(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .widthIn(max = 600.dp)
         ) {
-            item { CategoryItem(stringResource(Res.string.settings_category_ui), icon = Lucide.Palette, SettingsTab.Screen.UiSettingsScreen("Test")) }
-            item { CategoryItem(stringResource(Res.string.settings_category_chat), icon = Lucide.MessageCircle, SettingsTab.Screen.UiSettingsScreen("Test")) }
-            item { CategoryItem(stringResource(Res.string.settings_category_notifications), icon = Lucide.Bell, SettingsTab.Screen.UiSettingsScreen("Test")) }
-            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen("Test")) }
-            item { CategoryItem(stringResource(Res.string.settings_category_language), icon = Lucide.Languages, SettingsTab.Screen.UiSettingsScreen("Test")) }
-            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_chat), icon = Lucide.MessageCircle, SettingsTab.Screen.UiSettingsScreen) }
+            item { CategoryItem(stringResource(Res.string.settings_category_notifications), icon = Lucide.Bell, SettingsTab.Screen.UiSettingsScreen) }
+            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen) }
+            item { CategoryItem(stringResource(Res.string.settings_category_language), icon = Lucide.Languages, SettingsTab.Screen.UiSettingsScreen) }
+            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen) }
         }
     }
 }

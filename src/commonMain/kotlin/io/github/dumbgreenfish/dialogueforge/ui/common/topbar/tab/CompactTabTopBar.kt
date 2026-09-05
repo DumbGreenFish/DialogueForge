@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.common.topbar
+package io.github.dumbgreenfish.dialogueforge.ui.common.topbar.tab
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.stringResource
 
