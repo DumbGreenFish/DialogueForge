@@ -17,7 +17,7 @@ import com.composables.icons.lucide.X
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.dialogue_selection_count
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import org.jetbrains.compose.resources.pluralStringResource
 

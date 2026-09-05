@@ -74,11 +74,11 @@ fun ForgeBottomNav(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Top,
         ) {
-            navItems.forEach { item ->
+            NavTabs.entries.forEach { item ->
                 NavItemColumn(
                     item = item,
-                    isActive = item.tab == selected,
-                    onClick = { onSelect(item.tab) },
+                    isActive = item == selected,
+                    onClick = { onSelect(item) },
                 )
             }
         }
@@ -87,7 +87,7 @@ fun ForgeBottomNav(
 
 @Composable
 private fun NavItemColumn(
-    item: NavItemDef,
+    item: NavTabs,
     isActive: Boolean,
     onClick: () -> Unit,
 ) {
@@ -117,7 +117,7 @@ private fun NavItemColumn(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = item.icon(isActive),
+                imageVector = item.icon,
                 contentDescription = stringResource(item.labelRes),
                 modifier = Modifier.size(IconSize),
                 tint = anim.iconColor,

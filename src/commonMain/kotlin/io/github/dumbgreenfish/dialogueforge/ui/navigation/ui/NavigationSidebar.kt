@@ -98,11 +98,11 @@ fun NavigationSidebar(
                 .padding(start = NavPaddingH, end = NavPaddingH, top = NavPaddingTop)
                 .selectableGroup(),
         ) {
-            navItems.forEach { item ->
+            NavTabs.entries.forEach { item ->
                 SidebarNavItem(
                     item = item,
-                    isActive = item.tab == selected,
-                    onClick = { onSelect(item.tab) },
+                    isActive = item == selected,
+                    onClick = { onSelect(item) },
                 )
             }
         }

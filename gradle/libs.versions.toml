@@ -25,6 +25,7 @@ kermit = "2.0.8"
 cloudy = "0.6.1"
 markdown-renderer = "0.41.0"
 lucide-icons = "2.2.1"
+compose-settings = "3.2.0"
 
 # It's required to keep this version
 # for compitability with Compose Multiplatform
@@ -88,6 +89,7 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
 lucide-icons = { module = "com.composables:icons-lucide-cmp", version.ref="lucide-icons" }
+composeSettings-ui-expressive = { group = "com.github.alorma.compose-settings", name = "ui-tiles-expressive", version.ref = "compose-settings" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

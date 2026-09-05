@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.dumbgreenfish.dialogueforge.design.ForgeAnimation
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.animation.rememberNavItemAnimation
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.modifier.navItemSelectable
 import org.jetbrains.compose.resources.stringResource
 
@@ -31,7 +32,7 @@ private val ItemIconTextGap = 12.dp
 
 @Composable
 internal fun SidebarNavItem(
-    item: NavItemDef,
+    item: NavTabs,
     isActive: Boolean,
     onClick: () -> Unit,
 ) {
@@ -57,7 +58,7 @@ internal fun SidebarNavItem(
         horizontalArrangement = Arrangement.spacedBy(ItemIconTextGap),
     ) {
         Icon(
-            imageVector = item.icon(isActive),
+            imageVector = item.icon,
             contentDescription = null,
             tint = anim.iconColor,
             modifier = Modifier.size(ItemIconSize),

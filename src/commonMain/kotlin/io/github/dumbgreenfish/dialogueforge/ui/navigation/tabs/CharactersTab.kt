@@ -2,14 +2,14 @@ package io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import io.github.dumbgreenfish.dialogueforge.ui.common.ScaffoldForTab
+import io.github.dumbgreenfish.dialogueforge.ui.common.scaffold.TabScaffoldWithMainScreen
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.DialogueView
 
 class CharactersTab private constructor(): NavTab<CharactersTab.Screen>(Screen.MainScreen) {
     sealed class Screen : NavScreen() {
         data object MainScreen : Screen() {
             @Composable override fun Render(onBack: () -> Unit) {
-                ScaffoldForTab(NavTabs.Characters)
+                TabScaffoldWithMainScreen(NavTabs.Characters)
             }
         }
         class ChatScreen(val characterId: String) : Screen() {

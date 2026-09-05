@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,21 +35,21 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Lucide
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
 import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ForgeMarkContainerSize = 32.dp
 private val ForgeMarkSize          = 16.dp
 private val ForgeMarkTitlePad      = 4.dp
-private val GapItems               = 4.dp
 private val FilterBadgeSize        = 16.dp
 private val FilterBadgeOffset      = 2.dp
 private val FilterBadgeFontSize    = 8.sp
@@ -65,7 +64,6 @@ internal fun CharactersCompactTopBar() {
     var filterOpen by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
-    val item = navItems.first { it.tab == NavTabs.Characters }
     val cs = MaterialTheme.colorScheme
     val filterActiveCount = state.filter.activeCount
     val filterActive = filterActiveCount > 0
@@ -88,7 +86,7 @@ internal fun CharactersCompactTopBar() {
                             viewModel.handle(CharactersIntent.SearchChanged(""))
                         }) {
                             Icon(
-                                imageVector = Icons.Outlined.ArrowBack,
+                                imageVector = Lucide.ArrowLeft,
                                 contentDescription = null,
                                 tint = cs.onSurfaceVariant,
                             )
@@ -113,7 +111,7 @@ internal fun CharactersCompactTopBar() {
                         )
                     } else {
                         Text(
-                            text = stringResource(item.labelRes),
+                            text = stringResource(NavTabs.Characters.labelRes),
                             style = MaterialTheme.typography.headlineSmall,
                             color = cs.onSurface,
                             modifier = Modifier.padding(start = ForgeMarkTitlePad),

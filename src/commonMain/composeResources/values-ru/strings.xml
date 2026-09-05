@@ -116,6 +116,11 @@
     <string name="settings_chat_header_opacity">Прозрачность шапки</string>
     <string name="settings_chat_composer_opacity">Прозрачность композера</string>
     <string name="settings_chat_background_dim">Затемнение фона</string>
+    <string name="settings_category_ui">Внешний вид</string>
+    <string name="settings_category_chat">Чат</string>
+    <string name="settings_category_notifications">Уведомления</string>
+    <string name="settings_category_language">Язык</string>
+    <string name="settings_category_about">О приложении</string>
     <string name="dialogue_edit_save">Сохранить</string>
     <string name="dialogue_edit_cancel">Отмена</string>
     <string name="dialogue_character_image_close">Закрыть</string>

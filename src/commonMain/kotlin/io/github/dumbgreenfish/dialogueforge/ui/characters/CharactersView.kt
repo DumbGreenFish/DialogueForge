@@ -54,44 +54,48 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.menu.DeleteCharacterDialog
 import io.github.dumbgreenfish.dialogueforge.ui.characters.model.Character
+import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
+import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.CharactersTab
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 
-private val GRID_CELLS_LIST         = GridCells.Adaptive(400.dp)
+private val GRID_CELLS_LIST = GridCells.Adaptive(400.dp)
 private val GRID_CELLS_GRID_COMPACT = GridCells.Fixed(2)
-private val GRID_CELLS_GRID_WIDE    = GridCells.Adaptive(160.dp)
+private val GRID_CELLS_GRID_WIDE = GridCells.Adaptive(160.dp)
 
-private val ContentPaddingWideH    = 28.dp
-private val ContentPaddingWideT    = 24.dp
-private val ContentPaddingWideB    = 32.dp
+private val ContentPaddingWideH = 28.dp
+private val ContentPaddingWideT = 24.dp
+private val ContentPaddingWideB = 32.dp
 private val ContentPaddingCompactH = 16.dp
 private val ContentPaddingCompactT = 4.dp
 private val ContentPaddingCompactB = 100.dp
-private val CardGapH               = 12.dp
-private val CardGapVWide           = 12.dp
-private val CardGapVCompact        = 10.dp
-private val SpeedDialPaddingEnd    = 16.dp
+private val CardGapH = 12.dp
+private val CardGapVWide = 12.dp
+private val CardGapVCompact = 10.dp
+private val SpeedDialPaddingEnd = 16.dp
 private val SpeedDialPaddingBottom = 16.dp
 private val EmptyStateVerticalPadding = 80.dp
 
-private val ScrimColor        = Color(0x52000000)
+private val ScrimColor = Color(0x52000000)
 private val ScrimAnimDuration = 180
 
 @Composable
 @OptIn(KoinExperimentalAPI::class)
-fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
+fun CharactersView(
+    modifier: Modifier = Modifier,
+    isCompact: Boolean = windowClass == WindowClass.Compact
+) {
     val viewModel = koinViewModel<CharactersViewModel>()
-    val controller = koinInject<NavController>()
     val forgeSettings = koinInject<ForgeSettings>()
     val state by viewModel.state.collectAsState()
     val airiUpdateAvailable by forgeSettings.airiUpdateAvailable.collectAsState()
     var fabExpanded by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<Character?>(null) }
     val scrimColor by animateColorAsState(
-        targetValue   = if (fabExpanded) ScrimColor else Color.Transparent,
+        targetValue = if (fabExpanded) ScrimColor else Color.Transparent,
         animationSpec = tween(ScrimAnimDuration),
-        label         = "scrim-color",
+        label = "scrim-color",
     )
 
     val launchFilePicker = rememberFilePicker { bytes, filename ->
@@ -100,20 +104,30 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
 
     val gridColumns = when {
         state.viewMode == CharactersViewMode.List -> GRID_CELLS_LIST
-        isCompact                                 -> GRID_CELLS_GRID_COMPACT
-        else                                      -> GRID_CELLS_GRID_WIDE
+        isCompact -> GRID_CELLS_GRID_COMPACT
+        else -> GRID_CELLS_GRID_WIDE
     }
 
     Box(modifier = modifier) {
         LazyVerticalGrid(
-            columns             = gridColumns,
-            modifier            = Modifier.fillMaxSize(),
-            contentPadding      = if (isCompact)
-                PaddingValues(start = ContentPaddingCompactH, top = ContentPaddingCompactT, end = ContentPaddingCompactH, bottom = ContentPaddingCompactB)
+            columns = gridColumns,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = if (isCompact)
+                PaddingValues(
+                    start = ContentPaddingCompactH,
+                    top = ContentPaddingCompactT,
+                    end = ContentPaddingCompactH,
+                    bottom = ContentPaddingCompactB
+                )
             else
-                PaddingValues(start = ContentPaddingWideH, top = ContentPaddingWideT, end = ContentPaddingWideH, bottom = ContentPaddingWideB),
+                PaddingValues(
+                    start = ContentPaddingWideH,
+                    top = ContentPaddingWideT,
+                    end = ContentPaddingWideH,
+                    bottom = ContentPaddingWideB
+                ),
             horizontalArrangement = Arrangement.spacedBy(CardGapH),
-            verticalArrangement   = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
+            verticalArrangement = Arrangement.spacedBy(if (isCompact) CardGapVCompact else CardGapVWide),
         ) {
             val displayed = state.displayed
             if (isCompact) {
@@ -123,7 +137,13 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
             }
 
             if (displayed.isEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(onAddDefault = { viewModel.handle(CharactersIntent.ImportDefault) }) }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EmptyState(onAddDefault = {
+                        viewModel.handle(
+                            CharactersIntent.ImportDefault
+                        )
+                    })
+                }
             } else {
                 items(displayed, key = { it.id }) { char ->
                     val onClick: () -> Unit = {
@@ -157,17 +177,17 @@ fun CharactersView(modifier: Modifier = Modifier, isCompact: Boolean = false) {
                     .then(
                         if (fabExpanded) Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication        = null,
+                            indication = null,
                         ) { fabExpanded = false }
                         else Modifier
                     ),
             )
             CharactersSpeedDial(
-                expanded      = fabExpanded,
-                onToggle      = { fabExpanded = !fabExpanded },
-                onImport      = { fabExpanded = false; launchFilePicker() },
+                expanded = fabExpanded,
+                onToggle = { fabExpanded = !fabExpanded },
+                onImport = { fabExpanded = false; launchFilePicker() },
                 onCreateClick = { fabExpanded = false },
-                modifier      = Modifier
+                modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = SpeedDialPaddingEnd, bottom = SpeedDialPaddingBottom),
             )
@@ -220,9 +240,9 @@ private fun EmptyState(onAddDefault: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text      = stringResource(Res.string.characters_empty),
-            style     = MaterialTheme.typography.bodyLarge,
-            color     = ForgeColors.onSurfaceFaint,
+            text = stringResource(Res.string.characters_empty),
+            style = MaterialTheme.typography.bodyLarge,
+            color = ForgeColors.onSurfaceFaint,
             textAlign = TextAlign.Center,
         )
         TextButton(onClick = onAddDefault) {

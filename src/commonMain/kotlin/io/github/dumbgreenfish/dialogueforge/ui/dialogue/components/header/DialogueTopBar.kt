@@ -14,7 +14,7 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.Settings
 import io.github.dumbgreenfish.dialogueforge.ui.common.WindowClass
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBar
 import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 
 private val ActionIconGap = 4.dp

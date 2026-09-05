@@ -1,10 +1,12 @@
-package io.github.dumbgreenfish.dialogueforge.ui.common
+package io.github.dumbgreenfish.dialogueforge.ui.common.scaffold
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -16,11 +18,15 @@ import androidx.compose.ui.draw.clipToBounds
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.NavigationSidebar
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-fun TabletScaffold(selectedTab: NavTabs) {
+fun TabletScaffold(
+    selectedTab: NavTabs,
+    content: @Composable (PaddingValues, CoroutineScope, DrawerState) -> Unit
+) {
     val controller = koinInject<NavController>()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -39,11 +45,8 @@ fun TabletScaffold(selectedTab: NavTabs) {
             )
         },
     ) {
-        Scaffold { innerPadding ->
-            Column(Modifier.fillMaxSize().padding(innerPadding).clipToBounds()) {
-                WideTopBarForTab(selectedTab, onMenuClick = { scope.launch { drawerState.open() } })
-                TabContent(selectedTab, Modifier.fillMaxSize().weight(1f))
-            }
-        }
+        Scaffold(content = { paddingValues -> content(
+            paddingValues, scope, drawerState)
+        })
     }
 }

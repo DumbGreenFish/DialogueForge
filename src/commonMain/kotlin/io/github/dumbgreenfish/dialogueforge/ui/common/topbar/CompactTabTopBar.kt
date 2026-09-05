@@ -1,4 +1,4 @@
-package io.github.dumbgreenfish.dialogueforge.ui.common
+package io.github.dumbgreenfish.dialogueforge.ui.common.topbar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -9,9 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.ForgeMark
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 
 private val ForgeMarkContainerSize = 48.dp
@@ -19,9 +18,8 @@ private val ForgeMarkSize          = 26.dp
 private val ForgeMarkTitlePad      = 4.dp
 
 @Composable
-fun CompactTopBar(selectedTab: NavTabs) {
+fun CompactTabTopBar(selectedTab: NavTabs) {
     val cs = MaterialTheme.colorScheme
-    val item = navItems.first { it.tab == selectedTab }
     BaseTopBar(
         isCompact = true,
         backgroundColor = cs.background,
@@ -30,12 +28,14 @@ fun CompactTopBar(selectedTab: NavTabs) {
                 modifier = Modifier.size(ForgeMarkContainerSize),
                 contentAlignment = Alignment.Center,
             ) {
-                ForgeMark(Modifier.size(ForgeMarkSize))
+                ForgeMark(
+                    Modifier.size(ForgeMarkSize)
+                )
             }
         },
         title = {
             Text(
-                text = stringResource(item.labelRes),
+                text = stringResource(selectedTab.labelRes),
                 style = MaterialTheme.typography.headlineSmall,
                 color = cs.onSurface,
                 modifier = Modifier.padding(start = ForgeMarkTitlePad),

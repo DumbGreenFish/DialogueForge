@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.HorizontalDivider
@@ -40,17 +39,18 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Lucide
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_total
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersIntent
 import io.github.dumbgreenfish.dialogueforge.ui.characters.CharactersViewModel
 import io.github.dumbgreenfish.dialogueforge.ui.characters.components.filter.FilterPanel
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBar
-import io.github.dumbgreenfish.dialogueforge.ui.common.components.BaseTopBarHeight
 import io.github.dumbgreenfish.dialogueforge.ui.common.rememberFilePicker
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBar
+import io.github.dumbgreenfish.dialogueforge.ui.common.topbar.BaseTopBarHeight
 import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
-import io.github.dumbgreenfish.dialogueforge.ui.navigation.ui.navItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,7 +75,6 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
     val launchPicker = rememberFilePicker { bytes, filename ->
         viewModel.handle(CharactersIntent.ImportFile(bytes, filename))
     }
-    val item = navItems.first { it.tab == NavTabs.Characters }
 
     Column(Modifier.fillMaxWidth()) {
         AnimatedContent(
@@ -92,7 +91,7 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                             viewModel.handle(CharactersIntent.SearchChanged(""))
                         }) {
                             Icon(
-                                imageVector = Icons.Outlined.ArrowBack,
+                                imageVector = Lucide.ArrowLeft,
                                 contentDescription = null,
                                 tint = cs.onSurfaceVariant,
                             )
@@ -122,7 +121,7 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = stringResource(item.labelRes),
+                                text = stringResource(NavTabs.Characters.labelRes),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = cs.onSurface,
                             )

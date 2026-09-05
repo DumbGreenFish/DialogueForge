@@ -26,58 +26,69 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Bell
 import com.composables.icons.lucide.Info
+import com.composables.icons.lucide.Languages
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MessageCircle
 import com.composables.icons.lucide.Palette
 import io.github.dumbgreenfish.dialogueforge.config.BackgroundGenerationSettings
+import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_category_about
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_category_chat
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_category_language
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_category_notifications
+import io.github.dumbgreenfish.dialogueforge.generated.resources.settings_category_ui
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.NavController
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
+import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.SettingsTab
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
-fun CategoryItem(title: String, icon: ImageVector, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        shape = MaterialTheme.shapes.medium,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-        }
-    }
-}
-
-
-@Composable
 @OptIn(KoinExperimentalAPI::class)
 fun SettingsView(modifier: Modifier = Modifier) {
-    val viewModel = koinViewModel<SettingsViewModel>()
-    val backgroundGenerationSettings = koinInject<BackgroundGenerationSettings>()
-    val state by viewModel.state.collectAsState()
-    var expandedId by remember { mutableStateOf<String?>(null) }
-
-    val listState = rememberLazyListState()
+    @Composable
+    fun CategoryItem(
+        title: String,
+        icon: ImageVector,
+        screen: SettingsTab.Screen
+    ) {
+        Surface(
+            onClick = {
+                val tab = NavTabs.Settings.tabObject as SettingsTab
+                tab.navigateTo(screen)
+            },
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(30.dp)
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Text(title, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
 
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .widthIn(max = 600.dp),
-            state = listState
+                .widthIn(max = 600.dp)
         ) {
-            item { CategoryItem("UI", icon = Lucide.Palette, { }) }
-            item { CategoryItem("Chat", icon = Lucide.MessageCircle, { }) }
-            item { CategoryItem("Notification", icon = Lucide.Bell, { }) }
-            item { CategoryItem("About", icon = Lucide.Info, { }) }
+            item { CategoryItem(stringResource(Res.string.settings_category_ui), icon = Lucide.Palette, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_chat), icon = Lucide.MessageCircle, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_notifications), icon = Lucide.Bell, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_language), icon = Lucide.Languages, SettingsTab.Screen.UiSettingsScreen("Test")) }
+            item { CategoryItem(stringResource(Res.string.settings_category_about), icon = Lucide.Info, SettingsTab.Screen.UiSettingsScreen("Test")) }
         }
     }
 }
