@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +39,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Menu
 import io.github.dumbgreenfish.dialogueforge.design.ForgeColors
 import io.github.dumbgreenfish.dialogueforge.generated.resources.Res
 import io.github.dumbgreenfish.dialogueforge.generated.resources.characters_total
@@ -54,9 +53,10 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val GapItems            = 2.dp
+private val GapItems            = 8.dp
 private val ViewTogglePad       = 12.dp
 private val TitleSeparatorPad   = 4.dp
+private val TitleStartPadding   = 12.dp
 private val FilterPopupGap      = 8.dp
 private val FilterPopupWidth    = 360.dp
 private val FilterPopupMaxHeight = 460.dp
@@ -100,7 +100,7 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                         if (onMenuClick != null) {
                             IconButton(onClick = onMenuClick) {
                                 Icon(
-                                    imageVector = Icons.Filled.Menu,
+                                    imageVector = Lucide.Menu,
                                     contentDescription = null,
                                     tint = cs.onSurfaceVariant,
                                 )
@@ -120,6 +120,9 @@ internal fun CharactersWideTopBar(onMenuClick: (() -> Unit)? = null) {
                         )
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (onMenuClick == null) {
+                                Spacer(Modifier.width(TitleStartPadding))
+                            }
                             Text(
                                 text = stringResource(NavTabs.Characters.labelRes),
                                 style = MaterialTheme.typography.titleMedium,

@@ -18,6 +18,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.stringResource
 
 private val MenuIconGap = 8.dp
+private val TitleStartPadding   = 12.dp
 
 @Composable
 fun WideTabTopBar(selectedTab: NavTabs, onMenuClick: (() -> Unit)? = null) {
@@ -39,6 +40,9 @@ fun WideTabTopBar(selectedTab: NavTabs, onMenuClick: (() -> Unit)? = null) {
                 }
             },
             title = {
+                if (onMenuClick == null) {
+                    Spacer(Modifier.width(TitleStartPadding))
+                }
                 Text(
                     text = stringResource(selectedTab.labelRes),
                     style = MaterialTheme.typography.titleMedium,

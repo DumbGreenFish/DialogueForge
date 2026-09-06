@@ -8,12 +8,14 @@ import io.github.dumbgreenfish.dialogueforge.ui.common.windowClass
 @Composable
 fun CustomTopBar(
     onMenuClick: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
     leading: @Composable RowScope.() -> Unit = {},
-    title: @Composable () -> Unit = {},
+    title: @Composable RowScope.() -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     if (windowClass == WindowClass.Compact) {
         CompactTopBar(
+            onBack = onBack,
             leading = leading,
             title = title,
             trailing = trailing,
@@ -21,6 +23,7 @@ fun CustomTopBar(
     } else {
         WideTopBar(
             onMenuClick = onMenuClick,
+            onBack = onBack,
             leading = leading,
             title = title,
             trailing = trailing,

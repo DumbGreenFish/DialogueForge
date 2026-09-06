@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 internal val BaseTopBarHeight = 64.dp
-internal val BaseWideTopBarPaddingH = 24.dp
-internal val BaseCompactTopBarPaddingH = 4.dp
+internal val BaseWideHorizontalPadding = 4.dp
+internal val BaseCompactHorizontalPadding = 4.dp
 
 @Composable
 fun BaseTopBar(
@@ -29,7 +29,7 @@ fun BaseTopBar(
     backgroundColor: Color,
     modifier: Modifier = Modifier,
     leading: @Composable RowScope.() -> Unit = {},
-    title: @Composable () -> Unit = {},
+    title: @Composable RowScope.() -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val cs = MaterialTheme.colorScheme
@@ -37,11 +37,11 @@ fun BaseTopBar(
         Modifier
             .windowInsetsPadding(WindowInsets.statusBars)
             .height(BaseTopBarHeight)
-            .padding(horizontal = BaseCompactTopBarPaddingH)
+            .padding(horizontal = BaseCompactHorizontalPadding)
     } else {
         Modifier
             .height(BaseTopBarHeight)
-            .padding(horizontal = BaseWideTopBarPaddingH)
+            .padding(horizontal = BaseWideHorizontalPadding)
     }
 
     Column {
@@ -54,7 +54,9 @@ fun BaseTopBar(
         ) {
             leading()
             Box(Modifier.weight(1f)) {
+                Row {
                 title()
+                    }
             }
             trailing()
         }

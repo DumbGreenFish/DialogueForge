@@ -47,8 +47,8 @@ import io.github.dumbgreenfish.dialogueforge.ui.navigation.tabs.NavTabs
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val ForgeMarkContainerSize = 32.dp
-private val ForgeMarkSize          = 16.dp
+private val ForgeMarkContainerSize = 48.dp
+private val ForgeMarkSize          = 26.dp
 private val ForgeMarkTitlePad      = 4.dp
 private val FilterBadgeSize        = 16.dp
 private val FilterBadgeOffset      = 2.dp
