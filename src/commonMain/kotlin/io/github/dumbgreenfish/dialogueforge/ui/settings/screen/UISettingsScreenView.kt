@@ -140,7 +140,7 @@ private fun DensityField(
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = modifier
-            .width(36.dp)
+            .width(40.dp)
             .height(40.dp)
             .border(1.dp, MaterialTheme.colorScheme.outline, shape)
             .padding(horizontal = 8.dp, vertical = 10.dp),
