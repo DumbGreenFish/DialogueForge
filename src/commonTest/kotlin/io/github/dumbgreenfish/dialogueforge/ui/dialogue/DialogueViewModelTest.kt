@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package io.github.dumbgreenfish.dialogueforge.ui.dialogue
 
 import androidx.compose.ui.platform.ClipboardManager
@@ -19,21 +17,44 @@ import io.github.dumbgreenfish.dialogueforge.testing.FakeSettingsRepository
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatError
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class DialogueViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+
+    @BeforeTest
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterTest
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun send_delegates_generation_and_reflects_active_conversation() = runBlocking {
+    fun send_delegates_generation_and_reflects_active_conversation() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val repository = FakeDialogueRepository()
         val viewModel = viewModel(repository, generation)
@@ -47,11 +68,11 @@ class DialogueViewModelTest {
             generation.requests.single(),
         )
         assertEquals("", viewModel.state.value.inputText.text)
-        assertTrue(withTimeout(TEST_TIMEOUT_MILLIS) { viewModel.state.first { it.isGenerating } }.isGenerating)
+        assertTrue(withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) { viewModel.state.first { it.isGenerating } }.isGenerating)
     }
 
     @Test
-    fun first_android_send_waits_for_background_setup_choice() = runBlocking {
+    fun first_android_send_waits_for_background_setup_choice() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val backgroundSettings = FakeBackgroundGenerationSettings(shouldShowOnboarding = true)
         val viewModel = viewModel(FakeDialogueRepository(), generation, backgroundSettings)
@@ -66,7 +87,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun declining_background_setup_continues_pending_send_once_and_does_not_ask_again() = runBlocking {
+    fun declining_background_setup_continues_pending_send_once_and_does_not_ask_again() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val backgroundSettings = FakeBackgroundGenerationSettings(shouldShowOnboarding = true)
         val viewModel = viewModel(FakeDialogueRepository(), generation, backgroundSettings)
@@ -90,7 +111,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun accepting_background_setup_requests_notifications_before_background_guidance() = runBlocking {
+    fun accepting_background_setup_requests_notifications_before_background_guidance() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val backgroundSettings = FakeBackgroundGenerationSettings(shouldShowOnboarding = true)
         val viewModel = viewModel(FakeDialogueRepository(), generation, backgroundSettings)
@@ -106,7 +127,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun opening_background_settings_completes_setup_and_continues_pending_send() = runBlocking {
+    fun opening_background_settings_completes_setup_and_continues_pending_send() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val backgroundSettings = FakeBackgroundGenerationSettings(shouldShowOnboarding = true)
         val viewModel = viewModel(FakeDialogueRepository(), generation, backgroundSettings)
@@ -117,6 +138,8 @@ class DialogueViewModelTest {
 
         viewModel.handle(DialogueIntent.OpenBackgroundSettings)
 
+
+
         assertEquals(1, backgroundSettings.backgroundSettingsOpenCount)
         assertEquals(1, backgroundSettings.completedCount)
         assertEquals(1, generation.requests.size)
@@ -124,7 +147,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun invalid_send_does_not_start_background_setup() = runBlocking {
+    fun invalid_send_does_not_start_background_setup() = runTest(testDispatcher) {
         val backgroundSettings = FakeBackgroundGenerationSettings(shouldShowOnboarding = true)
         val viewModel = viewModel(FakeDialogueRepository(), FakeGenerationController(), backgroundSettings)
         load(viewModel)
@@ -136,7 +159,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun generation_update_reloads_messages_and_persisted_error_from_repository() = runBlocking {
+    fun generation_update_reloads_messages_and_persisted_error_from_repository() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val repository = FakeDialogueRepository()
         val viewModel = viewModel(repository, generation)
@@ -147,7 +170,7 @@ class DialogueViewModelTest {
         repository.setConversationError(CONVERSATION_ID, ChatErrorType.Server.name, "Persisted details")
         generation.finish(CONVERSATION_ID)
 
-        val state = withTimeout(TEST_TIMEOUT_MILLIS) {
+        val state = withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first {
                 it.messages.firstOrNull()?.text == "Completed response" && it.chatError != null
             }
@@ -157,7 +180,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun stop_cancels_only_the_open_conversation() = runBlocking {
+    fun stop_cancels_only_the_open_conversation() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val repository = FakeDialogueRepository()
         val viewModel = viewModel(repository, generation)
@@ -172,18 +195,18 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun streamed_partial_response_is_updated_in_place_for_the_open_conversation() = runBlocking {
+    fun streamed_partial_response_is_updated_in_place_for_the_open_conversation() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val viewModel = viewModel(FakeDialogueRepository(), generation)
         load(viewModel)
         generation.start(GenerationRequest(CONVERSATION_ID, CHARACTER_ID, "Hello"))
 
         generation.publishPartial(CONVERSATION_ID, "Hel")
-        val first = withTimeout(TEST_TIMEOUT_MILLIS) {
+        val first = withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first { it.streamingMessage?.text == "Hel" }.streamingMessage!!
         }
         generation.publishPartial(CONVERSATION_ID, "Hello")
-        val second = withTimeout(TEST_TIMEOUT_MILLIS) {
+        val second = withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first { it.streamingMessage?.text == "Hello" }.streamingMessage!!
         }
 
@@ -193,7 +216,7 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun partial_response_from_another_conversation_is_not_shown() = runBlocking {
+    fun partial_response_from_another_conversation_is_not_shown() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val viewModel = viewModel(FakeDialogueRepository(), generation)
         load(viewModel)
@@ -204,21 +227,21 @@ class DialogueViewModelTest {
     }
 
     @Test
-    fun terminal_generation_removes_streaming_message_and_keeps_persisted_assistant_message() = runBlocking {
+    fun terminal_generation_removes_streaming_message_and_keeps_persisted_assistant_message() = runTest(testDispatcher) {
         val generation = FakeGenerationController()
         val repository = FakeDialogueRepository()
         val viewModel = viewModel(repository, generation)
         load(viewModel)
         generation.start(GenerationRequest(CONVERSATION_ID, CHARACTER_ID, "Hello"))
         generation.publishPartial(CONVERSATION_ID, "Completed response")
-        withTimeout(TEST_TIMEOUT_MILLIS) {
+        withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first { it.streamingMessage?.text == "Completed response" }
         }
 
         repository.messages += message("assistant-id", "assistant", "Completed response", 0)
         generation.finish(CONVERSATION_ID)
 
-        val state = withTimeout(TEST_TIMEOUT_MILLIS) {
+        val state = withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first {
                 it.streamingMessage == null && it.messages.firstOrNull()?.text == "Completed response"
             }
@@ -266,8 +289,8 @@ class DialogueViewModelTest {
     }
 
     private suspend fun load(viewModel: DialogueViewModel) {
-        viewModel.handle(DialogueIntent.LoadCharacter(CHARACTER_ID))
-        withTimeout(TEST_TIMEOUT_MILLIS) {
+        viewModel.handle(DialogueIntent.LoadCharacter(CHARACTER_ID), dispatcher = testDispatcher)
+        withTimeout(TEST_TIMEOUT_MILLIS.milliseconds) {
             viewModel.state.first { !it.isLoading && it.conversationId == CONVERSATION_ID }
         }
     }

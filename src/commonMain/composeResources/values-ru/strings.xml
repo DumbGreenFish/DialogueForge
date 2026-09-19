@@ -121,6 +121,7 @@
     <string name="settings_category_notifications">Уведомления</string>
     <string name="settings_category_language">Язык</string>
     <string name="settings_category_about">О приложении</string>
+    <string name="settings_density_save">Сохранить</string>
     <string name="dialogue_edit_save">Сохранить</string>
     <string name="dialogue_edit_cancel">Отмена</string>
     <string name="dialogue_character_image_close">Закрыть</string>

@@ -121,6 +121,8 @@ kotlin {
                 implementation(libs.cloudy)
                 implementation(libs.markdown.renderer.m3)
                 implementation(libs.lucide.icons)
+                implementation(libs.compose.settings.ui.expressive)
+                implementation(libs.compose.settings.ui.extended)
             }
         }
 
@@ -129,6 +131,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation("org.jetbrains.compose.ui:ui-test:${libs.versions.compose.plugin.get()}")
                 implementation(libs.ktor.client.mock)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

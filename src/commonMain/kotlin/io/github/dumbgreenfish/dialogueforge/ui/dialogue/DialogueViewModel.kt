@@ -17,6 +17,7 @@ import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.ChatErrorType
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.MessageRole
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.Message
 import io.github.dumbgreenfish.dialogueforge.ui.dialogue.model.toMessage
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,9 +90,9 @@ class DialogueViewModel(
         launchPartialResponsesProcessing()
     }
 
-    fun handle(intent: DialogueIntent) {
+    fun handle(intent: DialogueIntent, dispatcher: CoroutineDispatcher = Dispatchers.Default) {
         when (intent) {
-            is DialogueIntent.LoadCharacter -> loadCharacter(intent.id)
+            is DialogueIntent.LoadCharacter -> loadCharacter(intent.id, dispatcher)
             is DialogueIntent.Back -> {}
             is DialogueIntent.UpdateInput -> _state.update { it.copy(inputText = intent.value) }
             is DialogueIntent.Send -> onSend()
@@ -122,10 +123,10 @@ class DialogueViewModel(
         }
     }
 
-    private fun loadCharacter(id: String) {
+    private fun loadCharacter(id: String, dispatcher: CoroutineDispatcher = Dispatchers.Default) {
         if (_state.value.isLoading) return
         _state.update { DialogueState(isLoading = true) }
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             val entity = characterRepository.getById(id)
             val character = checkNotNull(entity?.toCharacter()) { "Character not found: $id" }
             val modelName = settingsRepository.getModel()
